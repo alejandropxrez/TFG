@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user_progress.freezed.dart';
 
 @freezed
-class UserProgress with _$UserProgress {
+abstract class UserProgress with _$UserProgress {
   const factory UserProgress({
     // The unique identifier for the user.
     required String userId,
