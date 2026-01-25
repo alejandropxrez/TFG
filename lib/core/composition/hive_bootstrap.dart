@@ -7,7 +7,7 @@ import '../../data/models/user_progress_model.dart';
 class HiveBootstrap {
   static bool _initialized = false;
 
-  HiveBootstrap._();
+  const HiveBootstrap._();
 
   static Future<void> init() async {
     if (_initialized) return;
