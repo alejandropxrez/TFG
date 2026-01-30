@@ -4,3 +4,7 @@
 abstract class HiveTypeIds {
   static const int userProgressModel = 1;
 }
+
+abstract class HiveBoxes {
+  static const userProgress = 'user_progress';
+}

@@ -1,3 +1,4 @@
+import 'package:algoquest/core/constants/hive_type_ids.dart';
 import 'package:hive_ce/hive.dart';
 
 import '../../data/datasources/local/hive_user_local_data_source.dart';
@@ -18,7 +19,7 @@ class AppComposition {
 
     // Open boxes
     final userProgressBox = await Hive.openBox<UserProgressModel>(
-      'user_progress',
+      HiveBoxes.userProgress,
     );
 
     // Wire dependencies
