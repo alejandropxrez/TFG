@@ -1,0 +1,11 @@
+import '../../models/level_syllabus_model.dart';
+import '../../models/challenge_model.dart';
+
+/// Reads static game definitions from local JSON assets.
+abstract class ContentLocalDataSource {
+  /// Loads the syllabus definition of a level.
+  Future<LevelSyllabusModel> getLevelSyllabus(String levelId);
+
+  /// Loads a single challenge definition.
+  Future<ChallengeModel> getChallenge(String challengeId);
+}
