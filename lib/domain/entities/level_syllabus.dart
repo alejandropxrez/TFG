@@ -1,4 +1,4 @@
-import '../../data/models/level_syllabus_model.dart' show LevelTopic;
+enum LevelTopic { heaps, lists, bst, mixed }
 
 class LevelRewards {
   final int xp;

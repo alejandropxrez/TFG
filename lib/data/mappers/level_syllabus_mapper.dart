@@ -1,14 +1,30 @@
-import '../../domain/entities/level_syllabus.dart';
-import '../models/level_syllabus_model.dart';
+import '../../domain/entities/level_syllabus.dart' as domain;
+import '../models/level_syllabus_model.dart' as model;
 
 class LevelSyllabusMapper {
-  static LevelSyllabus toDomain(LevelSyllabusModel model) {
-    return LevelSyllabus(
-      id: model.id,
-      title: model.title,
-      topic: model.topic,
-      challenges: model.challenges,
-      rewards: LevelRewards(xp: model.rewards.xp, stars: model.rewards.stars),
+  static domain.LevelSyllabus toDomain(model.LevelSyllabusModel modelData) {
+    return domain.LevelSyllabus(
+      id: modelData.id,
+      title: modelData.title,
+      topic: _mapTopic(modelData.topic),
+      challenges: modelData.challenges,
+      rewards: domain.LevelRewards(
+        xp: modelData.rewards.xp,
+        stars: modelData.rewards.stars,
+      ),
     );
+  }
+
+  static domain.LevelTopic _mapTopic(model.LevelTopic topic) {
+    switch (topic) {
+      case model.LevelTopic.heaps:
+        return domain.LevelTopic.heaps;
+      case model.LevelTopic.lists:
+        return domain.LevelTopic.lists;
+      case model.LevelTopic.bst:
+        return domain.LevelTopic.bst;
+      case model.LevelTopic.mixed:
+        return domain.LevelTopic.mixed;
+    }
   }
 }
