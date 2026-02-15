@@ -2,16 +2,16 @@ import 'package:algoquest/domain/entities/challenge_spec.dart';
 
 /// Runtime state of a challenge playthrough (mutable through copies/updates)
 class ChallengeSession {
-  final String sessionId; // útil para guardar/reanudar
+  final String sessionId;
   final String userId;
   final ChallengeSpec spec;
 
-  /// Current state (can diverge from spec.initialState)
+  /// Current state
   final List<ChallengeNodeState> nodes;
   final List<ChallengeEdgeState> edges;
   final List<ChallengeSlotState> slots;
 
-  /// Progress tracking (extend as document says)
+  /// Progress tracking
   final int movesUsed;
   final bool isCompleted;
 
