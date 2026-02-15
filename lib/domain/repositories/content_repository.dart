@@ -1,4 +1,4 @@
-import 'package:algoquest/domain/entities/challenge_definition.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 
 abstract class ContentRepository {
@@ -6,5 +6,5 @@ abstract class ContentRepository {
   Future<LevelSyllabus> getLevelSyllabus(String levelId);
 
   /// Fetches the definition of a specific challenge by its ID.
-  Future<ChallengeDefinition> getChallenge(String challengeId);
+  Future<ChallengeSpec> getChallenge(String challengeId);
 }

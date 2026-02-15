@@ -1,9 +1,11 @@
-import '../../data/models/challenge_model.dart'
-    show
-        LayoutStrategyType,
-        ConnectionStrategyType,
-        InteractionModeType,
-        ValidationStrategyType;
+// Domain enums (no dependency on data layer)
+enum LayoutStrategyType { pyramid, linear }
+
+enum ConnectionStrategyType { implicitHeap, explicit }
+
+enum InteractionModeType { swap, drag }
+
+enum ValidationStrategyType { maxHeap, minHeap, bst }
 
 sealed class ChallengeConstraint {
   const ChallengeConstraint();
@@ -35,44 +37,46 @@ class ChallengeEngineConfig {
   });
 }
 
-class ChallengeNode {
+/// Immutable initial blueprint state (loaded from JSON)
+class ChallengeNodeSpec {
   final String id;
   final int value;
-  const ChallengeNode({required this.id, required this.value});
+  const ChallengeNodeSpec({required this.id, required this.value});
 }
 
-class ChallengeEdge {
+class ChallengeEdgeSpec {
   final String source;
   final String target;
-  const ChallengeEdge({required this.source, required this.target});
+  const ChallengeEdgeSpec({required this.source, required this.target});
 }
 
-class ChallengeSlot {
+class ChallengeSlotSpec {
   final String id;
   final int? index;
-  const ChallengeSlot({required this.id, this.index});
+  const ChallengeSlotSpec({required this.id, this.index});
 }
 
-class ChallengeInitialState {
-  final List<ChallengeNode> nodes;
-  final List<ChallengeEdge> edges;
-  final List<ChallengeSlot> slots;
+class ChallengeInitialStateSpec {
+  final List<ChallengeNodeSpec> nodes;
+  final List<ChallengeEdgeSpec> edges;
+  final List<ChallengeSlotSpec> slots;
 
-  const ChallengeInitialState({
+  const ChallengeInitialStateSpec({
     required this.nodes,
     required this.edges,
     required this.slots,
   });
 }
 
-class ChallengeDefinition {
+/// Static configuration loaded at challenge start
+class ChallengeSpec {
   final String title;
   final String instruction;
   final String? theoryRef;
   final ChallengeEngineConfig engineConfig;
-  final ChallengeInitialState initialState;
+  final ChallengeInitialStateSpec initialState;
 
-  const ChallengeDefinition({
+  const ChallengeSpec({
     required this.title,
     required this.instruction,
     required this.theoryRef,

@@ -1,5 +1,5 @@
 import '../../domain/entities/level_syllabus.dart';
-import '../../domain/entities/challenge_definition.dart';
+import '../../domain/entities/challenge_spec.dart';
 import '../../domain/repositories/content_repository.dart';
 
 import '../datasources/local/content_local_data_source.dart';
@@ -18,7 +18,7 @@ class ContentRepositoryImpl implements ContentRepository {
   }
 
   @override
-  Future<ChallengeDefinition> getChallenge(String challengeId) async {
+  Future<ChallengeSpec> getChallenge(String challengeId) async {
     final model = await _localDataSource.getChallenge(challengeId);
     return ChallengeMapper.toDomain(model);
   }
