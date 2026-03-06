@@ -1,8 +1,10 @@
-import 'package:algoquest/core/constants/hive_type_ids.dart';
 import 'package:flutter/widgets.dart';
+
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
-import '../../data/models/user_progress_model.dart';
+import 'package:algoquest/core/constants/hive_type_ids.dart';
+
+import 'package:algoquest/data/models/user_progress_model.dart';
 
 class HiveBootstrap {
   static bool _initialized = false;

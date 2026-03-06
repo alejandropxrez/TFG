@@ -1,6 +1,7 @@
 import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
 
-import '../entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+
 import 'validation_strategy.dart';
 import 'max_heap_validation_strategy.dart';
 import 'min_heap_validation_strategy.dart';

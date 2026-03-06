@@ -1,4 +1,4 @@
-import '../entities/user_progress.dart';
+import 'package:algoquest/domain/entities/user_progress.dart';
 
 class ManageProgressUseCase {
   const ManageProgressUseCase();

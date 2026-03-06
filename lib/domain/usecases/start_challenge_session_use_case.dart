@@ -1,5 +1,6 @@
-import '../entities/challenge_session.dart';
-import '../repositories/content_repository.dart';
+import 'package:algoquest/domain/entities/challenge_session.dart';
+
+import 'package:algoquest/domain/repositories/content_repository.dart';
 
 class StartChallengeSessionUseCase {
   final ContentRepository _contentRepository;

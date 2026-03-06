@@ -1,10 +1,10 @@
-import '../../domain/entities/level_syllabus.dart';
-import '../../domain/entities/challenge_spec.dart';
-import '../../domain/repositories/content_repository.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/level_syllabus.dart';
+import 'package:algoquest/domain/repositories/content_repository.dart';
 
-import '../datasources/local/content_local_data_source.dart';
-import '../mappers/level_syllabus_mapper.dart';
-import '../mappers/challenge_mapper.dart';
+import 'package:algoquest/data/datasources/local/content_local_data_source.dart';
+import 'package:algoquest/data/mappers/challenge_mapper.dart';
+import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
 
 class ContentRepositoryImpl implements ContentRepository {
   final ContentLocalDataSource _localDataSource;

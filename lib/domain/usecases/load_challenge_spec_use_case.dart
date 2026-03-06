@@ -1,5 +1,6 @@
-import '../entities/challenge_spec.dart';
-import '../repositories/content_repository.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+
+import 'package:algoquest/domain/repositories/content_repository.dart';
 
 class LoadChallengeSpecUseCase {
   final ContentRepository _contentRepository;

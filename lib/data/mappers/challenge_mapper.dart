@@ -1,5 +1,6 @@
-import '../../domain/entities/challenge_spec.dart' as domain;
-import '../models/challenge_model.dart' as model;
+import 'package:algoquest/domain/entities/challenge_spec.dart' as domain;
+
+import 'package:algoquest/data/models/challenge_model.dart' as model;
 
 class ChallengeMapper {
   static domain.ChallengeSpec toDomain(model.ChallengeModel challengeModel) {

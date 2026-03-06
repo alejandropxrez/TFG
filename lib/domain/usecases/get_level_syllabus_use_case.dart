@@ -1,5 +1,6 @@
-import '../entities/level_syllabus.dart';
-import '../repositories/content_repository.dart';
+import 'package:algoquest/domain/entities/level_syllabus.dart';
+
+import 'package:algoquest/domain/repositories/content_repository.dart';
 
 class GetLevelSyllabusUseCase {
   final ContentRepository _contentRepository;

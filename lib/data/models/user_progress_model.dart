@@ -1,6 +1,8 @@
-import 'package:algoquest/core/constants/hive_type_ids.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive_ce/hive.dart';
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'package:algoquest/core/constants/hive_type_ids.dart';
 
 part 'user_progress_model.freezed.dart';
 part 'user_progress_model.g.dart';

@@ -1,24 +1,26 @@
-import 'package:algoquest/domain/strategies/validation_strategy_factory.dart';
 import 'package:hive_ce/hive.dart';
 
-import '../constants/hive_type_ids.dart';
+import 'package:algoquest/core/constants/hive_type_ids.dart';
 
-import '../../data/datasources/local/asset_content_local_data_source.dart';
-import '../../data/datasources/local/hive_user_local_data_source.dart';
-import '../../data/models/user_progress_model.dart';
-import '../../data/repositories/content_repository_impl.dart';
-import '../../data/repositories/user_repository_impl.dart';
+import 'package:algoquest/data/datasources/local/asset_content_local_data_source.dart';
+import 'package:algoquest/data/datasources/local/hive_user_local_data_source.dart';
 
-import '../../domain/repositories/content_repository.dart';
-import '../../domain/repositories/user_repository.dart';
+import 'package:algoquest/data/models/user_progress_model.dart';
 
-import '../../domain/usecases/get_level_syllabus_use_case.dart';
-import '../../domain/usecases/load_challenge_spec_use_case.dart';
-import '../../domain/usecases/start_challenge_session_use_case.dart';
-import '../../domain/usecases/execute_move_use_case.dart';
-import '../../domain/usecases/check_solution_use_case.dart';
-import '../../domain/usecases/save_progress_use_case.dart';
-import '../../domain/usecases/manage_progress_use_case.dart';
+import 'package:algoquest/data/repositories/content_repository_impl.dart';
+import 'package:algoquest/data/repositories/user_repository_impl.dart';
+import 'package:algoquest/domain/repositories/content_repository.dart';
+import 'package:algoquest/domain/repositories/user_repository.dart';
+
+import 'package:algoquest/domain/strategies/validation_strategy_factory.dart';
+
+import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
+import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
+import 'package:algoquest/domain/usecases/get_level_syllabus_use_case.dart';
+import 'package:algoquest/domain/usecases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
+import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
+import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
 
 import 'hive_bootstrap.dart';
 import 'use_cases.dart';

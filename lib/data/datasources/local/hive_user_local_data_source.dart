@@ -1,6 +1,7 @@
 import 'package:hive_ce/hive.dart';
 
-import '../../models/user_progress_model.dart';
+import 'package:algoquest/data/models/user_progress_model.dart';
+
 import 'user_local_data_source.dart';
 
 class HiveUserLocalDataSource implements UserLocalDataSource {

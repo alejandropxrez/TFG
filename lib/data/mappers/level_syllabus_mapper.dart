@@ -1,5 +1,6 @@
-import '../../domain/entities/level_syllabus.dart' as domain;
-import '../models/level_syllabus_model.dart' as model;
+import 'package:algoquest/domain/entities/level_syllabus.dart' as domain;
+
+import 'package:algoquest/data/models/level_syllabus_model.dart' as model;
 
 class LevelSyllabusMapper {
   static domain.LevelSyllabus toDomain(model.LevelSyllabusModel modelData) {

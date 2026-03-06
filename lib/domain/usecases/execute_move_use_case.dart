@@ -1,5 +1,6 @@
-import '../entities/challenge_session.dart';
-import '../entities/game_action.dart';
+import 'package:algoquest/domain/entities/challenge_session.dart';
+
+import 'package:algoquest/domain/entities/game_action.dart';
 
 class ExecuteMoveUseCase {
   const ExecuteMoveUseCase();

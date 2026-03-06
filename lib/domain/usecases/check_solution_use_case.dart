@@ -1,5 +1,6 @@
-import '../entities/challenge_session.dart';
-import '../strategies/validation_strategy_factory.dart';
+import 'package:algoquest/domain/entities/challenge_session.dart';
+
+import 'package:algoquest/domain/strategies/validation_strategy_factory.dart';
 
 class CheckSolutionUseCase {
   final ValidationStrategyFactory _factory;
