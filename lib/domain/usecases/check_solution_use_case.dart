@@ -1,12 +1,16 @@
 import '../entities/challenge_session.dart';
-import '../strategies/validation_strategy.dart';
+import '../strategies/validation_strategy_factory.dart';
 
 class CheckSolutionUseCase {
-  final ValidationStrategy _validator;
+  final ValidationStrategyFactory _factory;
 
-  CheckSolutionUseCase(this._validator);
+  const CheckSolutionUseCase(this._factory);
 
   bool call(ChallengeSession session) {
-    return _validator.isSolved(session);
+    final validationType = session.spec.engineConfig.validationStrategy;
+
+    final strategy = _factory.create(validationType);
+
+    return strategy.isSolved(session);
   }
 }

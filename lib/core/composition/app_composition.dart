@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/strategies/validation_strategy_factory.dart';
 import 'package:hive_ce/hive.dart';
 
 import '../constants/hive_type_ids.dart';
@@ -19,15 +20,8 @@ import '../../domain/usecases/check_solution_use_case.dart';
 import '../../domain/usecases/save_progress_use_case.dart';
 import '../../domain/usecases/manage_progress_use_case.dart';
 
-import '../../domain/strategies/validation_strategy.dart';
-
 import 'hive_bootstrap.dart';
 import 'use_cases.dart';
-
-class _AlwaysFalseValidationStrategy implements ValidationStrategy {
-  @override
-  bool isSolved(session) => false;
-}
 
 class AppComposition {
   final UserRepository userRepository;
@@ -60,12 +54,10 @@ class AppComposition {
       contentRepository,
     );
 
-    final executeMove = const ExecuteMoveUseCase();
+    final validationStrategyFactory = const ValidationStrategyFactory();
 
-    // NOTE: placeholder until a real ValidationStrategy resolver/factory is implemented.
-    final checkSolution = CheckSolutionUseCase(
-      _AlwaysFalseValidationStrategy(),
-    );
+    final checkSolution = CheckSolutionUseCase(validationStrategyFactory);
+    final executeMove = const ExecuteMoveUseCase();
 
     final saveProgress = SaveProgressUseCase(userRepository);
     final manageProgress = const ManageProgressUseCase();
