@@ -7,7 +7,7 @@ Generated files are **not committed to the repository** in order to keep the ver
 After cloning the repository, please run the following command to generate the required files:
 
 ```bash
-flutter pub run build_runner build
+dart run build_runner build
 ```
 
 This is a **build-time requirement**: the project will not compile until the generated files are created.
