@@ -1,9 +1,9 @@
+import '../enums/structure_type.dart';
+
 // Domain enums (no dependency on data layer)
 enum LayoutStrategyType { pyramid, linear }
 
-enum ConnectionStrategyType { implicitHeap, explicit }
-
-enum InteractionModeType { swap, drag }
+enum InteractionModeType { swap, drag, setValue }
 
 enum ValidationStrategyType { maxHeap, minHeap, bst }
 
@@ -22,16 +22,16 @@ class LockedNodesConstraint extends ChallengeConstraint {
 }
 
 class ChallengeEngineConfig {
+  final StructureType structureType;
   final ValidationStrategyType validationStrategy;
   final LayoutStrategyType layoutStrategy;
-  final ConnectionStrategyType connectionStrategy;
   final InteractionModeType interactionMode;
   final List<ChallengeConstraint> constraints;
 
   const ChallengeEngineConfig({
+    required this.structureType,
     required this.validationStrategy,
     required this.layoutStrategy,
-    required this.connectionStrategy,
     required this.interactionMode,
     required this.constraints,
   });
@@ -40,19 +40,22 @@ class ChallengeEngineConfig {
 /// Immutable initial blueprint state (loaded from JSON)
 class ChallengeNodeSpec {
   final String id;
-  final int value;
+  final int? value;
+
   const ChallengeNodeSpec({required this.id, required this.value});
 }
 
 class ChallengeEdgeSpec {
   final String source;
   final String target;
+
   const ChallengeEdgeSpec({required this.source, required this.target});
 }
 
 class ChallengeSlotSpec {
   final String id;
   final int? index;
+
   const ChallengeSlotSpec({required this.id, this.index});
 }
 
@@ -61,10 +64,14 @@ class ChallengeInitialStateSpec {
   final List<ChallengeEdgeSpec> edges;
   final List<ChallengeSlotSpec> slots;
 
+  /// Optional inventory for set-value/fill-in-the-blanks mechanics
+  final List<int> inventory;
+
   const ChallengeInitialStateSpec({
     required this.nodes,
     required this.edges,
     required this.slots,
+    this.inventory = const [],
   });
 }
 

@@ -1,9 +1,11 @@
+import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
-import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
+import 'package:algoquest/domain/enums/session_status.dart';
+import 'package:algoquest/domain/enums/structure_type.dart';
 
 void main() {
   late ExecuteMoveUseCase useCase;
@@ -12,100 +14,162 @@ void main() {
     useCase = const ExecuteMoveUseCase();
   });
 
-  ChallengeSpec spec() => const ChallengeSpec(
-    title: 't',
-    instruction: 'i',
-    theoryRef: null,
-    engineConfig: ChallengeEngineConfig(
-      validationStrategy: ValidationStrategyType.maxHeap,
-      layoutStrategy: LayoutStrategyType.pyramid,
-      connectionStrategy: ConnectionStrategyType.implicitHeap,
-      interactionMode: InteractionModeType.swap,
-      constraints: [],
-    ),
-    initialState: ChallengeInitialStateSpec(
-      nodes: [
-        ChallengeNodeSpec(id: 'a', value: 10),
-        ChallengeNodeSpec(id: 'b', value: 3),
+  ChallengeSpec buildSpec({List<ChallengeConstraint> constraints = const []}) {
+    return ChallengeSpec(
+      title: 'Heap Repair',
+      instruction: 'Swap nodes to fix the heap',
+      theoryRef: null,
+      engineConfig: ChallengeEngineConfig(
+        structureType: StructureType.heap,
+        validationStrategy: ValidationStrategyType.maxHeap,
+        layoutStrategy: LayoutStrategyType.pyramid,
+        interactionMode: InteractionModeType.swap,
+        constraints: constraints,
+      ),
+      initialState: const ChallengeInitialStateSpec(
+        nodes: [
+          ChallengeNodeSpec(id: 'n1', value: 3),
+          ChallengeNodeSpec(id: 'n2', value: 10),
+        ],
+        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+        slots: [],
+      ),
+    );
+  }
+
+  test('applies valid SwapNodesAction and updates session metadata', () {
+    final spec = buildSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 1);
+    expect(updated.history.length, 1);
+    expect(updated.status, SessionStatus.inProgress);
+    expect(
+      updated.updatedAt.isAfter(session.updatedAt) ||
+          updated.updatedAt.isAtSameMomentAs(session.updatedAt),
+      isTrue,
+    );
+
+    expect(updated.currentState.nodes['n1']!.value, 10);
+    expect(updated.currentState.nodes['n2']!.value, 3);
+  });
+
+  test('does not change session when action is not applicable', () {
+    final spec = buildSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SwapNodesAction(
+        firstNodeId: 'n1',
+        secondNodeId: 'unknown_node',
+      ),
+    );
+
+    expect(updated.currentState.nodes['n1']!.value, 3);
+    expect(updated.currentState.nodes['n2']!.value, 10);
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+  });
+
+  test('does not execute action when MaxMovesConstraint is reached', () {
+    final spec = buildSpec(constraints: const [MaxMovesConstraint(0)]);
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.nodes['n1']!.value, 3);
+    expect(updated.currentState.nodes['n2']!.value, 10);
+  });
+
+  test('does not execute SwapNodesAction on locked nodes', () {
+    final spec = buildSpec(
+      constraints: const [
+        LockedNodesConstraint(['n1']),
       ],
-      edges: [],
-      slots: [ChallengeSlotSpec(id: 's1', index: 0)],
-    ),
-  );
+    );
 
-  test('SwapNodesAction swaps node values and increments movesUsed', () {
     final session = ChallengeSession.start(
-      sessionId: 's',
-      userId: 'u',
-      spec: spec(),
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
     );
 
     final updated = useCase(
       session: session,
-      action: const SwapNodesAction(aId: 'a', bId: 'b'),
+      action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 1);
-    expect(updated.nodes.firstWhere((n) => n.id == 'a').value, 3);
-    expect(updated.nodes.firstWhere((n) => n.id == 'b').value, 10);
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.nodes['n1']!.value, 3);
+    expect(updated.currentState.nodes['n2']!.value, 10);
   });
 
-  test(
-    'SwapNodesAction with unknown ids keeps state but increments movesUsed',
-    () {
-      final session = ChallengeSession.start(
-        sessionId: 's',
-        userId: 'u',
-        spec: spec(),
-      );
+  test('executes SetNodeValueAction on unlocked node', () {
+    final spec = buildSpec();
 
-      final updated = useCase(
-        session: session,
-        action: const SwapNodesAction(aId: 'x', bId: 'y'),
-      );
-
-      expect(updated.movesUsed, 1);
-      // unchanged
-      expect(updated.nodes.firstWhere((n) => n.id == 'a').value, 10);
-      expect(updated.nodes.firstWhere((n) => n.id == 'b').value, 3);
-    },
-  );
-
-  test('DragNodeToSlotAction fills slot and increments movesUsed', () {
     final session = ChallengeSession.start(
-      sessionId: 's',
-      userId: 'u',
-      spec: spec(),
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
     );
 
     final updated = useCase(
       session: session,
-      action: const DragNodeToSlotAction(nodeId: 'a', slotId: 's1'),
+      action: const SetNodeValueAction(nodeId: 'n1', value: 42),
     );
 
     expect(updated.movesUsed, 1);
-    expect(updated.slots.firstWhere((s) => s.id == 's1').filledNodeId, 'a');
+    expect(updated.history.length, 1);
+    expect(updated.currentState.nodes['n1']!.value, 42);
   });
 
-  test(
-    'DragNodeToSlotAction with unknown slot keeps slots but increments movesUsed',
-    () {
-      final session = ChallengeSession.start(
-        sessionId: 's',
-        userId: 'u',
-        spec: spec(),
-      );
+  test('does not execute SetNodeValueAction on locked node', () {
+    final spec = buildSpec(
+      constraints: const [
+        LockedNodesConstraint(['n1']),
+      ],
+    );
 
-      final updated = useCase(
-        session: session,
-        action: const DragNodeToSlotAction(nodeId: 'a', slotId: 'unknown'),
-      );
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
 
-      expect(updated.movesUsed, 1);
-      expect(
-        updated.slots.firstWhere((s) => s.id == 's1').filledNodeId,
-        isNull,
-      );
-    },
-  );
+    final updated = useCase(
+      session: session,
+      action: const SetNodeValueAction(nodeId: 'n1', value: 42),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.nodes['n1']!.value, 3);
+  });
 }

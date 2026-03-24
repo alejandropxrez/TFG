@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ChallengeModel JSON parsing', () {
@@ -14,9 +14,9 @@ void main() {
           "theoryRef": "heap_repair"
         },
         "engineConfig": {
+          "structureType": "HEAP",
           "validationStrategy": "MAX_HEAP",
           "layoutStrategy": "PYRAMID",
-          "connectionStrategy": "IMPLICIT_HEAP",
           "interactionMode": "SWAP",
           "constraints": [
             { "type": "MAX_MOVES", "maxMoves": 5 },
@@ -28,14 +28,16 @@ void main() {
             { "id": "n1", "value": 10 },
             { "id": "n2", "value": 3 }
           ],
-          "edges": [],
-          "slots": []
+          "edges": [
+            { "source": "n1", "target": "n2" }
+          ],
+          "slots": [],
+          "inventory": []
         }
       }
       ''';
 
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-
       final challenge = ChallengeModel.fromJson(jsonMap);
 
       // Metadata
@@ -43,16 +45,13 @@ void main() {
       expect(challenge.metadata.instruction, 'Arrastra para corregir');
       expect(challenge.metadata.theoryRef, 'heap_repair');
 
-      // Engine config (enums)
+      // Engine config
+      expect(challenge.engineConfig.structureType, StructureTypeModel.heap);
       expect(
         challenge.engineConfig.validationStrategy,
         ValidationStrategyType.maxHeap,
       );
       expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.pyramid);
-      expect(
-        challenge.engineConfig.connectionStrategy,
-        ConnectionStrategyType.implicitHeap,
-      );
       expect(challenge.engineConfig.interactionMode, InteractionModeType.swap);
 
       // Constraints
@@ -70,6 +69,66 @@ void main() {
       expect(challenge.initialState.nodes.length, 2);
       expect(challenge.initialState.nodes.first.id, 'n1');
       expect(challenge.initialState.nodes.first.value, 10);
+
+      expect(challenge.initialState.edges.length, 1);
+      expect(challenge.initialState.edges.first.source, 'n1');
+      expect(challenge.initialState.edges.first.target, 'n2');
+
+      expect(challenge.initialState.slots, isEmpty);
+      expect(challenge.initialState.inventory, isEmpty);
+    });
+
+    test('parses a challenge with nullable node values and inventory', () {
+      final jsonString = '''
+      {
+        "metadata": {
+          "title": "Fill the blanks",
+          "instruction": "Set the missing values"
+        },
+        "engineConfig": {
+          "structureType": "BST",
+          "validationStrategy": "BST",
+          "layoutStrategy": "LINEAR",
+          "interactionMode": "SET_VALUE",
+          "constraints": []
+        },
+        "initialState": {
+          "nodes": [
+            { "id": "n1", "value": 10 },
+            { "id": "n2", "value": null }
+          ],
+          "edges": [
+            { "source": "n1", "target": "n2" }
+          ],
+          "slots": [
+            { "id": "s1", "index": 0 }
+          ],
+          "inventory": [5, 15]
+        }
+      }
+      ''';
+
+      final Map<String, dynamic> jsonMap = json.decode(jsonString);
+      final challenge = ChallengeModel.fromJson(jsonMap);
+
+      expect(challenge.engineConfig.structureType, StructureTypeModel.bst);
+      expect(
+        challenge.engineConfig.validationStrategy,
+        ValidationStrategyType.bst,
+      );
+      expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.linear);
+      expect(
+        challenge.engineConfig.interactionMode,
+        InteractionModeType.setValue,
+      );
+
+      expect(challenge.initialState.nodes.length, 2);
+      expect(challenge.initialState.nodes[0].value, 10);
+      expect(challenge.initialState.nodes[1].value, isNull);
+
+      expect(challenge.initialState.slots.length, 1);
+      expect(challenge.initialState.slots.first.id, 's1');
+      expect(challenge.initialState.inventory, [5, 15]);
     });
 
     test('throws when an unknown constraint type is provided', () {
@@ -80,16 +139,19 @@ void main() {
           "instruction": "Test"
         },
         "engineConfig": {
+          "structureType": "HEAP",
           "validationStrategy": "MAX_HEAP",
           "layoutStrategy": "PYRAMID",
-          "connectionStrategy": "IMPLICIT_HEAP",
           "interactionMode": "SWAP",
           "constraints": [
             { "type": "UNKNOWN_CONSTRAINT", "foo": 1 }
           ]
         },
         "initialState": {
-          "nodes": []
+          "nodes": [],
+          "edges": [],
+          "slots": [],
+          "inventory": []
         }
       }
       ''';
@@ -97,6 +159,68 @@ void main() {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
 
       expect(() => ChallengeModel.fromJson(jsonMap), throwsA(isA<Object>()));
+    });
+
+    test('throws when an unknown structure type is provided', () {
+      final jsonString = '''
+      {
+        "metadata": {
+          "title": "Test",
+          "instruction": "Test"
+        },
+        "engineConfig": {
+          "structureType": "UNKNOWN_STRUCTURE",
+          "validationStrategy": "MAX_HEAP",
+          "layoutStrategy": "PYRAMID",
+          "interactionMode": "SWAP",
+          "constraints": []
+        },
+        "initialState": {
+          "nodes": [],
+          "edges": [],
+          "slots": [],
+          "inventory": []
+        }
+      }
+      ''';
+
+      final Map<String, dynamic> jsonMap = json.decode(jsonString);
+
+      expect(
+        () => ChallengeModel.fromJson(jsonMap),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('throws when an unknown interaction mode is provided', () {
+      final jsonString = '''
+      {
+        "metadata": {
+          "title": "Test",
+          "instruction": "Test"
+        },
+        "engineConfig": {
+          "structureType": "HEAP",
+          "validationStrategy": "MAX_HEAP",
+          "layoutStrategy": "PYRAMID",
+          "interactionMode": "UNKNOWN_MODE",
+          "constraints": []
+        },
+        "initialState": {
+          "nodes": [],
+          "edges": [],
+          "slots": [],
+          "inventory": []
+        }
+      }
+      ''';
+
+      final Map<String, dynamic> jsonMap = json.decode(jsonString);
+
+      expect(
+        () => ChallengeModel.fromJson(jsonMap),
+        throwsA(isA<FormatException>()),
+      );
     });
   });
 }

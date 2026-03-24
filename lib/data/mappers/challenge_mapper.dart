@@ -1,6 +1,6 @@
-import 'package:algoquest/domain/entities/challenge_spec.dart' as domain;
-
-import 'package:algoquest/data/models/challenge_model.dart' as model;
+import '../../domain/entities/challenge_spec.dart' as domain;
+import '../../domain/enums/structure_type.dart' as domain;
+import '../models/challenge_model.dart' as model;
 
 class ChallengeMapper {
   static domain.ChallengeSpec toDomain(model.ChallengeModel challengeModel) {
@@ -9,21 +9,21 @@ class ChallengeMapper {
       instruction: challengeModel.metadata.instruction,
       theoryRef: challengeModel.metadata.theoryRef,
       engineConfig: domain.ChallengeEngineConfig(
+        structureType: _mapStructureType(
+          challengeModel.engineConfig.structureType,
+        ),
         validationStrategy: _mapValidationStrategy(
           challengeModel.engineConfig.validationStrategy,
         ),
         layoutStrategy: _mapLayoutStrategy(
           challengeModel.engineConfig.layoutStrategy,
         ),
-        connectionStrategy: _mapConnectionStrategy(
-          challengeModel.engineConfig.connectionStrategy,
-        ),
         interactionMode: _mapInteractionMode(
           challengeModel.engineConfig.interactionMode,
         ),
         constraints: challengeModel.engineConfig.constraints
             .map(_mapConstraint)
-            .toList(),
+            .toList(growable: false),
       ),
       initialState: domain.ChallengeInitialStateSpec(
         nodes: challengeModel.initialState.nodes
@@ -46,6 +46,7 @@ class ChallengeMapper {
                   domain.ChallengeSlotSpec(id: slot.id, index: slot.index),
             )
             .toList(growable: false),
+        inventory: challengeModel.initialState.inventory,
       ),
     );
   }
@@ -57,6 +58,21 @@ class ChallengeMapper {
       maxMoves: (maxMoves) => domain.MaxMovesConstraint(maxMoves),
       lockedNodes: (nodeIds) => domain.LockedNodesConstraint(nodeIds),
     );
+  }
+
+  static domain.StructureType _mapStructureType(
+    model.StructureTypeModel structureType,
+  ) {
+    switch (structureType) {
+      case model.StructureTypeModel.heap:
+        return domain.StructureType.heap;
+      case model.StructureTypeModel.bst:
+        return domain.StructureType.bst;
+      case model.StructureTypeModel.graph:
+        return domain.StructureType.graph;
+      case model.StructureTypeModel.linkedList:
+        return domain.StructureType.linkedList;
+    }
   }
 
   static domain.ValidationStrategyType _mapValidationStrategy(
@@ -83,17 +99,6 @@ class ChallengeMapper {
     }
   }
 
-  static domain.ConnectionStrategyType _mapConnectionStrategy(
-    model.ConnectionStrategyType strategyType,
-  ) {
-    switch (strategyType) {
-      case model.ConnectionStrategyType.implicitHeap:
-        return domain.ConnectionStrategyType.implicitHeap;
-      case model.ConnectionStrategyType.explicit:
-        return domain.ConnectionStrategyType.explicit;
-    }
-  }
-
   static domain.InteractionModeType _mapInteractionMode(
     model.InteractionModeType strategyType,
   ) {
@@ -102,6 +107,8 @@ class ChallengeMapper {
         return domain.InteractionModeType.swap;
       case model.InteractionModeType.drag:
         return domain.InteractionModeType.drag;
+      case model.InteractionModeType.setValue:
+        return domain.InteractionModeType.setValue;
     }
   }
 }

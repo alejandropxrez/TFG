@@ -1,6 +1,7 @@
-import 'package:algoquest/domain/entities/challenge_session.dart';
-
-import 'package:algoquest/domain/entities/game_action.dart';
+import '../entities/challenge_session.dart';
+import '../entities/game_action.dart';
+import '../entities/challenge_spec.dart';
+import '../enums/session_status.dart';
 
 class ExecuteMoveUseCase {
   const ExecuteMoveUseCase();
@@ -9,54 +10,58 @@ class ExecuteMoveUseCase {
     required ChallengeSession session,
     required GameAction action,
   }) {
-    // Very first version: only track movesUsed and apply minimal state changes.
-    // Real rules can be added later per InteractionMode/constraints.
-    final nextMoves = session.movesUsed + 1;
+    final currentState = session.currentState;
 
-    // Apply action
-    final updated = switch (action) {
-      SwapNodesAction(:final aId, :final bId) => _applySwap(session, aId, bId),
-      DragNodeToSlotAction(:final nodeId, :final slotId) => _applyDragToSlot(
-        session,
-        nodeId,
-        slotId,
-      ),
-    };
+    // 1. Check if action can be applied to the current structure
+    if (!action.isApplicableTo(currentState)) {
+      return session;
+    }
 
-    return updated.copyWith(movesUsed: nextMoves);
+    // 2. Check challenge constraints
+    if (!_satisfiesConstraints(session, action)) {
+      return session;
+    }
+
+    // 3. Apply transformation
+    final nextState = action.transform(currentState);
+
+    // 4. Return updated session
+    return session.copyWith(
+      currentState: nextState,
+      history: [...session.history, currentState],
+      movesUsed: session.movesUsed + 1,
+      updatedAt: DateTime.now(),
+      status: SessionStatus.inProgress,
+    );
   }
 
-  ChallengeSession _applySwap(
-    ChallengeSession session,
-    String aId,
-    String bId,
-  ) {
-    final nodes = session.nodes.toList();
+  bool _satisfiesConstraints(ChallengeSession session, GameAction action) {
+    for (final constraint in session.spec.engineConfig.constraints) {
+      if (constraint is MaxMovesConstraint) {
+        if (session.movesUsed >= constraint.maxMoves) {
+          return false;
+        }
+      }
 
-    final aIndex = nodes.indexWhere((n) => n.id == aId);
-    final bIndex = nodes.indexWhere((n) => n.id == bId);
+      if (constraint is LockedNodesConstraint) {
+        if (action case SwapNodesAction(
+          :final firstNodeId,
+          :final secondNodeId,
+        )) {
+          if (constraint.nodeIds.contains(firstNodeId) ||
+              constraint.nodeIds.contains(secondNodeId)) {
+            return false;
+          }
+        }
 
-    if (aIndex == -1 || bIndex == -1) return session;
+        if (action case SetNodeValueAction(:final nodeId)) {
+          if (constraint.nodeIds.contains(nodeId)) {
+            return false;
+          }
+        }
+      }
+    }
 
-    final a = nodes[aIndex];
-    final b = nodes[bIndex];
-
-    nodes[aIndex] = a.copyWith(value: b.value);
-    nodes[bIndex] = b.copyWith(value: a.value);
-
-    return session.copyWith(nodes: nodes);
-  }
-
-  ChallengeSession _applyDragToSlot(
-    ChallengeSession session,
-    String nodeId,
-    String slotId,
-  ) {
-    final slots = session.slots.toList();
-    final sIndex = slots.indexWhere((s) => s.id == slotId);
-    if (sIndex == -1) return session;
-
-    slots[sIndex] = slots[sIndex].copyWith(filledNodeId: nodeId);
-    return session.copyWith(slots: slots);
+    return true;
   }
 }

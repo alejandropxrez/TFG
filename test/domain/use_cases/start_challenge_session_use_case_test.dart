@@ -1,10 +1,12 @@
-import 'package:algoquest/domain/entities/level_syllabus.dart';
+import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/level_syllabus.dart';
+import 'package:algoquest/domain/enums/session_status.dart';
+import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
-import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
 
 class FakeContentRepository implements ContentRepository {
   final Map<String, ChallengeSpec> specsById = {};
@@ -33,9 +35,9 @@ void main() {
         instruction: 'Insert the node into the BST',
         theoryRef: 'bst_insert',
         engineConfig: const ChallengeEngineConfig(
+          structureType: StructureType.bst,
           validationStrategy: ValidationStrategyType.bst,
           layoutStrategy: LayoutStrategyType.linear,
-          connectionStrategy: ConnectionStrategyType.explicit,
           interactionMode: InteractionModeType.drag,
           constraints: [MaxMovesConstraint(3)],
         ),
@@ -62,20 +64,23 @@ void main() {
       expect(session.userId, 'user_1');
       expect(session.spec.title, 'BST insertion');
 
-      // Session should start with initial snapshot from spec
-      expect(session.nodes.length, 2);
-      expect(session.nodes.first.id, 'n1');
-      expect(session.nodes.first.value, 10);
+      // Session starts from StructureState built from spec
+      expect(session.currentState.nodes.length, 2);
+      expect(session.currentState.nodes['n1']?.value, 10);
+      expect(session.currentState.nodes['n2']?.value, 5);
 
-      expect(session.edges.length, 1);
-      expect(session.slots.length, 1);
+      expect(session.currentState.edges.length, 1);
+      expect(session.currentState.edges.first.source, 'n1');
+      expect(session.currentState.edges.first.target, 'n2');
 
-      // Initial progress defaults
+      // Initial session metadata
       expect(session.movesUsed, 0);
-      expect(session.isCompleted, false);
+      expect(session.history, isEmpty);
+      expect(session.status, SessionStatus.inProgress);
 
-      // Slot starts empty
-      expect(session.slots.first.filledNodeId, isNull);
+      // Timestamps should be initialized
+      expect(session.startedAt, isNotNull);
+      expect(session.updatedAt, isNotNull);
     },
   );
 }
