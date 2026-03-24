@@ -12,6 +12,9 @@ part 'app_database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  // Used in tests to create an in-memory database.
+  AppDatabase.test(super.e);
+
   @override
   int get schemaVersion => 1;
 }
