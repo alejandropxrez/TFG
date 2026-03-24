@@ -1,14 +1,10 @@
-import 'package:hive_ce/hive.dart';
-
-import 'package:algoquest/core/constants/hive_type_ids.dart';
-
 import 'package:algoquest/data/datasources/local/asset_content_local_data_source.dart';
-import 'package:algoquest/data/datasources/local/hive_user_local_data_source.dart';
-
-import 'package:algoquest/data/models/user_progress_model.dart';
+import 'package:algoquest/data/datasources/local/drift/app_database.dart';
+import 'package:algoquest/data/datasources/local/drift_user_local_data_source.dart';
 
 import 'package:algoquest/data/repositories/content_repository_impl.dart';
 import 'package:algoquest/data/repositories/user_repository_impl.dart';
+
 import 'package:algoquest/domain/repositories/content_repository.dart';
 import 'package:algoquest/domain/repositories/user_repository.dart';
 
@@ -22,13 +18,11 @@ import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
 
-import 'hive_bootstrap.dart';
 import 'use_cases.dart';
 
 class AppComposition {
   final UserRepository userRepository;
   final ContentRepository contentRepository;
-
   final UseCases useCases;
 
   AppComposition._({
@@ -38,13 +32,9 @@ class AppComposition {
   });
 
   static Future<AppComposition> build() async {
-    await HiveBootstrap.init();
+    final database = AppDatabase();
 
-    final userProgressBox = await Hive.openBox<UserProgressModel>(
-      HiveBoxes.userProgress,
-    );
-
-    final userLocalDataSource = HiveUserLocalDataSource(userProgressBox);
+    final userLocalDataSource = DriftUserLocalDataSource(database);
     final userRepository = UserRepositoryImpl(userLocalDataSource);
 
     final contentLocalDataSource = AssetContentLocalDataSource();

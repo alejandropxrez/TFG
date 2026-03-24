@@ -13,7 +13,7 @@ class UserRepositoryImpl implements UserRepository {
     final model = await localDataSource.fetchUserProgress(userId);
     if (model == null) return null;
 
-    return UserProgressMapper.toEntity(model);
+    return UserProgressMapper.toDomain(model);
   }
 
   @override

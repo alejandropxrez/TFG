@@ -1,21 +1,17 @@
-import 'package:hive_ce/hive.dart';
+class UserProgressModel {
+  final String userId;
+  final int level;
+  final double experiencePoints;
+  final int livesRemaining;
+  final List<String> unlockedLevels;
+  final String? currentLevelId;
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'package:algoquest/core/constants/hive_type_ids.dart';
-
-part 'user_progress_model.freezed.dart';
-part 'user_progress_model.g.dart';
-
-@freezed
-@HiveType(typeId: HiveTypeIds.userProgressModel)
-abstract class UserProgressModel with _$UserProgressModel {
-  const factory UserProgressModel({
-    @HiveField(0) required String userId,
-    @HiveField(1) required int level,
-    @HiveField(2) required double experiencePoints,
-    @HiveField(3) required int livesRemaining,
-    @HiveField(4) required List<String> unlockedLevels,
-    @HiveField(5) String? currentLevelId,
-  }) = _UserProgressModel;
+  const UserProgressModel({
+    required this.userId,
+    required this.level,
+    required this.experiencePoints,
+    required this.livesRemaining,
+    required this.unlockedLevels,
+    this.currentLevelId,
+  });
 }
