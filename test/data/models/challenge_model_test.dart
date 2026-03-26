@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:algoquest/data/models/challenge_model.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -46,7 +48,7 @@ void main() {
       expect(challenge.metadata.theoryRef, 'heap_repair');
 
       // Engine config
-      expect(challenge.engineConfig.structureType, StructureTypeModel.heap);
+      expect(challenge.engineConfig.structureType, StructureType.heap);
       expect(
         challenge.engineConfig.validationStrategy,
         ValidationStrategyType.maxHeap,
@@ -111,7 +113,7 @@ void main() {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
       final challenge = ChallengeModel.fromJson(jsonMap);
 
-      expect(challenge.engineConfig.structureType, StructureTypeModel.bst);
+      expect(challenge.engineConfig.structureType, StructureType.bst);
       expect(
         challenge.engineConfig.validationStrategy,
         ValidationStrategyType.bst,

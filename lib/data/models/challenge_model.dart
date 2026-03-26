@@ -1,5 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/enums/structure_type.dart';
+
 part 'challenge_model.freezed.dart';
 part 'challenge_model.g.dart';
 
@@ -32,39 +35,30 @@ abstract class ChallengeMetadataModel with _$ChallengeMetadataModel {
       _$ChallengeMetadataModelFromJson(json);
 }
 
-/// Defines the semantic type of structure represented by nodes + edges.
-enum StructureTypeModel { heap, bst, graph, linkedList }
-
-enum LayoutStrategyType { pyramid, linear }
-
-enum InteractionModeType { swap, drag, setValue }
-
-enum ValidationStrategyType { maxHeap, minHeap, bst }
-
-StructureTypeModel _structureTypeFromJson(String value) {
+StructureType _structureTypeFromJson(String value) {
   switch (value.trim().toUpperCase()) {
     case 'HEAP':
-      return StructureTypeModel.heap;
+      return StructureType.heap;
     case 'BST':
-      return StructureTypeModel.bst;
+      return StructureType.bst;
     case 'GRAPH':
-      return StructureTypeModel.graph;
+      return StructureType.graph;
     case 'LINKED_LIST':
-      return StructureTypeModel.linkedList;
+      return StructureType.linkedList;
     default:
       throw FormatException('Unknown structure type: $value');
   }
 }
 
-String _structureTypeToJson(StructureTypeModel value) {
+String _structureTypeToJson(StructureType value) {
   switch (value) {
-    case StructureTypeModel.heap:
+    case StructureType.heap:
       return 'HEAP';
-    case StructureTypeModel.bst:
+    case StructureType.bst:
       return 'BST';
-    case StructureTypeModel.graph:
+    case StructureType.graph:
       return 'GRAPH';
-    case StructureTypeModel.linkedList:
+    case StructureType.linkedList:
       return 'LINKED_LIST';
   }
 }
@@ -140,23 +134,18 @@ String _validationToJson(ValidationStrategyType value) {
 @freezed
 abstract class ChallengeEngineConfigModel with _$ChallengeEngineConfigModel {
   const factory ChallengeEngineConfigModel({
-    /// Semantic type of structure represented by nodes + edges
     @JsonKey(fromJson: _structureTypeFromJson, toJson: _structureTypeToJson)
-    required StructureTypeModel structureType,
+    required StructureType structureType,
 
-    /// Used by domain to instantiate ValidationStrategy
     @JsonKey(fromJson: _validationFromJson, toJson: _validationToJson)
     required ValidationStrategyType validationStrategy,
 
-    /// Used by VisualSceneBuilder
     @JsonKey(fromJson: _layoutFromJson, toJson: _layoutToJson)
     required LayoutStrategyType layoutStrategy,
 
-    /// Used by VisualSceneBuilder / interaction orchestration
     @JsonKey(fromJson: _interactionFromJson, toJson: _interactionToJson)
     required InteractionModeType interactionMode,
 
-    /// Typed, extensible constraint rules
     @Default(<ChallengeConstraintModel>[])
     List<ChallengeConstraintModel> constraints,
   }) = _ChallengeEngineConfigModel;
@@ -169,14 +158,10 @@ abstract class ChallengeEngineConfigModel with _$ChallengeEngineConfigModel {
 sealed class ChallengeConstraintModel with _$ChallengeConstraintModel {
   const ChallengeConstraintModel._();
 
-  /// JSON:
-  /// { "type": "MAX_MOVES", "maxMoves": 5 }
   @FreezedUnionValue('MAX_MOVES')
   const factory ChallengeConstraintModel.maxMoves({required int maxMoves}) =
       MaxMovesConstraintModel;
 
-  /// JSON:
-  /// { "type": "LOCKED_NODES", "nodeIds": ["n1", "n3"] }
   @FreezedUnionValue('LOCKED_NODES')
   const factory ChallengeConstraintModel.lockedNodes({
     required List<String> nodeIds,
@@ -190,14 +175,8 @@ sealed class ChallengeConstraintModel with _$ChallengeConstraintModel {
 abstract class ChallengeInitialStateModel with _$ChallengeInitialStateModel {
   const factory ChallengeInitialStateModel({
     required List<ChallengeNodeModel> nodes,
-
-    /// Explicit edges are now mandatory for all structures
     required List<ChallengeEdgeModel> edges,
-
-    /// Optional slots for fill-in-the-blanks / empty positions
     @Default(<ChallengeSlotModel>[]) List<ChallengeSlotModel> slots,
-
-    /// Optional inventory for set-value / fill mechanics
     @Default(<int>[]) List<int> inventory,
   }) = _ChallengeInitialStateModel;
 
@@ -230,7 +209,6 @@ abstract class ChallengeSlotModel with _$ChallengeSlotModel {
   const factory ChallengeSlotModel({
     required String id,
     int? index,
-
     @Default(<String, dynamic>{}) Map<String, dynamic> props,
   }) = _ChallengeSlotModel;
 
