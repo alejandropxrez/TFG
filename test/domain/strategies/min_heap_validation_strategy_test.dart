@@ -11,9 +11,9 @@ void main() {
       title: 'Min Heap',
       instruction: 'Fix the heap',
       theoryRef: null,
-      engineConfig: const ChallengeEngineConfig(
+      engineConfig: ChallengeEngineConfig(
         structureType: StructureType.heap,
-        validationStrategy: ValidationStrategyType.minHeap,
+        validationStrategy: MinHeapValidationStrategy(),
         layoutStrategy: LayoutStrategyType.pyramid,
         interactionMode: InteractionModeType.swap,
         constraints: [],
@@ -70,9 +70,9 @@ void main() {
       title: 'Single Node Heap',
       instruction: 'Check heap',
       theoryRef: null,
-      engineConfig: const ChallengeEngineConfig(
+      engineConfig: ChallengeEngineConfig(
         structureType: StructureType.heap,
-        validationStrategy: ValidationStrategyType.minHeap,
+        validationStrategy: MinHeapValidationStrategy(),
         layoutStrategy: LayoutStrategyType.pyramid,
         interactionMode: InteractionModeType.swap,
         constraints: [],

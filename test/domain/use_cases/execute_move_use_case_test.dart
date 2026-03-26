@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,7 +22,7 @@ void main() {
       theoryRef: null,
       engineConfig: ChallengeEngineConfig(
         structureType: StructureType.heap,
-        validationStrategy: ValidationStrategyType.maxHeap,
+        validationStrategy: MaxHeapValidationStrategy(),
         layoutStrategy: LayoutStrategyType.pyramid,
         interactionMode: InteractionModeType.swap,
         constraints: constraints,

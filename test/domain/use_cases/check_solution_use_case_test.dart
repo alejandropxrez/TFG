@@ -5,7 +5,6 @@ import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
-import 'package:algoquest/domain/strategies/validation_strategy_factory.dart';
 
 class AlwaysTrueValidator implements ValidationStrategy {
   @override
@@ -17,28 +16,15 @@ class AlwaysFalseValidator implements ValidationStrategy {
   bool isSolved(ChallengeSession session) => false;
 }
 
-class FakeValidationStrategyFactory implements ValidationStrategyFactory {
-  final ValidationStrategy strategy;
-  ValidationStrategyType? receivedType;
-
-  FakeValidationStrategyFactory(this.strategy);
-
-  @override
-  ValidationStrategy create(ValidationStrategyType type) {
-    receivedType = type;
-    return strategy;
-  }
-}
-
 void main() {
-  ChallengeSpec buildSpec({required ValidationStrategyType validationType}) {
+  ChallengeSpec buildSpec({required ValidationStrategy validationStrategy}) {
     return ChallengeSpec(
       title: 'Challenge',
       instruction: 'Solve it',
       theoryRef: null,
       engineConfig: ChallengeEngineConfig(
         structureType: StructureType.heap,
-        validationStrategy: validationType,
+        validationStrategy: validationStrategy,
         layoutStrategy: LayoutStrategyType.pyramid,
         interactionMode: InteractionModeType.swap,
         constraints: const [],
@@ -54,37 +40,38 @@ void main() {
     );
   }
 
-  test('returns true when strategy from factory reports solved', () {
-    final spec = buildSpec(validationType: ValidationStrategyType.maxHeap);
+  test('returns true when challenge validation strategy reports solved', () {
+    final spec = buildSpec(validationStrategy: AlwaysTrueValidator());
+
     final session = ChallengeSession.start(
       sessionId: 'session_1',
       userId: 'user_1',
       spec: spec,
     );
 
-    final factory = FakeValidationStrategyFactory(AlwaysTrueValidator());
-    final useCase = CheckSolutionUseCase(factory);
+    const useCase = CheckSolutionUseCase();
 
     final result = useCase(session);
 
     expect(result, isTrue);
-    expect(factory.receivedType, ValidationStrategyType.maxHeap);
   });
 
-  test('returns false when strategy from factory reports not solved', () {
-    final spec = buildSpec(validationType: ValidationStrategyType.bst);
-    final session = ChallengeSession.start(
-      sessionId: 'session_1',
-      userId: 'user_1',
-      spec: spec,
-    );
+  test(
+    'returns false when challenge validation strategy reports not solved',
+    () {
+      final spec = buildSpec(validationStrategy: AlwaysFalseValidator());
 
-    final factory = FakeValidationStrategyFactory(AlwaysFalseValidator());
-    final useCase = CheckSolutionUseCase(factory);
+      final session = ChallengeSession.start(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: spec,
+      );
 
-    final result = useCase(session);
+      const useCase = CheckSolutionUseCase();
 
-    expect(result, isFalse);
-    expect(factory.receivedType, ValidationStrategyType.bst);
-  });
+      final result = useCase(session);
+
+      expect(result, isFalse);
+    },
+  );
 }

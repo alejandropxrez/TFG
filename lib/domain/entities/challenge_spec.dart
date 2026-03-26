@@ -1,3 +1,5 @@
+import 'package:algoquest/domain/strategies/validation_strategy.dart';
+
 import '../enums/structure_type.dart';
 
 // Domain enums (no dependency on data layer)
@@ -23,7 +25,7 @@ class LockedNodesConstraint extends ChallengeConstraint {
 
 class ChallengeEngineConfig {
   final StructureType structureType;
-  final ValidationStrategyType validationStrategy;
+  final ValidationStrategy validationStrategy;
   final LayoutStrategyType layoutStrategy;
   final InteractionModeType interactionMode;
   final List<ChallengeConstraint> constraints;

@@ -14,12 +14,12 @@ void main() {
       title: 'BST',
       instruction: 'Validate BST',
       theoryRef: null,
-      engineConfig: const ChallengeEngineConfig(
+      engineConfig: ChallengeEngineConfig(
         structureType: StructureType.bst,
-        validationStrategy: ValidationStrategyType.bst,
+        validationStrategy: BstValidationStrategy(),
         layoutStrategy: LayoutStrategyType.pyramid,
         interactionMode: InteractionModeType.swap,
-        constraints: [],
+        constraints: const [],
       ),
       initialState: ChallengeInitialStateSpec(
         nodes: nodes,
@@ -43,8 +43,8 @@ void main() {
         ChallengeNodeSpec(id: 'n3', value: 15),
       ],
       edges: const [
-        ChallengeEdgeSpec(source: 'n1', target: 'n2'), // left
-        ChallengeEdgeSpec(source: 'n1', target: 'n3'), // right
+        ChallengeEdgeSpec(source: 'n1', target: 'n2'),
+        ChallengeEdgeSpec(source: 'n1', target: 'n3'),
       ],
     );
 
@@ -57,7 +57,7 @@ void main() {
     final session = buildSession(
       nodes: const [
         ChallengeNodeSpec(id: 'n1', value: 10),
-        ChallengeNodeSpec(id: 'n2', value: 20), // ❌ wrong
+        ChallengeNodeSpec(id: 'n2', value: 20),
         ChallengeNodeSpec(id: 'n3', value: 15),
       ],
       edges: const [
@@ -76,7 +76,7 @@ void main() {
       nodes: const [
         ChallengeNodeSpec(id: 'n1', value: 10),
         ChallengeNodeSpec(id: 'n2', value: 5),
-        ChallengeNodeSpec(id: 'n3', value: 7), // ❌ wrong
+        ChallengeNodeSpec(id: 'n3', value: 7),
       ],
       edges: const [
         ChallengeEdgeSpec(source: 'n1', target: 'n2'),
@@ -106,13 +106,45 @@ void main() {
         ChallengeNodeSpec(id: 'n1', value: 10),
         ChallengeNodeSpec(id: 'n2', value: 5),
         ChallengeNodeSpec(id: 'n3', value: 15),
-        ChallengeNodeSpec(id: 'n4', value: 12), // ❌ debería estar > 10
+        ChallengeNodeSpec(id: 'n4', value: 12),
       ],
       edges: const [
         ChallengeEdgeSpec(source: 'n1', target: 'n2'),
         ChallengeEdgeSpec(source: 'n1', target: 'n3'),
-        ChallengeEdgeSpec(source: 'n2', target: 'n4'), // mal colocado
+        ChallengeEdgeSpec(source: 'n2', target: 'n4'),
       ],
+    );
+
+    final strategy = BstValidationStrategy();
+
+    expect(strategy.isSolved(session), isFalse);
+  });
+
+  test('returns false when graph has cycle', () {
+    final session = buildSession(
+      nodes: const [
+        ChallengeNodeSpec(id: 'n1', value: 10),
+        ChallengeNodeSpec(id: 'n2', value: 5),
+      ],
+      edges: const [
+        ChallengeEdgeSpec(source: 'n1', target: 'n2'),
+        ChallengeEdgeSpec(source: 'n2', target: 'n1'),
+      ],
+    );
+
+    final strategy = BstValidationStrategy();
+
+    expect(strategy.isSolved(session), isFalse);
+  });
+
+  test('returns false when there are disconnected nodes', () {
+    final session = buildSession(
+      nodes: const [
+        ChallengeNodeSpec(id: 'n1', value: 10),
+        ChallengeNodeSpec(id: 'n2', value: 5),
+        ChallengeNodeSpec(id: 'n3', value: 20),
+      ],
+      edges: const [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
     );
 
     final strategy = BstValidationStrategy();

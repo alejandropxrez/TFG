@@ -9,6 +9,10 @@ import 'package:algoquest/domain/strategies/validation_strategy.dart';
 /// - All values in the left subtree are **less than** the parent node.
 /// - All values in the right subtree are **greater than** the parent node.
 /// - This property must hold recursively for every subtree.
+/// - The structure must form a single valid tree:
+///   - exactly one root
+///   - no cycles
+///   - all nodes reachable from the root
 ///
 /// Example:
 ///
@@ -23,16 +27,18 @@ import 'package:algoquest/domain/strategies/validation_strategy.dart';
 ///
 /// Strategy:
 /// - Find the root (node with no parent)
+/// - Build parent → children map
 /// - Traverse using DFS
-/// - Enforce value ranges (min, max)
-///
+/// - Enforce value ranges (`min`, `max`)
+/// - Detect cycles and disconnected nodes
 class BstValidationStrategy implements ValidationStrategy {
   /// Validates whether the challenge is solved by checking
   /// that the structure follows **BST rules**.
   ///
   /// Returns:
   /// - true  → if the structure is a valid BST
-  /// - false → if any node violates BST constraints
+  /// - false → if the structure is invalid, cyclic, disconnected,
+  ///            or any node violates BST constraints
   @override
   bool isSolved(ChallengeSession session) {
     final state = session.currentState;
@@ -44,23 +50,37 @@ class BstValidationStrategy implements ValidationStrategy {
 
     final childrenMap = _buildChildrenMap(state);
 
-    return _validateNode(
+    final visited = <String>{};
+    final recursionStack = <String>{};
+
+    final isValid = _validateNode(
       nodeId: rootId,
       state: state,
       childrenMap: childrenMap,
       min: null,
       max: null,
+      visited: visited,
+      recursionStack: recursionStack,
     );
+
+    if (!isValid) return false;
+
+    /// All nodes must belong to the same tree rooted at rootId.
+    return visited.length == state.nodes.length;
   }
 
   /// Finds the root node (node that is never a child).
+  ///
+  /// A valid tree must have exactly one root.
   String? _findRootId(StructureState state) {
-    final allNodes = state.nodes.keys.toSet();
-    final childNodes = state.edges.map((e) => e.target).toSet();
+    final allNodeIds = state.nodes.keys.toSet();
+    final childIds = state.edges.map((e) => e.target).toSet();
 
-    final rootCandidates = allNodes.difference(childNodes);
+    final rootCandidates = allNodeIds.difference(childIds);
 
-    if (rootCandidates.length != 1) return null;
+    if (rootCandidates.length != 1) {
+      return null;
+    }
 
     return rootCandidates.first;
   }
@@ -76,7 +96,10 @@ class BstValidationStrategy implements ValidationStrategy {
     return map;
   }
 
-  /// Recursively validates each node using value bounds.
+  /// Recursively validates each node using:
+  /// - BST value bounds (`min`, `max`)
+  /// - structural rules (max 2 children)
+  /// - cycle detection
   ///
   /// Each node must satisfy:
   ///
@@ -87,9 +110,18 @@ class BstValidationStrategy implements ValidationStrategy {
     required Map<String, List<String>> childrenMap,
     required int? min,
     required int? max,
+    required Set<String> visited,
+    required Set<String> recursionStack,
   }) {
+    /// Cycle detected
+    if (recursionStack.contains(nodeId)) {
+      return false;
+    }
+
     final node = state.nodes[nodeId];
-    if (node == null || node.value == null) return false;
+    if (node == null || node.value == null) {
+      return false;
+    }
 
     final value = node.value!;
 
@@ -99,51 +131,72 @@ class BstValidationStrategy implements ValidationStrategy {
 
     final children = childrenMap[nodeId] ?? const [];
 
-    /// BST must have at most 2 children
+    /// A BST node can have at most 2 children.
     if (children.length > 2) return false;
 
-    String? left;
-    String? right;
+    recursionStack.add(nodeId);
+    visited.add(nodeId);
 
-    /// Infer left/right based on value
+    String? leftChildId;
+    String? rightChildId;
+
+    /// Infer left/right child based on value relative to parent.
     for (final childId in children) {
       final child = state.nodes[childId];
-      if (child == null || child.value == null) return false;
+      if (child == null || child.value == null) {
+        recursionStack.remove(nodeId);
+        return false;
+      }
 
       if (child.value! < value) {
-        if (left != null) return false;
-        left = childId;
+        if (leftChildId != null) {
+          recursionStack.remove(nodeId);
+          return false;
+        }
+        leftChildId = childId;
       } else if (child.value! > value) {
-        if (right != null) return false;
-        right = childId;
+        if (rightChildId != null) {
+          recursionStack.remove(nodeId);
+          return false;
+        }
+        rightChildId = childId;
       } else {
+        /// Equal values are not allowed in this BST definition.
+        recursionStack.remove(nodeId);
         return false;
       }
     }
 
-    /// Validate subtrees
-    final leftValid = left == null
+    final leftValid = leftChildId == null
         ? true
         : _validateNode(
-            nodeId: left,
+            nodeId: leftChildId,
             state: state,
             childrenMap: childrenMap,
             min: min,
             max: value,
+            visited: visited,
+            recursionStack: recursionStack,
           );
 
-    if (!leftValid) return false;
+    if (!leftValid) {
+      recursionStack.remove(nodeId);
+      return false;
+    }
 
-    final rightValid = right == null
+    final rightValid = rightChildId == null
         ? true
         : _validateNode(
-            nodeId: right,
+            nodeId: rightChildId,
             state: state,
             childrenMap: childrenMap,
             min: value,
             max: max,
+            visited: visited,
+            recursionStack: recursionStack,
           );
 
+    recursionStack.remove(nodeId);
     return rightValid;
   }
 }

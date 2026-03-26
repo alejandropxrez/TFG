@@ -1,5 +1,9 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
+import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/min_heap_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/validation_strategy.dart';
 
 class ChallengeMapper {
   static ChallengeSpec toDomain(ChallengeModel challengeModel) {
@@ -9,7 +13,9 @@ class ChallengeMapper {
       theoryRef: challengeModel.metadata.theoryRef,
       engineConfig: ChallengeEngineConfig(
         structureType: challengeModel.engineConfig.structureType,
-        validationStrategy: challengeModel.engineConfig.validationStrategy,
+        validationStrategy: _mapValidationStrategy(
+          challengeModel.engineConfig.validationStrategy,
+        ),
         layoutStrategy: challengeModel.engineConfig.layoutStrategy,
         interactionMode: challengeModel.engineConfig.interactionMode,
         constraints: challengeModel.engineConfig.constraints
@@ -41,5 +47,18 @@ class ChallengeMapper {
       maxMoves: (maxMoves) => MaxMovesConstraint(maxMoves),
       lockedNodes: (nodeIds) => LockedNodesConstraint(nodeIds),
     );
+  }
+
+  static ValidationStrategy _mapValidationStrategy(
+    ValidationStrategyType type,
+  ) {
+    switch (type) {
+      case ValidationStrategyType.maxHeap:
+        return MaxHeapValidationStrategy();
+      case ValidationStrategyType.minHeap:
+        return MinHeapValidationStrategy();
+      case ValidationStrategyType.bst:
+        return BstValidationStrategy();
+    }
   }
 }

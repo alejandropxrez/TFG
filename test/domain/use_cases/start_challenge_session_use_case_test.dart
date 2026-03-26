@@ -7,6 +7,7 @@ import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
+import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
 
 class FakeContentRepository implements ContentRepository {
   final Map<String, ChallengeSpec> specsById = {};
@@ -34,12 +35,12 @@ void main() {
         title: 'BST insertion',
         instruction: 'Insert the node into the BST',
         theoryRef: 'bst_insert',
-        engineConfig: const ChallengeEngineConfig(
+        engineConfig: ChallengeEngineConfig(
           structureType: StructureType.bst,
-          validationStrategy: ValidationStrategyType.bst,
+          validationStrategy: BstValidationStrategy(),
           layoutStrategy: LayoutStrategyType.linear,
           interactionMode: InteractionModeType.drag,
-          constraints: [MaxMovesConstraint(3)],
+          constraints: const [MaxMovesConstraint(3)],
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [

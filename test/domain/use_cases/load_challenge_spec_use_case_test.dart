@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/usecases/load_challenge_spec_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,12 +30,12 @@ void main() {
       title: 't',
       instruction: 'i',
       theoryRef: null,
-      engineConfig: const ChallengeEngineConfig(
+      engineConfig: ChallengeEngineConfig(
         structureType: StructureType.heap,
-        validationStrategy: ValidationStrategyType.maxHeap,
+        validationStrategy: MaxHeapValidationStrategy(),
         layoutStrategy: LayoutStrategyType.pyramid,
         interactionMode: InteractionModeType.swap,
-        constraints: [],
+        constraints: const [],
       ),
       initialState: const ChallengeInitialStateSpec(
         nodes: [],
@@ -51,7 +52,7 @@ void main() {
     expect(result.engineConfig.structureType, StructureType.heap);
     expect(
       result.engineConfig.validationStrategy,
-      ValidationStrategyType.maxHeap,
+      isA<MaxHeapValidationStrategy>(),
     );
   });
 }

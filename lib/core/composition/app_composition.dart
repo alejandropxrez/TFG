@@ -8,8 +8,6 @@ import 'package:algoquest/data/repositories/user_repository_impl.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
 import 'package:algoquest/domain/repositories/user_repository.dart';
 
-import 'package:algoquest/domain/strategies/validation_strategy_factory.dart';
-
 import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
 import 'package:algoquest/domain/usecases/get_level_syllabus_use_case.dart';
@@ -46,9 +44,7 @@ class AppComposition {
       contentRepository,
     );
 
-    final validationStrategyFactory = const ValidationStrategyFactory();
-
-    final checkSolution = CheckSolutionUseCase(validationStrategyFactory);
+    final checkSolution = CheckSolutionUseCase();
     final executeMove = const ExecuteMoveUseCase();
 
     final saveProgress = SaveProgressUseCase(userRepository);
