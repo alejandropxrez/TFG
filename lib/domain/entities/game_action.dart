@@ -3,13 +3,8 @@ import 'structure_state.dart';
 sealed class GameAction {
   const GameAction();
 
-  /// Returns whether the action can be applied to the current structure state.
   bool isApplicableTo(StructureState state);
 
-  /// Returns a new transformed structure state.
-  ///
-  /// Assumes the action is applicable. If not applicable, it may simply return
-  /// the original state.
   StructureState transform(StructureState currentState);
 }
 
@@ -37,7 +32,6 @@ class SwapNodesAction extends GameAction {
     final secondNode = currentState.nodes[secondNodeId]!;
 
     final updatedNodes = Map<String, NodeState>.from(currentState.nodes);
-
     updatedNodes[firstNodeId] = firstNode.copyWith(value: secondNode.value);
     updatedNodes[secondNodeId] = secondNode.copyWith(value: firstNode.value);
 
@@ -45,26 +39,42 @@ class SwapNodesAction extends GameAction {
   }
 }
 
-class SetNodeValueAction extends GameAction {
-  final String nodeId;
+class SetValueAction extends GameAction {
+  final String slotId;
   final int value;
 
-  const SetNodeValueAction({required this.nodeId, required this.value});
+  const SetValueAction({required this.slotId, required this.value});
 
   @override
   bool isApplicableTo(StructureState state) {
-    return state.nodes.containsKey(nodeId);
+    final slot = state.slots[slotId];
+    if (slot == null) return false;
+    if (slot.filledNodeId != null) return false;
+    if (!state.inventory.contains(value)) return false;
+    return true;
   }
 
   @override
   StructureState transform(StructureState currentState) {
     if (!isApplicableTo(currentState)) return currentState;
 
-    final node = currentState.nodes[nodeId]!;
+    final slot = currentState.slots[slotId]!;
+
+    final newNodeId = slotId;
 
     final updatedNodes = Map<String, NodeState>.from(currentState.nodes);
-    updatedNodes[nodeId] = node.copyWith(value: value);
+    updatedNodes[newNodeId] = NodeState(id: newNodeId, value: value);
 
-    return currentState.copyWith(nodes: updatedNodes);
+    final updatedSlots = Map<String, SlotState>.from(currentState.slots);
+    updatedSlots[slotId] = slot.copyWith(filledNodeId: newNodeId);
+
+    final updatedInventory = List<int>.from(currentState.inventory);
+    updatedInventory.remove(value);
+
+    return currentState.copyWith(
+      nodes: updatedNodes,
+      slots: updatedSlots,
+      inventory: updatedInventory,
+    );
   }
 }

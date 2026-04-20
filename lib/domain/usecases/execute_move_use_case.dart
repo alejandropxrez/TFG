@@ -1,6 +1,6 @@
 import '../entities/challenge_session.dart';
-import '../entities/game_action.dart';
 import '../entities/challenge_spec.dart';
+import '../entities/game_action.dart';
 import '../enums/session_status.dart';
 
 class ExecuteMoveUseCase {
@@ -12,20 +12,16 @@ class ExecuteMoveUseCase {
   }) {
     final currentState = session.currentState;
 
-    // 1. Check if action can be applied to the current structure
     if (!action.isApplicableTo(currentState)) {
       return session;
     }
 
-    // 2. Check challenge constraints
     if (!_satisfiesConstraints(session, action)) {
       return session;
     }
 
-    // 3. Apply transformation
     final nextState = action.transform(currentState);
 
-    // 4. Return updated session
     return session.copyWith(
       currentState: nextState,
       history: [...session.history, currentState],
@@ -54,8 +50,8 @@ class ExecuteMoveUseCase {
           }
         }
 
-        if (action case SetNodeValueAction(:final nodeId)) {
-          if (constraint.nodeIds.contains(nodeId)) {
+        if (action case SetValueAction(:final slotId)) {
+          if (constraint.nodeIds.contains(slotId)) {
             return false;
           }
         }
