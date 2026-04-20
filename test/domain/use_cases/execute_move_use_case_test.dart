@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +16,9 @@ void main() {
     useCase = const ExecuteMoveUseCase();
   });
 
-  ChallengeSpec buildSpec({List<ChallengeConstraint> constraints = const []}) {
+  ChallengeSpec buildSwapSpec({
+    List<ChallengeConstraint> constraints = const [],
+  }) {
     return ChallengeSpec(
       title: 'Heap Repair',
       instruction: 'Swap nodes to fix the heap',
@@ -34,12 +37,36 @@ void main() {
         ],
         edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
         slots: [],
+        inventory: [],
+      ),
+    );
+  }
+
+  ChallengeSpec buildSetValueSpec({
+    List<ChallengeConstraint> constraints = const [],
+  }) {
+    return ChallengeSpec(
+      title: 'Fill blank',
+      instruction: 'Assign a value to the empty slot',
+      theoryRef: null,
+      engineConfig: ChallengeEngineConfig(
+        structureType: StructureType.heap,
+        validationStrategy: MaxHeapValidationStrategy(),
+        layoutStrategy: LayoutStrategyType.pyramid,
+        interactionMode: InteractionModeType.setValue,
+        constraints: constraints,
+      ),
+      initialState: const ChallengeInitialStateSpec(
+        nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+        edges: [],
+        slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+        inventory: [42],
       ),
     );
   }
 
   test('applies valid SwapNodesAction and updates session metadata', () {
-    final spec = buildSpec();
+    final spec = buildSwapSpec();
 
     final session = ChallengeSession.start(
       sessionId: 'session_1',
@@ -66,7 +93,7 @@ void main() {
   });
 
   test('does not change session when action is not applicable', () {
-    final spec = buildSpec();
+    final spec = buildSwapSpec();
 
     final session = ChallengeSession.start(
       sessionId: 'session_1',
@@ -89,7 +116,7 @@ void main() {
   });
 
   test('does not execute action when MaxMovesConstraint is reached', () {
-    final spec = buildSpec(constraints: const [MaxMovesConstraint(0)]);
+    final spec = buildSwapSpec(constraints: const [MaxMovesConstraint(0)]);
 
     final session = ChallengeSession.start(
       sessionId: 'session_1',
@@ -109,7 +136,7 @@ void main() {
   });
 
   test('does not execute SwapNodesAction on locked nodes', () {
-    final spec = buildSpec(
+    final spec = buildSwapSpec(
       constraints: const [
         LockedNodesConstraint(['n1']),
       ],
@@ -132,8 +159,8 @@ void main() {
     expect(updated.currentState.nodes['n2']!.value, 10);
   });
 
-  test('executes SetNodeValueAction on unlocked node', () {
-    final spec = buildSpec();
+  test('executes SetValueAction on unlocked slot', () {
+    final spec = buildSetValueSpec();
 
     final session = ChallengeSession.start(
       sessionId: 'session_1',
@@ -143,18 +170,22 @@ void main() {
 
     final updated = useCase(
       session: session,
-      action: const SetNodeValueAction(nodeId: 'n1', value: 42),
+      action: const SetValueAction(slotId: 's1', value: 42),
     );
 
     expect(updated.movesUsed, 1);
     expect(updated.history.length, 1);
-    expect(updated.currentState.nodes['n1']!.value, 42);
+    expect(updated.currentState.slots['s1']!.filledNodeId, isNotNull);
+    expect(updated.currentState.inventory.contains(42), isFalse);
+
+    final createdNodeId = updated.currentState.slots['s1']!.filledNodeId!;
+    expect(updated.currentState.nodes[createdNodeId]!.value, 42);
   });
 
-  test('does not execute SetNodeValueAction on locked node', () {
-    final spec = buildSpec(
+  test('does not execute SetValueAction on locked slot', () {
+    final spec = buildSetValueSpec(
       constraints: const [
-        LockedNodesConstraint(['n1']),
+        LockedNodesConstraint(['s1']),
       ],
     );
 
@@ -166,11 +197,98 @@ void main() {
 
     final updated = useCase(
       session: session,
-      action: const SetNodeValueAction(nodeId: 'n1', value: 42),
+      action: const SetValueAction(slotId: 's1', value: 42),
     );
 
     expect(updated.movesUsed, 0);
     expect(updated.history, isEmpty);
-    expect(updated.currentState.nodes['n1']!.value, 3);
+    expect(updated.currentState.slots['s1']!.filledNodeId, isNull);
+    expect(updated.currentState.inventory.contains(42), isTrue);
+  });
+
+  test('does not execute SetValueAction if slot is already filled', () {
+    final spec = ChallengeSpec(
+      title: 'Filled slot',
+      instruction: 'Cannot overwrite slot',
+      theoryRef: null,
+      engineConfig: ChallengeEngineConfig(
+        structureType: StructureType.heap,
+        validationStrategy: MaxHeapValidationStrategy(),
+        layoutStrategy: LayoutStrategyType.pyramid,
+        interactionMode: InteractionModeType.setValue,
+        constraints: const [],
+      ),
+      initialState: const ChallengeInitialStateSpec(
+        nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+        edges: [],
+        slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+        inventory: [42],
+      ),
+    );
+
+    final session =
+        ChallengeSession.start(
+          sessionId: 'session_1',
+          userId: 'user_1',
+          spec: spec,
+        ).copyWith(
+          currentState:
+              ChallengeSession.start(
+                sessionId: 'session_tmp',
+                userId: 'user_tmp',
+                spec: spec,
+              ).currentState.copyWith(
+                slots: {
+                  's1': const SlotState(id: 's1', index: 0, filledNodeId: 'n1'),
+                },
+              ),
+        );
+
+    final updated = useCase(
+      session: session,
+      action: const SetValueAction(slotId: 's1', value: 42),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.slots['s1']!.filledNodeId, 'n1');
+    expect(updated.currentState.inventory.contains(42), isTrue);
+  });
+
+  test('does not execute SetValueAction if value is not in inventory', () {
+    final spec = ChallengeSpec(
+      title: 'Wrong inventory',
+      instruction: 'Value missing from inventory',
+      theoryRef: null,
+      engineConfig: ChallengeEngineConfig(
+        structureType: StructureType.heap,
+        validationStrategy: MaxHeapValidationStrategy(),
+        layoutStrategy: LayoutStrategyType.pyramid,
+        interactionMode: InteractionModeType.setValue,
+        constraints: const [],
+      ),
+      initialState: const ChallengeInitialStateSpec(
+        nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+        edges: [],
+        slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+        inventory: [7],
+      ),
+    );
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SetValueAction(slotId: 's1', value: 42),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.slots['s1']!.filledNodeId, isNull);
+    expect(updated.currentState.inventory, [7]);
   });
 }
