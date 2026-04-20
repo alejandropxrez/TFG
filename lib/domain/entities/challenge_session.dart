@@ -6,13 +6,10 @@ class ChallengeSession {
   final String sessionId;
   final String userId;
   final ChallengeSpec spec;
-
   final StructureState currentState;
   final List<StructureState> history;
-
   final int movesUsed;
   final SessionStatus status;
-
   final DateTime startedAt;
   final DateTime updatedAt;
 
@@ -43,6 +40,10 @@ class ChallengeSession {
       edges: spec.initialState.edges
           .map((edge) => EdgeState(source: edge.source, target: edge.target))
           .toList(growable: false),
+      slots: spec.initialState.slots
+          .map((slot) => SlotState(id: slot.id, index: slot.index))
+          .toList(growable: false),
+      inventory: spec.initialState.inventory,
     );
 
     return ChallengeSession(
