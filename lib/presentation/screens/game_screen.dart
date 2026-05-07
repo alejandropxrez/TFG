@@ -1,3 +1,4 @@
+import 'package:algoquest/application/level_state.dart';
 import 'package:algoquest/application/level_state_provider.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
@@ -42,7 +43,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       });
     }
 
-    final int currentChallengeNumber = state.totalChallenges == 0
+    final currentChallengeNumber = state.totalChallenges == 0
         ? 0
         : state.currentChallengeIndex + 1;
 
@@ -59,11 +60,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             instruction: state.currentChallengeSpec?.instruction,
             onCheckSolution: state.currentSession == null
                 ? null
-                : () => _showFeedbackDialog(context, notifier, state),
+                : () => _showFeedbackDialog(
+                    context: context,
+                    notifier: notifier,
+                    state: state,
+                  ),
           ),
-
           Expanded(child: GameWidget(game: game)),
-
           DebugGameControls(
             status: state.status.name,
             challengeId: state.currentChallengeId,
@@ -81,8 +84,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             onSwapDebug: () => notifier.executeAction(
               const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
             ),
-            onCheckSolution: () =>
-                _showFeedbackDialog(context, notifier, state),
+            onCheckSolution: () => _showFeedbackDialog(
+              context: context,
+              notifier: notifier,
+              state: state,
+            ),
             onCompleteChallenge: () => notifier.completeCurrentChallenge(
               userId: 'user_1',
               nextSessionId: 'session_${DateTime.now().millisecondsSinceEpoch}',
@@ -94,11 +100,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  void _showFeedbackDialog(
-    BuildContext context,
-    LevelStateNotifier notifier,
-    dynamic state,
-  ) {
+  void _showFeedbackDialog({
+    required BuildContext context,
+    required LevelStateNotifier notifier,
+    required LevelState state,
+  }) {
     final solved = notifier.checkSolution();
 
     showDialog<void>(
