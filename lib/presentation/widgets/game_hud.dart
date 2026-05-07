@@ -7,7 +7,6 @@ class GameHud extends StatelessWidget {
   final int totalChallenges;
   final int movesUsed;
   final String? instruction;
-
   final VoidCallback? onCheckSolution;
 
   const GameHud({
@@ -27,62 +26,51 @@ class GameHud extends StatelessWidget {
         ? 'Reto -/-'
         : 'Reto $currentChallengeNumber/$totalChallenges';
 
-    return SafeArea(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 12,
-              color: Colors.black.withValues(alpha: 0.15),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    progressText,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  progressText,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
-                Text(
-                  'Movs: $movesUsed',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (instruction != null)
-              Text(
-                instruction!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
               ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Estado: $status',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: onCheckSolution,
-                  child: const Text('Comprobar'),
-                ),
-              ],
+              Text(
+                'Movs: $movesUsed',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+          if (instruction != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              instruction!,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
-        ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Estado: $status',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              ElevatedButton(
+                onPressed: onCheckSolution,
+                child: const Text('Comprobar'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

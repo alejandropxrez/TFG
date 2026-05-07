@@ -1,29 +1,44 @@
-import 'package:flame/game.dart';
-import 'package:flutter/cupertino.dart';
-
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/domain/entities/structure_state.dart';
-import 'visual_scene_builder.dart';
+import 'package:algoquest/presentation/game/strategies/interaction/interaction_strategy.dart';
+import 'package:algoquest/presentation/game/strategies/interaction/interaction_strategy_factory.dart';
+import 'package:algoquest/presentation/game/visual_scene_builder.dart';
+import 'package:flame/game.dart';
 
 class AlgoQuestGame extends FlameGame {
   final VisualSceneBuilder _sceneBuilder;
+  final InteractionStrategyFactory _interactionStrategyFactory;
 
   ChallengeSpec? _spec;
   StructureState? _state;
+  InteractionStrategy? _interactionStrategy;
 
-  String? _selectedNodeId;
+  void Function(GameAction action)? onActionRequested;
 
-  void Function(String firstNodeId, String secondNodeId)? onSwapRequested;
-
-  AlgoQuestGame({VisualSceneBuilder sceneBuilder = const VisualSceneBuilder()})
-    : _sceneBuilder = sceneBuilder;
+  AlgoQuestGame({
+    VisualSceneBuilder sceneBuilder = const VisualSceneBuilder(),
+    InteractionStrategyFactory interactionStrategyFactory =
+        const InteractionStrategyFactory(),
+  }) : _sceneBuilder = sceneBuilder,
+       _interactionStrategyFactory = interactionStrategyFactory;
 
   void updateScene({
     required ChallengeSpec spec,
     required StructureState state,
   }) {
+    final shouldResetInteraction =
+        _spec?.engineConfig.interactionMode !=
+        spec.engineConfig.interactionMode;
+
     _spec = spec;
     _state = state;
+
+    if (_interactionStrategy == null || shouldResetInteraction) {
+      _interactionStrategy = _interactionStrategyFactory.create(
+        spec.engineConfig.interactionMode,
+      );
+    }
 
     _rebuildScene();
   }
@@ -38,29 +53,13 @@ class AlgoQuestGame extends FlameGame {
   }
 
   void _handleNodeTap(String nodeId) {
-    debugPrint('Game received tap: $nodeId');
+    final action = _interactionStrategy?.handleNodeTap(nodeId);
 
-    if (_selectedNodeId == null) {
-      _selectedNodeId = nodeId;
-      debugPrint('Selected first node: $nodeId');
-      _rebuildScene();
-      return;
+    if (action != null) {
+      onActionRequested?.call(action);
     }
 
-    if (_selectedNodeId == nodeId) {
-      debugPrint('Deselected node: $nodeId');
-      _selectedNodeId = null;
-      _rebuildScene();
-      return;
-    }
-
-    final first = _selectedNodeId!;
-    final second = nodeId;
-
-    debugPrint('Requesting swap: $first <-> $second');
-
-    _selectedNodeId = null;
-    onSwapRequested?.call(first, second);
+    _rebuildScene();
   }
 
   void _rebuildScene() {
@@ -73,7 +72,7 @@ class AlgoQuestGame extends FlameGame {
       spec: _spec!,
       state: _state!,
       canvasSize: size,
-      selectedNodeId: _selectedNodeId,
+      selectedNodeId: _interactionStrategy?.selectedNodeId,
       onTapNode: _handleNodeTap,
     );
 

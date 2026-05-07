@@ -1,0 +1,29 @@
+import 'package:algoquest/domain/entities/game_action.dart';
+import 'interaction_strategy.dart';
+
+class SwapInteractionStrategy implements InteractionStrategy {
+  String? _selectedNodeId;
+
+  @override
+  String? get selectedNodeId => _selectedNodeId;
+
+  @override
+  GameAction? handleNodeTap(String nodeId) {
+    if (_selectedNodeId == null) {
+      _selectedNodeId = nodeId;
+      return null;
+    }
+
+    if (_selectedNodeId == nodeId) {
+      _selectedNodeId = null;
+      return null;
+    }
+
+    final first = _selectedNodeId!;
+    final second = nodeId;
+
+    _selectedNodeId = null;
+
+    return SwapNodesAction(firstNodeId: first, secondNodeId: second);
+  }
+}
