@@ -1,4 +1,4 @@
-import 'package:algoquest/application/level_state_provider.dart';
+import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/core/composition/app_composition.dart';
 import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:flutter/material.dart';

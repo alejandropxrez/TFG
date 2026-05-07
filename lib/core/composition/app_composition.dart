@@ -12,6 +12,7 @@ import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
 import 'package:algoquest/domain/usecases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/usecases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
@@ -47,6 +48,7 @@ class AppComposition {
     final checkSolution = CheckSolutionUseCase();
     final executeMove = const ExecuteMoveUseCase();
 
+    final loadUserProgress = LoadUserProgressUseCase(userRepository);
     final saveProgress = SaveProgressUseCase(userRepository);
     final manageProgress = const ManageProgressUseCase();
 
@@ -56,6 +58,7 @@ class AppComposition {
       startChallengeSession: startChallengeSession,
       executeMove: executeMove,
       checkSolution: checkSolution,
+      loadUserProgress: loadUserProgress,
       saveProgress: saveProgress,
       manageProgress: manageProgress,
     );

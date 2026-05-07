@@ -1,22 +1,17 @@
+import 'package:algoquest/application/app_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:algoquest/core/composition/use_cases.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
+
 import 'level_state.dart';
 import 'session_manager.dart';
-
-final useCasesProvider = Provider<UseCases>((ref) {
-  throw UnimplementedError(
-    'UseCases must be provided from AppComposition using ProviderScope overrides.',
-  );
-});
 
 final levelStateProvider = NotifierProvider<LevelStateNotifier, LevelState>(
   LevelStateNotifier.new,
 );
 
 class LevelStateNotifier extends Notifier<LevelState> {
-  late final UseCases _useCases;
+  late final _useCases;
 
   @override
   LevelState build() {

@@ -1,0 +1,40 @@
+{
+	"version": "1.0",
+	"title": "AlgoQuest",
+	"phases": [
+		{
+			"id": "phase_heaps",
+			"title": "Heaps",
+			"levels": [
+				{
+					"id": "level_heap_intro",
+					"title": "Introducción a Heaps",
+					"topic": "HEAPS",
+					"subtitle": "Repara heaps usando intercambios",
+					"challenges": ["heap_repair_intro", "heap_repair_swap"],
+					"rewards": {
+						"xp": 100,
+						"stars": 3
+					}
+				}
+			]
+		},
+		{
+			"id": "phase_trees",
+			"title": "Árboles Binarios",
+			"levels": [
+				{
+					"id": "level_bst_intro",
+					"title": "BST básico",
+					"topic": "BST",
+					"subtitle": "Valida árboles binarios de búsqueda",
+					"challenges": ["bst_intro"],
+					"rewards": {
+						"xp": 120,
+						"stars": 3
+					}
+				}
+			]
+		}
+	]
+}

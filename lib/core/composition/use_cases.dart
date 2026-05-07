@@ -2,6 +2,7 @@ import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
 import 'package:algoquest/domain/usecases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/usecases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
@@ -14,6 +15,7 @@ class UseCases {
   final ExecuteMoveUseCase executeMove;
   final CheckSolutionUseCase checkSolution;
 
+  final LoadUserProgressUseCase loadUserProgress;
   final SaveProgressUseCase saveProgress;
   final ManageProgressUseCase manageProgress;
 
@@ -23,6 +25,7 @@ class UseCases {
     required this.startChallengeSession,
     required this.executeMove,
     required this.checkSolution,
+    required this.loadUserProgress,
     required this.saveProgress,
     required this.manageProgress,
   });

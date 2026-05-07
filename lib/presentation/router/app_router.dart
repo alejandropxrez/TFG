@@ -3,24 +3,27 @@ import 'package:algoquest/presentation/screens/learning_path_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
-  static const String learningPath = '/';
-  static const String game = 'game';
-
-  static String gamePath(String levelId) => '/levels/$levelId/game';
+  static const String learningPathName = 'learningPath';
+  static const String levelName = 'level';
 
   static final GoRouter router = GoRouter(
-    initialLocation: learningPath,
+    initialLocation: '/map',
     routes: [
       GoRoute(
-        path: learningPath,
-        name: 'learningPath',
+        path: '/map',
+        name: learningPathName,
         builder: (context, state) => const LearningPathScreen(),
       ),
       GoRoute(
-        path: '/levels/:levelId/game',
-        name: game,
+        path: '/level/:levelId',
+        name: levelName,
         builder: (context, state) {
-          final levelId = state.pathParameters['levelId']!;
+          final levelId = state.pathParameters['levelId'];
+
+          if (levelId == null || levelId.isEmpty) {
+            throw StateError('Missing levelId in route.');
+          }
+
           return GameScreen(levelId: levelId);
         },
       ),
