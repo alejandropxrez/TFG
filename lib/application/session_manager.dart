@@ -6,6 +6,10 @@ class SessionManager {
 
   SessionManager({required this.syllabus, this.currentChallengeIndex = 0})
     : assert(
+        syllabus.challenges.isNotEmpty,
+        'A level must contain at least one challenge',
+      ),
+      assert(
         currentChallengeIndex >= 0 &&
             currentChallengeIndex <= syllabus.challenges.length,
         'currentChallengeIndex must be between 0 and totalChallenges',
