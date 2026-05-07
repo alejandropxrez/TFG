@@ -20,6 +20,8 @@ class VisualSceneBuilder {
     required ChallengeSpec spec,
     required StructureState state,
     required Vector2 canvasSize,
+    String? selectedNodeId,
+    void Function(String nodeId)? onTapNode,
   }) {
     final positions = _buildTreePositions(state: state, canvasSize: canvasSize);
 
@@ -43,6 +45,8 @@ class VisualSceneBuilder {
           nodeId: entry.key,
           value: entry.value.value,
           position: position,
+          isSelected: selectedNodeId == entry.key,
+          onTapNode: onTapNode,
         ),
       );
     }

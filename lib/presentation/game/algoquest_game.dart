@@ -1,4 +1,5 @@
 import 'package:flame/game.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../domain/entities/challenge_spec.dart';
 import '../../domain/entities/structure_state.dart';
@@ -9,6 +10,10 @@ class AlgoQuestGame extends FlameGame {
 
   ChallengeSpec? _spec;
   StructureState? _state;
+
+  String? _selectedNodeId;
+
+  void Function(String firstNodeId, String secondNodeId)? onSwapRequested;
 
   AlgoQuestGame({VisualSceneBuilder sceneBuilder = const VisualSceneBuilder()})
     : _sceneBuilder = sceneBuilder;
@@ -32,6 +37,32 @@ class AlgoQuestGame extends FlameGame {
     }
   }
 
+  void _handleNodeTap(String nodeId) {
+    debugPrint('Game received tap: $nodeId');
+
+    if (_selectedNodeId == null) {
+      _selectedNodeId = nodeId;
+      debugPrint('Selected first node: $nodeId');
+      _rebuildScene();
+      return;
+    }
+
+    if (_selectedNodeId == nodeId) {
+      debugPrint('Deselected node: $nodeId');
+      _selectedNodeId = null;
+      _rebuildScene();
+      return;
+    }
+
+    final first = _selectedNodeId!;
+    final second = nodeId;
+
+    debugPrint('Requesting swap: $first <-> $second');
+
+    _selectedNodeId = null;
+    onSwapRequested?.call(first, second);
+  }
+
   void _rebuildScene() {
     if (_spec == null || _state == null) return;
     if (size.x == 0 || size.y == 0) return;
@@ -42,6 +73,8 @@ class AlgoQuestGame extends FlameGame {
       spec: _spec!,
       state: _state!,
       canvasSize: size,
+      selectedNodeId: _selectedNodeId,
+      onTapNode: _handleNodeTap,
     );
 
     addAll(scene.components);
