@@ -1,3 +1,4 @@
+import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/application/level_state.dart';
 import 'package:algoquest/application/level_state_provider.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
@@ -28,12 +29,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ..onActionRequested = (action) {
         ref.read(levelStateProvider.notifier).executeAction(action);
       };
+
+    Future.microtask(() {
+      ref.read(levelStateProvider.notifier).loadLevel(widget.levelId);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(levelStateProvider);
     final notifier = ref.read(levelStateProvider.notifier);
+    final userId = ref.read(currentUserIdProvider);
 
     final spec = state.currentChallengeSpec;
     final session = state.currentSession;
@@ -65,6 +71,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     context: context,
                     notifier: notifier,
                     state: state,
+                    userId: userId,
                   ),
           ),
           Expanded(child: GameWidget(game: game)),
@@ -79,8 +86,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             canInteract: state.currentSession != null,
             onLoadLevel: () => notifier.loadLevel(widget.levelId),
             onStartChallenge: () => notifier.startCurrentChallenge(
-              userId: 'user_1',
-              sessionId: 'session_1',
+              userId: userId,
+              sessionId: 'session_${DateTime.now().millisecondsSinceEpoch}',
             ),
             onSwapDebug: () => notifier.executeAction(
               const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
@@ -89,9 +96,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               context: context,
               notifier: notifier,
               state: state,
+              userId: userId,
             ),
             onCompleteChallenge: () => notifier.completeCurrentChallenge(
-              userId: 'user_1',
+              userId: userId,
               nextSessionId: 'session_${DateTime.now().millisecondsSinceEpoch}',
             ),
             onReset: notifier.resetLevelFlow,
@@ -105,6 +113,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     required BuildContext context,
     required LevelStateNotifier notifier,
     required LevelState state,
+    required String userId,
   }) {
     final solved = notifier.checkSolution();
 
@@ -115,11 +124,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         theoryRef: state.currentChallengeSpec?.theoryRef,
         onContinue: solved
             ? () {
-                notifier.completeCurrentChallenge(
-                  userId: 'user_1',
-                  nextSessionId:
-                      'session_${DateTime.now().millisecondsSinceEpoch}',
-                );
+                notifier
+                    .completeCurrentChallenge(
+                      userId: userId,
+                      nextSessionId:
+                          'session_${DateTime.now().millisecondsSinceEpoch}',
+                    )
+                    .catchError((e) {
+                      debugPrint('Error completing challenge: $e');
+                    });
               }
             : null,
       ),

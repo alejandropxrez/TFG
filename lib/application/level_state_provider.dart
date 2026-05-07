@@ -1,4 +1,5 @@
 import 'package:algoquest/application/app_providers.dart';
+import 'package:algoquest/core/composition/use_cases.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:algoquest/domain/entities/game_action.dart';
@@ -11,7 +12,7 @@ final levelStateProvider = NotifierProvider<LevelStateNotifier, LevelState>(
 );
 
 class LevelStateNotifier extends Notifier<LevelState> {
-  late final _useCases;
+  late final UseCases _useCases;
 
   @override
   LevelState build() {
