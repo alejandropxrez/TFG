@@ -1,3 +1,4 @@
+import 'package:algoquest/presentation/widgets/game_hud.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,7 +54,26 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       appBar: AppBar(title: const Text('AlgoQuest')),
       body: Column(
         children: [
-          Expanded(child: GameWidget(game: game)),
+          Expanded(
+            child: Stack(
+              children: [
+                GameWidget(game: game),
+                GameHud(
+                  status: state.status.name,
+                  challengeId: state.currentChallengeId,
+                  currentChallengeNumber: state.totalChallenges == 0
+                      ? 0
+                      : state.currentChallengeIndex + 1,
+                  totalChallenges: state.totalChallenges,
+                  movesUsed: state.currentSession?.movesUsed ?? 0,
+                  instruction: state.currentChallengeSpec?.instruction,
+                  onCheckSolution: state.currentSession == null
+                      ? null
+                      : () => notifier.checkSolution(),
+                ),
+              ],
+            ),
+          ),
           DebugGameControls(
             status: state.status.name,
             challengeId: state.currentChallengeId,
