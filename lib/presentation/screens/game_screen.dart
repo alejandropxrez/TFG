@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
-  const GameScreen({super.key});
+  final String levelId;
+  const GameScreen({super.key, required this.levelId});
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -76,7 +77,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             errorMessage: state.errorMessage,
             canStartChallenge: state.currentChallengeId != null,
             canInteract: state.currentSession != null,
-            onLoadLevel: () => notifier.loadLevel('level_heap_intro'),
+            onLoadLevel: () => notifier.loadLevel(widget.levelId),
             onStartChallenge: () => notifier.startCurrentChallenge(
               userId: 'user_1',
               sessionId: 'session_1',

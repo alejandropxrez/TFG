@@ -1,9 +1,8 @@
-import 'package:algoquest/presentation/screens/game_screen.dart';
+import 'package:algoquest/application/level_state_provider.dart';
+import 'package:algoquest/core/composition/app_composition.dart';
+import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'application/level_state_provider.dart';
-import 'core/composition/app_composition.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +22,10 @@ class AlgoQuestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: GameScreen());
+    return MaterialApp.router(
+      title: 'AlgoQuest',
+      routerConfig: AppRouter.router,
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
