@@ -13,7 +13,7 @@ class AssetContentLocalDataSource implements ContentLocalDataSource {
 
   @override
   Future<LevelSyllabusModel> getLevelSyllabus(String levelId) async {
-    final String path = '_$_levelsPath/$levelId.json';
+    final String path = '$_levelsPath/$levelId.json';
     final String jsonString = await rootBundle.loadString(path);
     final decoded = jsonDecode(jsonString);
 
