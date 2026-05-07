@@ -26,7 +26,7 @@ class AssetContentLocalDataSource implements ContentLocalDataSource {
 
   @override
   Future<ChallengeModel> getChallenge(String challengeId) async {
-    final String path = '_$_challengesPath/$challengeId.json';
+    final String path = '$_challengesPath/$challengeId.json';
     final String jsonString = await rootBundle.loadString(path);
     final decoded = jsonDecode(jsonString);
 
