@@ -1,0 +1,39 @@
+{
+	"metadata": {
+		"title": "Reparación básica de Heap",
+		"instruction": "Intercambia los nodos para restaurar la propiedad de Max-Heap.",
+		"theoryRef": "heap_intro"
+	},
+	"engineConfig": {
+		"structureType": "HEAP",
+		"validationStrategy": "MAX_HEAP",
+		"layoutStrategy": "PYRAMID",
+		"interactionMode": "SWAP",
+		"constraints": [
+			{
+				"type": "MAX_MOVES",
+				"maxMoves": 1
+			}
+		]
+	},
+	"initialState": {
+		"nodes": [
+			{
+				"id": "n1",
+				"value": 3
+			},
+			{
+				"id": "n2",
+				"value": 10
+			}
+		],
+		"edges": [
+			{
+				"source": "n1",
+				"target": "n2"
+			}
+		],
+		"slots": [],
+		"inventory": []
+	}
+}

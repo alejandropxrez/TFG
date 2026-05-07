@@ -1,0 +1,47 @@
+{
+	"metadata": {
+		"title": "Segundo reto de Heap",
+		"instruction": "Corrige el heap realizando un intercambio.",
+		"theoryRef": "heap_swap"
+	},
+	"engineConfig": {
+		"structureType": "HEAP",
+		"validationStrategy": "MAX_HEAP",
+		"layoutStrategy": "PYRAMID",
+		"interactionMode": "SWAP",
+		"constraints": [
+			{
+				"type": "MAX_MOVES",
+				"maxMoves": 2
+			}
+		]
+	},
+	"initialState": {
+		"nodes": [
+			{
+				"id": "n1",
+				"value": 4
+			},
+			{
+				"id": "n2",
+				"value": 12
+			},
+			{
+				"id": "n3",
+				"value": 8
+			}
+		],
+		"edges": [
+			{
+				"source": "n1",
+				"target": "n2"
+			},
+			{
+				"source": "n1",
+				"target": "n3"
+			}
+		],
+		"slots": [],
+		"inventory": []
+	}
+}
