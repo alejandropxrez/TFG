@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 
-import '../../domain/entities/challenge_spec.dart';
-import '../../domain/entities/structure_state.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/structure_state.dart';
 import 'components/edge_component.dart';
 import 'components/node_component.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/composition/use_cases.dart';
-import '../domain/entities/game_action.dart';
+import 'package:algoquest/core/composition/use_cases.dart';
+import 'package:algoquest/domain/entities/game_action.dart';
 import 'level_state.dart';
 import 'session_manager.dart';
 

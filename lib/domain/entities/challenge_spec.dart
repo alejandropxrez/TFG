@@ -1,6 +1,6 @@
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
 
-import '../enums/structure_type.dart';
+import 'package:algoquest/domain/enums/structure_type.dart';
 
 // Domain enums (no dependency on data layer)
 enum LayoutStrategyType { pyramid, linear }

@@ -1,7 +1,7 @@
-import '../../domain/entities/user_progress.dart';
-import '../../domain/repositories/user_repository.dart';
-import '../datasources/local/user_local_data_source.dart';
-import '../mappers/user_progress_mapper.dart';
+import 'package:algoquest/domain/entities/user_progress.dart';
+import 'package:algoquest/domain/repositories/user_repository.dart';
+import 'package:algoquest/data/datasources/local/user_local_data_source.dart';
+import 'package:algoquest/data/mappers/user_progress_mapper.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserLocalDataSource localDataSource;

@@ -1,5 +1,5 @@
-import '../../domain/entities/user_progress.dart';
-import '../models/user_progress_model.dart';
+import 'package:algoquest/domain/entities/user_progress.dart';
+import 'package:algoquest/data/models/user_progress_model.dart';
 
 class UserProgressMapper {
   static UserProgress toDomain(UserProgressModel model) {

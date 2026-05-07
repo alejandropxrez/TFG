@@ -3,10 +3,10 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../application/level_state_provider.dart';
-import '../../domain/entities/game_action.dart';
-import '../game/algoquest_game.dart';
-import '../widgets/debug_game_controls.dart';
+import 'package:algoquest/application/level_state_provider.dart';
+import 'package:algoquest/domain/entities/game_action.dart';
+import 'package:algoquest/presentation/game/algoquest_game.dart';
+import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key});

@@ -1,5 +1,5 @@
-import '../datasources/local/drift/app_database.dart';
-import '../models/user_progress_model.dart';
+import 'package:algoquest/data/datasources/local/drift/app_database.dart';
+import 'package:algoquest/data/models/user_progress_model.dart';
 import 'package:drift/drift.dart';
 
 class UserProgressDriftMapper {

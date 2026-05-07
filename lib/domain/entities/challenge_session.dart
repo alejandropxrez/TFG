@@ -1,4 +1,4 @@
-import '../enums/session_status.dart';
+import 'package:algoquest/domain/enums/session_status.dart';
 import 'challenge_spec.dart';
 import 'structure_state.dart';
 

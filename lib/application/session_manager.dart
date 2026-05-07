@@ -1,4 +1,4 @@
-import '../domain/entities/level_syllabus.dart';
+import 'package:algoquest/domain/entities/level_syllabus.dart';
 
 class SessionManager {
   final LevelSyllabus syllabus;

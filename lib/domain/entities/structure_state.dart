@@ -1,4 +1,4 @@
-import '../enums/structure_type.dart';
+import 'package:algoquest/domain/enums/structure_type.dart';
 
 /// Represents the runtime state of a structure (heap, BST, graph, etc.)
 ///

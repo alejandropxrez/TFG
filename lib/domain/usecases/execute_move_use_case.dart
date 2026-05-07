@@ -1,7 +1,7 @@
-import '../entities/challenge_session.dart';
-import '../entities/challenge_spec.dart';
-import '../entities/game_action.dart';
-import '../enums/session_status.dart';
+import 'package:algoquest/domain/entities/challenge_session.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/game_action.dart';
+import 'package:algoquest/domain/enums/session_status.dart';
 
 class ExecuteMoveUseCase {
   const ExecuteMoveUseCase();

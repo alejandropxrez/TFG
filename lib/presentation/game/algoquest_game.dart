@@ -1,8 +1,8 @@
 import 'package:flame/game.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../domain/entities/challenge_spec.dart';
-import '../../domain/entities/structure_state.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/structure_state.dart';
 import 'visual_scene_builder.dart';
 
 class AlgoQuestGame extends FlameGame {
