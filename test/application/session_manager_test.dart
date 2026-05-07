@@ -1,7 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:algoquest/application/session_manager.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   LevelSyllabus buildSyllabus({
@@ -27,7 +26,6 @@ void main() {
       expect(manager.currentChallengeIndex, 0);
       expect(manager.currentChallengeId, 'challenge_1');
       expect(manager.totalChallenges, 3);
-      expect(manager.hasChallenges, isTrue);
       expect(manager.hasCurrentChallenge, isTrue);
       expect(manager.hasNextChallenge, isTrue);
       expect(manager.isOnLastChallenge, isFalse);
@@ -41,6 +39,8 @@ void main() {
 
       expect(next.currentChallengeIndex, 1);
       expect(next.currentChallengeId, 'challenge_2');
+      expect(next.totalChallenges, 3);
+      expect(next.hasCurrentChallenge, isTrue);
       expect(next.hasNextChallenge, isTrue);
       expect(next.isOnLastChallenge, isFalse);
       expect(next.isLevelCompleted, isFalse);
@@ -65,6 +65,7 @@ void main() {
       );
 
       expect(manager.currentChallengeId, 'challenge_3');
+      expect(manager.hasCurrentChallenge, isTrue);
       expect(manager.hasNextChallenge, isFalse);
       expect(manager.isOnLastChallenge, isTrue);
       expect(manager.isLevelCompleted, isFalse);
@@ -82,6 +83,7 @@ void main() {
       expect(completed.currentChallengeId, isNull);
       expect(completed.hasCurrentChallenge, isFalse);
       expect(completed.hasNextChallenge, isFalse);
+      expect(completed.isOnLastChallenge, isFalse);
       expect(completed.isLevelCompleted, isTrue);
     });
 
@@ -96,6 +98,7 @@ void main() {
       expect(identical(next, manager), isTrue);
       expect(next.currentChallengeIndex, 3);
       expect(next.currentChallengeId, isNull);
+      expect(next.hasCurrentChallenge, isFalse);
       expect(next.isLevelCompleted, isTrue);
     });
 
@@ -107,6 +110,7 @@ void main() {
       expect(manager.currentChallengeIndex, 0);
       expect(manager.currentChallengeId, 'challenge_1');
       expect(manager.totalChallenges, 1);
+      expect(manager.hasCurrentChallenge, isTrue);
       expect(manager.hasNextChallenge, isFalse);
       expect(manager.isOnLastChallenge, isTrue);
       expect(manager.isLevelCompleted, isFalse);
@@ -115,21 +119,33 @@ void main() {
 
       expect(completed.currentChallengeIndex, 1);
       expect(completed.currentChallengeId, isNull);
+      expect(completed.hasCurrentChallenge, isFalse);
       expect(completed.isLevelCompleted, isTrue);
     });
 
-    test('handles an empty level safely', () {
-      final manager = SessionManager(
-        syllabus: buildSyllabus(challenges: const []),
+    test('throws when level has no challenges', () {
+      expect(
+        () => SessionManager(syllabus: buildSyllabus(challenges: const [])),
+        throwsA(isA<AssertionError>()),
       );
+    });
 
-      expect(manager.hasChallenges, isFalse);
-      expect(manager.totalChallenges, 0);
-      expect(manager.hasCurrentChallenge, isFalse);
-      expect(manager.currentChallengeId, isNull);
-      expect(manager.hasNextChallenge, isFalse);
-      expect(manager.isOnLastChallenge, isFalse);
-      expect(manager.isLevelCompleted, isTrue);
+    test('throws when currentChallengeIndex is negative', () {
+      expect(
+        () => SessionManager(
+          syllabus: buildSyllabus(),
+          currentChallengeIndex: -1,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('throws when currentChallengeIndex exceeds totalChallenges', () {
+      expect(
+        () =>
+            SessionManager(syllabus: buildSyllabus(), currentChallengeIndex: 4),
+        throwsA(isA<AssertionError>()),
+      );
     });
 
     test('reset returns manager to the first challenge', () {
@@ -142,6 +158,7 @@ void main() {
 
       expect(reset.currentChallengeIndex, 0);
       expect(reset.currentChallengeId, 'challenge_1');
+      expect(reset.hasCurrentChallenge, isTrue);
       expect(reset.hasNextChallenge, isTrue);
       expect(reset.isLevelCompleted, isFalse);
     });

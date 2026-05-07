@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/application/learning_path_state.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final learningPathProvider =
@@ -25,10 +24,9 @@ class LearningPathNotifier extends Notifier<LearningPathState> {
     try {
       final useCases = ref.read(useCasesProvider);
       final userId = ref.read(currentUserIdProvider);
+      final loadSyllabusJson = ref.read(syllabusJsonLoaderProvider);
 
-      final jsonString = await rootBundle.loadString(
-        'assets/data/syllabus.json',
-      );
+      final jsonString = await loadSyllabusJson();
 
       final decoded = json.decode(jsonString) as Map<String, dynamic>;
       final phasesJson = decoded['phases'] as List<dynamic>;
