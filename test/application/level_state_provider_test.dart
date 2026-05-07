@@ -39,18 +39,22 @@ class FakeContentRepository implements ContentRepository {
   @override
   Future<LevelSyllabus> getLevelSyllabus(String levelId) async {
     final syllabus = syllabuses[levelId];
+
     if (syllabus == null) {
       throw Exception('Missing syllabus: $levelId');
     }
+
     return syllabus;
   }
 
   @override
   Future<ChallengeSpec> getChallenge(String challengeId) async {
     final spec = specs[challengeId];
+
     if (spec == null) {
       throw Exception('Missing challenge spec: $challengeId');
     }
+
     return spec;
   }
 }
@@ -73,22 +77,23 @@ void main() {
   late ProviderContainer container;
   late FakeContentRepository contentRepository;
   late FakeUserRepository userRepository;
-
   late UseCases useCases;
 
-  LevelSyllabus buildSyllabus() {
-    return const LevelSyllabus(
+  LevelSyllabus buildSyllabus({
+    List<String> challenges = const ['challenge_1', 'challenge_2'],
+  }) {
+    return LevelSyllabus(
       id: 'level_heap_intro',
       title: 'Heap Intro',
       topic: LevelTopic.heaps,
-      challenges: ['challenge_1'],
-      rewards: LevelRewards(xp: 100, stars: 3),
+      challenges: challenges,
+      rewards: const LevelRewards(xp: 100, stars: 3),
     );
   }
 
-  ChallengeSpec buildChallengeSpec() {
+  ChallengeSpec buildChallengeSpec({required String title}) {
     return ChallengeSpec(
-      title: 'Heap repair',
+      title: title,
       instruction: 'Swap nodes to repair the heap',
       theoryRef: null,
       engineConfig: ChallengeEngineConfig(
@@ -115,7 +120,12 @@ void main() {
     userRepository = FakeUserRepository();
 
     contentRepository.syllabuses['level_heap_intro'] = buildSyllabus();
-    contentRepository.specs['challenge_1'] = buildChallengeSpec();
+    contentRepository.specs['challenge_1'] = buildChallengeSpec(
+      title: 'Heap repair 1',
+    );
+    contentRepository.specs['challenge_2'] = buildChallengeSpec(
+      title: 'Heap repair 2',
+    );
 
     useCases = UseCases(
       getLevelSyllabus: GetLevelSyllabusUseCase(contentRepository),
@@ -141,14 +151,16 @@ void main() {
 
     expect(state.status, LevelFlowStatus.idle);
     expect(state.syllabus, isNull);
+    expect(state.sessionManager, isNull);
     expect(state.currentChallengeSpec, isNull);
     expect(state.currentSession, isNull);
     expect(state.currentChallengeIndex, 0);
     expect(state.totalChallenges, 0);
+    expect(state.currentChallengeId, isNull);
     expect(state.errorMessage, isNull);
   });
 
-  test('loadLevel loads syllabus and updates level context', () async {
+  test('loadLevel loads syllabus and creates SessionManager', () async {
     final notifier = container.read(levelStateProvider.notifier);
 
     await notifier.loadLevel('level_heap_intro');
@@ -159,26 +171,29 @@ void main() {
     expect(state.syllabus, isNotNull);
     expect(state.syllabus!.id, 'level_heap_intro');
     expect(state.syllabus!.title, 'Heap Intro');
+
+    expect(state.sessionManager, isNotNull);
     expect(state.currentChallengeIndex, 0);
-    expect(state.totalChallenges, 1);
+    expect(state.totalChallenges, 2);
+    expect(state.currentChallengeId, 'challenge_1');
     expect(state.errorMessage, isNull);
   });
 
-  test('startChallenge creates a challenge session', () async {
+  test('startCurrentChallenge creates session for current challenge', () async {
     final notifier = container.read(levelStateProvider.notifier);
 
-    await notifier.startChallenge(
+    await notifier.loadLevel('level_heap_intro');
+
+    await notifier.startCurrentChallenge(
       userId: 'user_1',
-      challengeId: 'challenge_1',
       sessionId: 'session_1',
-      challengeIndex: 0,
     );
 
     final state = container.read(levelStateProvider);
 
     expect(state.status, LevelFlowStatus.playing);
     expect(state.currentChallengeSpec, isNotNull);
-    expect(state.currentChallengeSpec!.title, 'Heap repair');
+    expect(state.currentChallengeSpec!.title, 'Heap repair 1');
 
     expect(state.currentSession, isNotNull);
     expect(state.currentSession!.sessionId, 'session_1');
@@ -188,15 +203,38 @@ void main() {
     expect(state.currentSession!.currentState.nodes['n2']!.value, 10);
 
     expect(state.currentChallengeIndex, 0);
+    expect(state.totalChallenges, 2);
+    expect(state.currentChallengeId, 'challenge_1');
     expect(state.errorMessage, isNull);
+  });
+
+  test('startChallenge can create session for explicit challenge id', () async {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    await notifier.startChallenge(
+      userId: 'user_1',
+      challengeId: 'challenge_2',
+      sessionId: 'session_2',
+    );
+
+    final state = container.read(levelStateProvider);
+
+    expect(state.status, LevelFlowStatus.playing);
+    expect(state.currentChallengeSpec, isNotNull);
+    expect(state.currentChallengeSpec!.title, 'Heap repair 2');
+
+    expect(state.currentSession, isNotNull);
+    expect(state.currentSession!.sessionId, 'session_2');
+    expect(state.currentSession!.userId, 'user_1');
   });
 
   test('executeAction updates current session state', () async {
     final notifier = container.read(levelStateProvider.notifier);
 
-    await notifier.startChallenge(
+    await notifier.loadLevel('level_heap_intro');
+
+    await notifier.startCurrentChallenge(
       userId: 'user_1',
-      challengeId: 'challenge_1',
       sessionId: 'session_1',
     );
 
@@ -215,23 +253,85 @@ void main() {
     expect(session.currentState.nodes['n2']!.value, 3);
   });
 
+  test('checkSolution marks current challenge as solved', () async {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    await notifier.loadLevel('level_heap_intro');
+
+    await notifier.startCurrentChallenge(
+      userId: 'user_1',
+      sessionId: 'session_1',
+    );
+
+    final solved = notifier.checkSolution();
+
+    final state = container.read(levelStateProvider);
+
+    expect(solved, isTrue);
+    expect(state.status, LevelFlowStatus.challengeSolved);
+  });
+
   test(
-    'checkSolution marks state as solved when strategy returns true',
+    'completeCurrentChallenge starts next challenge when available',
     () async {
       final notifier = container.read(levelStateProvider.notifier);
 
-      await notifier.startChallenge(
+      await notifier.loadLevel('level_heap_intro');
+
+      await notifier.startCurrentChallenge(
         userId: 'user_1',
-        challengeId: 'challenge_1',
         sessionId: 'session_1',
       );
 
-      final solved = notifier.checkSolution();
+      await notifier.completeCurrentChallenge(
+        userId: 'user_1',
+        nextSessionId: 'session_2',
+      );
 
       final state = container.read(levelStateProvider);
 
-      expect(solved, isTrue);
-      expect(state.status, LevelFlowStatus.solved);
+      expect(state.status, LevelFlowStatus.playing);
+      expect(state.currentChallengeIndex, 1);
+      expect(state.totalChallenges, 2);
+      expect(state.currentChallengeId, 'challenge_2');
+
+      expect(state.currentChallengeSpec, isNotNull);
+      expect(state.currentChallengeSpec!.title, 'Heap repair 2');
+
+      expect(state.currentSession, isNotNull);
+      expect(state.currentSession!.sessionId, 'session_2');
+    },
+  );
+
+  test(
+    'completeCurrentChallenge completes level when no challenges remain',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['single_challenge_level'] = buildSyllabus(
+        challenges: const ['challenge_1'],
+      );
+
+      await notifier.loadLevel('single_challenge_level');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_1',
+      );
+
+      await notifier.completeCurrentChallenge(
+        userId: 'user_1',
+        nextSessionId: 'unused_session',
+      );
+
+      final state = container.read(levelStateProvider);
+
+      expect(state.status, LevelFlowStatus.completed);
+      expect(state.sessionManager, isNotNull);
+      expect(state.isLevelCompleted, isTrue);
+      expect(state.currentChallengeId, isNull);
+      expect(state.currentChallengeSpec, isNull);
+      expect(state.currentSession, isNull);
     },
   );
 
@@ -244,5 +344,20 @@ void main() {
 
     expect(state.status, LevelFlowStatus.failed);
     expect(state.errorMessage, isNotNull);
+  });
+
+  test('startCurrentChallenge fails when no level is loaded', () async {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    await notifier.startCurrentChallenge(
+      userId: 'user_1',
+      sessionId: 'session_1',
+    );
+
+    final state = container.read(levelStateProvider);
+
+    expect(state.status, LevelFlowStatus.failed);
+    expect(state.errorMessage, isNotNull);
+    expect(state.currentSession, isNull);
   });
 }
