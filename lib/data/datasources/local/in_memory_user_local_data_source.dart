@@ -2,7 +2,7 @@ import 'package:algoquest/data/datasources/local/user_local_data_source.dart';
 
 import 'package:algoquest/data/models/user_progress_model.dart';
 
-class InMemoryUserRepository implements UserLocalDataSource {
+class InMemoryUserLocalDataSource implements UserLocalDataSource {
   final Map<String, UserProgressModel> _storage = {};
 
   @override

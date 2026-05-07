@@ -45,7 +45,7 @@ class AppComposition {
       contentRepository,
     );
 
-    final checkSolution = CheckSolutionUseCase();
+    final checkSolution = const CheckSolutionUseCase();
     final executeMove = const ExecuteMoveUseCase();
 
     final loadUserProgress = LoadUserProgressUseCase(userRepository);

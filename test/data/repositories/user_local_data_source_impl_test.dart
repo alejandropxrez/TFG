@@ -3,12 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/data/repositories/user_repository_impl.dart';
 
-import 'package:algoquest/data/datasources/local/in_memory_user_repository.dart';
+import 'package:algoquest/data/datasources/local/in_memory_user_local_data_source.dart';
 
 void main() {
-  group('UserRepositoryImpl', () {
+  group('InMemoryUserLocalDataSource', () {
     test('returns null when user progress does not exist', () async {
-      final dataSource = InMemoryUserRepository();
+      final dataSource = InMemoryUserLocalDataSource();
       final repo = UserRepositoryImpl(dataSource);
 
       final result = await repo.fetchUserProgress('missing_user');
@@ -17,7 +17,7 @@ void main() {
     });
 
     test('persists and loads user progress', () async {
-      final dataSource = InMemoryUserRepository();
+      final dataSource = InMemoryUserLocalDataSource();
       final repo = UserRepositoryImpl(dataSource);
 
       final progress = UserProgress(
