@@ -8,6 +8,9 @@ class SwapInteractionStrategy implements InteractionStrategy {
   String? get selectedNodeId => _selectedNodeId;
 
   @override
+  int? get selectedInventoryValue => null;
+
+  @override
   GameAction? handleNodeTap(String nodeId) {
     if (_selectedNodeId == null) {
       _selectedNodeId = nodeId;
@@ -26,4 +29,7 @@ class SwapInteractionStrategy implements InteractionStrategy {
 
     return SwapNodesAction(firstNodeId: first, secondNodeId: second);
   }
+
+  @override
+  GameAction? handleInventoryTap(int value) => null;
 }

@@ -18,6 +18,7 @@ void main() {
 
   ChallengeSpec buildSwapSpec({
     List<ChallengeConstraint> constraints = const [],
+    InteractionModeType interactionMode = InteractionModeType.swap,
   }) {
     return ChallengeSpec(
       id: 'challenge_1',
@@ -28,7 +29,7 @@ void main() {
         structureType: StructureType.heap,
         validationStrategy: MaxHeapValidationStrategy(),
         layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
+        interactionMode: interactionMode,
         constraints: constraints,
       ),
       initialState: const ChallengeInitialStateSpec(
@@ -229,23 +230,17 @@ void main() {
       ),
     );
 
-    final session =
-        ChallengeSession.start(
-          sessionId: 'session_1',
-          userId: 'user_1',
-          spec: spec,
-        ).copyWith(
-          currentState:
-              ChallengeSession.start(
-                sessionId: 'session_tmp',
-                userId: 'user_tmp',
-                spec: spec,
-              ).currentState.copyWith(
-                slots: {
-                  's1': const SlotState(id: 's1', index: 0, filledNodeId: 'n1'),
-                },
-              ),
-        );
+    final initialSession = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final session = initialSession.copyWith(
+      currentState: initialSession.currentState.copyWith(
+        slots: {'s1': const SlotState(id: 's1', index: 0, filledNodeId: 'n1')},
+      ),
+    );
 
     final updated = useCase(
       session: session,
@@ -294,5 +289,66 @@ void main() {
     expect(updated.history, isEmpty);
     expect(updated.currentState.slots['s1']!.filledNodeId, isNull);
     expect(updated.currentState.inventory, [7]);
+  });
+
+  test('does not execute SetValueAction in swap interaction mode', () {
+    final spec = buildSwapSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SetValueAction(slotId: 'n1', value: 42),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.nodes['n1']!.value, 3);
+    expect(updated.currentState.nodes['n2']!.value, 10);
+  });
+
+  test('does not execute SwapNodesAction in setValue interaction mode', () {
+    final spec = buildSetValueSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 's1'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.nodes['n1']!.value, 10);
+    expect(updated.currentState.slots['s1']!.filledNodeId, isNull);
+    expect(updated.currentState.inventory, [42]);
+  });
+
+  test('does not execute SwapNodesAction in drag interaction mode', () {
+    final spec = buildSwapSpec(interactionMode: InteractionModeType.drag);
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.nodes['n1']!.value, 3);
+    expect(updated.currentState.nodes['n2']!.value, 10);
   });
 }

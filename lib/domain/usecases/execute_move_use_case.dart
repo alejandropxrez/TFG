@@ -12,6 +12,10 @@ class ExecuteMoveUseCase {
   }) {
     final currentState = session.currentState;
 
+    if (!_isActionAllowedByInteractionMode(session, action)) {
+      return session;
+    }
+
     if (!action.isApplicableTo(currentState)) {
       return session;
     }
@@ -59,5 +63,24 @@ class ExecuteMoveUseCase {
     }
 
     return true;
+  }
+
+  bool _isActionAllowedByInteractionMode(
+    ChallengeSession session,
+    GameAction action,
+  ) {
+    final mode = session.spec.engineConfig.interactionMode;
+
+    switch (mode) {
+      case InteractionModeType.swap:
+        return action is SwapNodesAction;
+
+      case InteractionModeType.setValue:
+        return action is SetValueAction;
+
+      case InteractionModeType.drag:
+        // Drag is not modeled as a domain action yet.
+        return false;
+    }
   }
 }

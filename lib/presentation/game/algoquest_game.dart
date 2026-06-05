@@ -78,4 +78,11 @@ class AlgoQuestGame extends FlameGame {
 
     addAll(scene.components);
   }
+
+  void clearScene() {
+    _spec = null;
+    _state = null;
+    _interactionStrategy = null;
+    removeAll(children.toList());
+  }
 }

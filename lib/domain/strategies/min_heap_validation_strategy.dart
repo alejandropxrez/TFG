@@ -1,4 +1,5 @@
 import 'package:algoquest/domain/entities/challenge_session.dart';
+import 'package:algoquest/domain/strategies/heap_structure_validator.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
 
 /// Validation strategy that checks whether the current node
@@ -25,6 +26,9 @@ import 'package:algoquest/domain/strategies/validation_strategy.dart';
 /// parent.value <= child.value
 ///
 class MinHeapValidationStrategy implements ValidationStrategy {
+  static const HeapStructureValidator _structureValidator =
+      HeapStructureValidator();
+
   /// Validates whether the challenge is solved by verifying
   /// that all parent-child relationships satisfy the **Min Heap property**.
   ///
@@ -34,6 +38,10 @@ class MinHeapValidationStrategy implements ValidationStrategy {
   @override
   bool isSolved(ChallengeSession session) {
     final state = session.currentState;
+
+    if (!_structureValidator.hasValidHeapShape(state)) {
+      return false;
+    }
 
     for (final edge in state.edges) {
       final parent = state.nodes[edge.source];

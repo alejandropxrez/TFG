@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   final String levelId;
+
   const GameScreen({super.key, required this.levelId});
 
   @override
@@ -26,29 +27,39 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     super.initState();
 
     game = AlgoQuestGame()
-      ..onActionRequested = (action) {
+      ..onActionRequested = (GameAction action) {
         ref.read(levelStateProvider.notifier).executeAction(action);
       };
-
-    Future.microtask(() {
-      ref.read(levelStateProvider.notifier).loadLevel(widget.levelId);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<LevelState>(levelStateProvider, (previous, next) {
+      final spec = next.currentChallengeSpec;
+      final session = next.currentSession;
+
+      if (spec == null || session == null) {
+        game.clearScene();
+        return;
+      }
+
+      final previousSpecId = previous?.currentChallengeSpec?.id;
+      final nextSpecId = spec.id;
+
+      final previousState = previous?.currentSession?.currentState;
+      final nextState = session.currentState;
+
+      final shouldUpdateScene =
+          previousSpecId != nextSpecId || previousState != nextState;
+
+      if (!shouldUpdateScene) return;
+
+      game.updateScene(spec: spec, state: nextState);
+    });
+
     final state = ref.watch(levelStateProvider);
     final notifier = ref.read(levelStateProvider.notifier);
-    final userId = ref.read(currentUserIdProvider);
-
-    final spec = state.currentChallengeSpec;
-    final session = state.currentSession;
-
-    if (spec != null && session != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        game.updateScene(spec: spec, state: session.currentState);
-      });
-    }
+    final userId = ref.watch(currentUserIdProvider);
 
     final currentChallengeNumber = state.totalChallenges == 0
         ? 0
@@ -71,7 +82,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     context: context,
                     notifier: notifier,
                     state: state,
-                    userId: userId,
                   ),
           ),
           Expanded(child: GameWidget(game: game)),
@@ -87,7 +97,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             onLoadLevel: () => notifier.loadLevel(widget.levelId),
             onStartChallenge: () => notifier.startCurrentChallenge(
               userId: userId,
-              sessionId: 'session_${DateTime.now().millisecondsSinceEpoch}',
+              sessionId: 'session_1',
             ),
             onSwapDebug: () => notifier.executeAction(
               const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
@@ -96,7 +106,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               context: context,
               notifier: notifier,
               state: state,
-              userId: userId,
             ),
             onCompleteChallenge: () => notifier.completeCurrentChallenge(
               userId: userId,
@@ -113,7 +122,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     required BuildContext context,
     required LevelStateNotifier notifier,
     required LevelState state,
-    required String userId,
   }) {
     final solved = notifier.checkSolution();
 
@@ -124,15 +132,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         theoryRef: state.currentChallengeSpec?.theoryRef,
         onContinue: solved
             ? () {
-                notifier
-                    .completeCurrentChallenge(
-                      userId: userId,
-                      nextSessionId:
-                          'session_${DateTime.now().millisecondsSinceEpoch}',
-                    )
-                    .catchError((e) {
-                      debugPrint('Error completing challenge: $e');
-                    });
+                final userId = ref.read(currentUserIdProvider);
+
+                notifier.completeCurrentChallenge(
+                  userId: userId,
+                  nextSessionId:
+                      'session_${DateTime.now().millisecondsSinceEpoch}',
+                );
               }
             : null,
       ),
