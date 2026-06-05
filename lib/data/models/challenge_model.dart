@@ -63,23 +63,31 @@ String _structureTypeToJson(StructureType value) {
   }
 }
 
-LayoutStrategyType _layoutFromJson(String value) {
+LayoutStrategyType _layoutStrategyFromJson(String value) {
   switch (value.trim().toUpperCase()) {
     case 'PYRAMID':
       return LayoutStrategyType.pyramid;
     case 'LINEAR':
       return LayoutStrategyType.linear;
+    case 'CIRCULAR':
+      return LayoutStrategyType.circular;
+    case 'FREE':
+      return LayoutStrategyType.free;
     default:
       throw FormatException('Unknown layout strategy: $value');
   }
 }
 
-String _layoutToJson(LayoutStrategyType value) {
+String _layoutStrategyToJson(LayoutStrategyType value) {
   switch (value) {
     case LayoutStrategyType.pyramid:
       return 'PYRAMID';
     case LayoutStrategyType.linear:
       return 'LINEAR';
+    case LayoutStrategyType.circular:
+      return 'CIRCULAR';
+    case LayoutStrategyType.free:
+      return 'FREE';
   }
 }
 
@@ -144,7 +152,7 @@ abstract class ChallengeEngineConfigModel with _$ChallengeEngineConfigModel {
     @JsonKey(fromJson: _validationFromJson, toJson: _validationToJson)
     required ValidationStrategyType validationStrategy,
 
-    @JsonKey(fromJson: _layoutFromJson, toJson: _layoutToJson)
+    @JsonKey(fromJson: _layoutStrategyFromJson, toJson: _layoutStrategyToJson)
     required LayoutStrategyType layoutStrategy,
 
     @JsonKey(fromJson: _interactionFromJson, toJson: _interactionToJson)

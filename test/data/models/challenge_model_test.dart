@@ -294,4 +294,102 @@ void main() {
 
     expect(challenge.engineConfig.connectionType, ConnectionType.explicit);
   });
+  test('parses CIRCULAR layout strategy correctly', () {
+    final jsonString = '''
+  {
+    "metadata": {
+      "title": "Circular graph",
+      "instruction": "Inspect the graph"
+    },
+    "engineConfig": {
+      "structureType": "GRAPH",
+      "validationStrategy": "BST",
+      "layoutStrategy": "CIRCULAR",
+      "interactionMode": "LINK",
+      "connectionType": "EXPLICIT",
+      "constraints": []
+    },
+    "initialState": {
+      "nodes": [
+        { "id": "n1", "value": 1 },
+        { "id": "n2", "value": 2 }
+      ],
+      "edges": [],
+      "slots": [],
+      "inventory": []
+    }
+  }
+  ''';
+
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.circular);
+  });
+
+  test('parses CIRCULAR layout strategy correctly', () {
+    final jsonString = '''
+  {
+    "metadata": {
+      "title": "Circular graph",
+      "instruction": "Inspect the graph"
+    },
+    "engineConfig": {
+      "structureType": "GRAPH",
+      "validationStrategy": "BST",
+      "layoutStrategy": "CIRCULAR",
+      "interactionMode": "LINK",
+      "connectionType": "EXPLICIT",
+      "constraints": []
+    },
+    "initialState": {
+      "nodes": [
+        { "id": "n1", "value": 1 },
+        { "id": "n2", "value": 2 }
+      ],
+      "edges": [],
+      "slots": [],
+      "inventory": []
+    }
+  }
+  ''';
+
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.circular);
+  });
+
+  test('parses FREE layout strategy correctly', () {
+    final jsonString = '''
+  {
+    "metadata": {
+      "title": "Free layout graph",
+      "instruction": "Inspect the graph"
+    },
+    "engineConfig": {
+      "structureType": "GRAPH",
+      "validationStrategy": "BST",
+      "layoutStrategy": "FREE",
+      "interactionMode": "LINK",
+      "connectionType": "EXPLICIT",
+      "constraints": []
+    },
+    "initialState": {
+      "nodes": [
+        { "id": "n1", "value": 1 },
+        { "id": "n2", "value": 2 }
+      ],
+      "edges": [],
+      "slots": [],
+      "inventory": []
+    }
+  }
+  ''';
+
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.free);
+  });
 }

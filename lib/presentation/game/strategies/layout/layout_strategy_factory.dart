@@ -1,7 +1,9 @@
-import '../../../../domain/entities/challenge_spec.dart';
-import 'layout_strategy.dart';
-import 'linear_layout_strategy.dart';
-import 'pyramid_layout_strategy.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/presentation/game/strategies/layout/circular_layout_strategy.dart';
+import 'package:algoquest/presentation/game/strategies/layout/free_layout_strategy.dart';
+import 'package:algoquest/presentation/game/strategies/layout/layout_strategy.dart';
+import 'package:algoquest/presentation/game/strategies/layout/linear_layout_strategy.dart';
+import 'package:algoquest/presentation/game/strategies/layout/pyramid_layout_strategy.dart';
 
 class LayoutStrategyFactory {
   const LayoutStrategyFactory();
@@ -12,6 +14,10 @@ class LayoutStrategyFactory {
         return const PyramidLayoutStrategy();
       case LayoutStrategyType.linear:
         return const LinearLayoutStrategy();
+      case LayoutStrategyType.circular:
+        return const CircularLayoutStrategy();
+      case LayoutStrategyType.free:
+        return const FreeLayoutStrategy();
     }
   }
 }

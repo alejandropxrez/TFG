@@ -2,8 +2,7 @@ import 'package:algoquest/domain/strategies/validation_strategy.dart';
 
 import 'package:algoquest/domain/enums/structure_type.dart';
 
-// Domain enums (no dependency on data layer)
-enum LayoutStrategyType { pyramid, linear }
+enum LayoutStrategyType { pyramid, linear, circular, free }
 
 enum InteractionModeType { swap, drag, setValue, link }
 
