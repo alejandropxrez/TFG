@@ -78,3 +78,37 @@ class SetValueAction extends GameAction {
     );
   }
 }
+
+class LinkAction extends GameAction {
+  final String sourceNodeId;
+  final String targetNodeId;
+
+  const LinkAction({required this.sourceNodeId, required this.targetNodeId});
+
+  @override
+  bool isApplicableTo(StructureState state) {
+    if (!state.nodes.containsKey(sourceNodeId)) return false;
+    if (!state.nodes.containsKey(targetNodeId)) return false;
+    if (sourceNodeId == targetNodeId) return false;
+
+    final alreadyExists = state.edges.any(
+      (edge) =>
+          (edge.source == sourceNodeId && edge.target == targetNodeId) ||
+          (edge.source == targetNodeId && edge.target == sourceNodeId),
+    );
+
+    return !alreadyExists;
+  }
+
+  @override
+  StructureState transform(StructureState currentState) {
+    if (!isApplicableTo(currentState)) return currentState;
+
+    return currentState.copyWith(
+      edges: [
+        ...currentState.edges,
+        EdgeState(source: sourceNodeId, target: targetNodeId),
+      ],
+    );
+  }
+}

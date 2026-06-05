@@ -91,6 +91,8 @@ InteractionModeType _interactionFromJson(String value) {
       return InteractionModeType.drag;
     case 'SET_VALUE':
       return InteractionModeType.setValue;
+    case 'LINK':
+      return InteractionModeType.link;
     default:
       throw FormatException('Unknown interaction mode: $value');
   }
@@ -104,6 +106,8 @@ String _interactionToJson(InteractionModeType value) {
       return 'DRAG';
     case InteractionModeType.setValue:
       return 'SET_VALUE';
+    case InteractionModeType.link:
+      return 'LINK';
   }
 }
 

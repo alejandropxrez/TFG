@@ -59,6 +59,13 @@ class ExecuteMoveUseCase {
             return false;
           }
         }
+
+        if (action case LinkAction(:final sourceNodeId, :final targetNodeId)) {
+          if (constraint.nodeIds.contains(sourceNodeId) ||
+              constraint.nodeIds.contains(targetNodeId)) {
+            return false;
+          }
+        }
       }
     }
 
@@ -81,6 +88,9 @@ class ExecuteMoveUseCase {
       case InteractionModeType.drag:
         // Drag is not modeled as a domain action yet.
         return false;
+
+      case InteractionModeType.link:
+        return action is LinkAction;
     }
   }
 }

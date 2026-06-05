@@ -68,6 +68,34 @@ void main() {
     );
   }
 
+  ChallengeSpec buildLinkSpec({
+    List<ChallengeConstraint> constraints = const [],
+  }) {
+    return ChallengeSpec(
+      id: 'challenge_link',
+      title: 'Link nodes',
+      instruction: 'Connect two nodes',
+      theoryRef: null,
+      engineConfig: ChallengeEngineConfig(
+        structureType: StructureType.graph,
+        validationStrategy: MaxHeapValidationStrategy(),
+        layoutStrategy: LayoutStrategyType.linear,
+        interactionMode: InteractionModeType.link,
+        constraints: constraints,
+      ),
+      initialState: const ChallengeInitialStateSpec(
+        nodes: [
+          ChallengeNodeSpec(id: 'n1', value: 1),
+          ChallengeNodeSpec(id: 'n2', value: 2),
+          ChallengeNodeSpec(id: 'n3', value: 3),
+        ],
+        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+        slots: [],
+        inventory: [],
+      ),
+    );
+  }
+
   test('applies valid SwapNodesAction and updates session metadata', () {
     final spec = buildSwapSpec();
 
@@ -350,5 +378,165 @@ void main() {
     expect(updated.history, isEmpty);
     expect(updated.currentState.nodes['n1']!.value, 3);
     expect(updated.currentState.nodes['n2']!.value, 10);
+  });
+
+  test('executes LinkAction and adds a new edge in link interaction mode', () {
+    final spec = buildLinkSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'n2', targetNodeId: 'n3'),
+    );
+
+    expect(updated.movesUsed, 1);
+    expect(updated.history.length, 1);
+    expect(
+      updated.currentState.edges.any(
+        (edge) => edge.source == 'n2' && edge.target == 'n3',
+      ),
+      isTrue,
+    );
+  });
+
+  test('does not execute LinkAction when edge already exists', () {
+    final spec = buildLinkSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
+
+  test('does not execute LinkAction when linking node to itself', () {
+    final spec = buildLinkSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'n1'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
+
+  test('does not execute LinkAction when source node does not exist', () {
+    final spec = buildLinkSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'missing', targetNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
+
+  test('does not execute LinkAction when target node does not exist', () {
+    final spec = buildLinkSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'missing'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
+
+  test('does not execute LinkAction on locked nodes', () {
+    final spec = buildLinkSpec(
+      constraints: const [
+        LockedNodesConstraint(['n2']),
+      ],
+    );
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'n2', targetNodeId: 'n3'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
+
+  test('does not execute LinkAction in swap interaction mode', () {
+    final spec = buildSwapSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+  });
+
+  test('does not execute LinkAction when reverse edge already exists', () {
+    final spec = buildLinkSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const LinkAction(sourceNodeId: 'n2', targetNodeId: 'n1'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
   });
 }
