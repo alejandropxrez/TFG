@@ -81,11 +81,49 @@ void main() {
   late FakeUserRepository userRepository;
   late UseCases useCases;
 
+  const testSyllabusJson = '''
+  {
+    "version": "1.0",
+    "title": "AlgoQuest",
+    "phases": [
+      {
+        "id": "phase_test",
+        "title": "Test Phase",
+        "levels": [
+          {
+            "id": "single_challenge_level",
+            "title": "Single Challenge Level",
+            "topic": "HEAPS",
+            "subtitle": "Test level",
+            "challenges": ["challenge_1"],
+            "rewards": {
+              "xp": 100,
+              "stars": 3
+            }
+          },
+          {
+            "id": "next_level",
+            "title": "Next Level",
+            "topic": "HEAPS",
+            "subtitle": "Next test level",
+            "challenges": ["challenge_2"],
+            "rewards": {
+              "xp": 150,
+              "stars": 3
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ''';
+
   LevelSyllabus buildSyllabus({
+    String id = 'level_heap_intro',
     List<String> challenges = const ['challenge_1', 'challenge_2'],
   }) {
     return LevelSyllabus(
-      id: 'level_heap_intro',
+      id: id,
       title: 'Heap Intro',
       topic: LevelTopic.heaps,
       challenges: challenges,
@@ -93,9 +131,12 @@ void main() {
     );
   }
 
-  ChallengeSpec buildChallengeSpec({required String title}) {
+  ChallengeSpec buildChallengeSpec({
+    required String id,
+    required String title,
+  }) {
     return ChallengeSpec(
-      id: 'challenge_1',
+      id: id,
       title: title,
       instruction: 'Swap nodes to repair the heap',
       theoryRef: null,
@@ -122,11 +163,22 @@ void main() {
     contentRepository = FakeContentRepository();
     userRepository = FakeUserRepository();
 
-    contentRepository.syllabuses['level_heap_intro'] = buildSyllabus();
+    contentRepository.syllabuses['level_heap_intro'] = buildSyllabus(
+      id: 'level_heap_intro',
+    );
+
+    contentRepository.syllabuses['single_challenge_level'] = buildSyllabus(
+      id: 'single_challenge_level',
+      challenges: const ['challenge_1'],
+    );
+
     contentRepository.specs['challenge_1'] = buildChallengeSpec(
+      id: 'challenge_1',
       title: 'Heap repair 1',
     );
+
     contentRepository.specs['challenge_2'] = buildChallengeSpec(
+      id: 'challenge_2',
       title: 'Heap repair 2',
     );
 
@@ -142,7 +194,13 @@ void main() {
     );
 
     container = ProviderContainer(
-      overrides: [useCasesProvider.overrideWithValue(useCases)],
+      overrides: [
+        useCasesProvider.overrideWithValue(useCases),
+        currentUserIdProvider.overrideWithValue('user_1'),
+        syllabusJsonLoaderProvider.overrideWithValue(
+          () async => testSyllabusJson,
+        ),
+      ],
     );
   });
 
@@ -197,6 +255,7 @@ void main() {
 
     expect(state.status, LevelFlowStatus.playing);
     expect(state.currentChallengeSpec, isNotNull);
+    expect(state.currentChallengeSpec!.id, 'challenge_1');
     expect(state.currentChallengeSpec!.title, 'Heap repair 1');
 
     expect(state.currentSession, isNotNull);
@@ -225,6 +284,7 @@ void main() {
 
     expect(state.status, LevelFlowStatus.playing);
     expect(state.currentChallengeSpec, isNotNull);
+    expect(state.currentChallengeSpec!.id, 'challenge_2');
     expect(state.currentChallengeSpec!.title, 'Heap repair 2');
 
     expect(state.currentSession, isNotNull);
@@ -300,6 +360,7 @@ void main() {
       expect(state.currentChallengeId, 'challenge_2');
 
       expect(state.currentChallengeSpec, isNotNull);
+      expect(state.currentChallengeSpec!.id, 'challenge_2');
       expect(state.currentChallengeSpec!.title, 'Heap repair 2');
 
       expect(state.currentSession, isNotNull);
@@ -311,10 +372,6 @@ void main() {
     'completeCurrentChallenge completes level when no challenges remain',
     () async {
       final notifier = container.read(levelStateProvider.notifier);
-
-      contentRepository.syllabuses['single_challenge_level'] = buildSyllabus(
-        challenges: const ['challenge_1'],
-      );
 
       await notifier.loadLevel('single_challenge_level');
 
@@ -364,4 +421,44 @@ void main() {
     expect(state.errorMessage, isNotNull);
     expect(state.currentSession, isNull);
   });
+
+  test(
+    'completeCurrentChallenge applies rewards and unlocks next level when level is completed',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      await notifier.loadLevel('single_challenge_level');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_1',
+      );
+
+      await notifier.completeCurrentChallenge(
+        userId: 'user_1',
+        nextSessionId: 'unused_session',
+      );
+
+      final state = container.read(levelStateProvider);
+
+      expect(state.status, LevelFlowStatus.completed);
+      expect(state.isLevelCompleted, isTrue);
+
+      expect(userRepository.savedProgress, isNotNull);
+      expect(userRepository.savedProgress!.userId, 'user_1');
+      expect(userRepository.savedProgress!.experiencePoints, 100);
+
+      expect(
+        userRepository.savedProgress!.unlockedLevels,
+        contains('single_challenge_level'),
+      );
+
+      expect(
+        userRepository.savedProgress!.unlockedLevels,
+        contains('next_level'),
+      );
+
+      expect(userRepository.savedProgress!.currentLevelId, 'next_level');
+    },
+  );
 }
