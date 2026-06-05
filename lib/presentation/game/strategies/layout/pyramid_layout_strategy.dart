@@ -26,6 +26,10 @@ class PyramidLayoutStrategy implements LayoutStrategy {
     final children = _buildChildrenMap(state);
     final maxDepth = _calculateMaxDepth(rootId, children);
 
+    if (maxDepth == null) {
+      return _fallbackLinearPositions(state, canvasSize);
+    }
+
     final availableHeight = max(0.0, canvasSize.y - topPadding - bottomPadding);
 
     final verticalSpacing = maxDepth == 0
@@ -77,18 +81,41 @@ class PyramidLayoutStrategy implements LayoutStrategy {
     return children;
   }
 
-  int _calculateMaxDepth(String rootId, Map<String, List<String>> children) {
+  int? _calculateMaxDepth(String rootId, Map<String, List<String>> children) {
     var maxDepth = 0;
 
-    void visit(String nodeId, int depth) {
+    final visited = <String>{};
+    final visiting = <String>{};
+
+    bool visit(String nodeId, int depth) {
+      if (visiting.contains(nodeId)) {
+        return false;
+      }
+
+      if (visited.contains(nodeId)) {
+        return true;
+      }
+
+      visiting.add(nodeId);
       maxDepth = max(maxDepth, depth);
 
       for (final childId in children[nodeId] ?? const <String>[]) {
-        visit(childId, depth + 1);
+        if (!visit(childId, depth + 1)) {
+          return false;
+        }
       }
+
+      visiting.remove(nodeId);
+      visited.add(nodeId);
+
+      return true;
     }
 
-    visit(rootId, 0);
+    final isAcyclic = visit(rootId, 0);
+
+    if (!isAcyclic) {
+      return null;
+    }
 
     return maxDepth;
   }
