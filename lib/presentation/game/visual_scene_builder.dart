@@ -1,3 +1,4 @@
+import 'package:algoquest/presentation/game/strategies/connection/connection_strategy_factory.dart';
 import 'package:flame/components.dart';
 
 import 'package:algoquest/domain/entities/challenge_spec.dart';
@@ -14,10 +15,14 @@ class VisualScene {
 
 class VisualSceneBuilder {
   final LayoutStrategyFactory _layoutStrategyFactory;
+  final ConnectionStrategyFactory _connectionStrategyFactory;
 
   const VisualSceneBuilder({
     LayoutStrategyFactory layoutStrategyFactory = const LayoutStrategyFactory(),
-  }) : _layoutStrategyFactory = layoutStrategyFactory;
+    ConnectionStrategyFactory connectionStrategyFactory =
+        const ConnectionStrategyFactory(),
+  }) : _layoutStrategyFactory = layoutStrategyFactory,
+       _connectionStrategyFactory = connectionStrategyFactory;
 
   VisualScene build({
     required ChallengeSpec spec,
@@ -37,7 +42,13 @@ class VisualSceneBuilder {
 
     final components = <Component>[];
 
-    for (final edge in state.edges) {
+    final connectionStrategy = _connectionStrategyFactory.create(
+      spec.engineConfig.connectionType,
+    );
+
+    final edgesToRender = connectionStrategy.buildConnections(state);
+
+    for (final edge in edgesToRender) {
       final start = positions[edge.source];
       final end = positions[edge.target];
 

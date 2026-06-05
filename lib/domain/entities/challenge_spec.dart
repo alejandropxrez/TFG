@@ -9,6 +9,8 @@ enum InteractionModeType { swap, drag, setValue, link }
 
 enum ValidationStrategyType { maxHeap, minHeap, bst }
 
+enum ConnectionType { implicit, explicit, none }
+
 sealed class ChallengeConstraint {
   const ChallengeConstraint();
 }
@@ -28,6 +30,7 @@ class ChallengeEngineConfig {
   final ValidationStrategy validationStrategy;
   final LayoutStrategyType layoutStrategy;
   final InteractionModeType interactionMode;
+  final ConnectionType connectionType;
   final List<ChallengeConstraint> constraints;
 
   const ChallengeEngineConfig({
@@ -35,6 +38,7 @@ class ChallengeEngineConfig {
     required this.validationStrategy,
     required this.layoutStrategy,
     required this.interactionMode,
+    required this.connectionType,
     required this.constraints,
   });
 }

@@ -150,12 +150,46 @@ abstract class ChallengeEngineConfigModel with _$ChallengeEngineConfigModel {
     @JsonKey(fromJson: _interactionFromJson, toJson: _interactionToJson)
     required InteractionModeType interactionMode,
 
+    @JsonKey(
+      name: 'connectionType',
+      fromJson: _connectionTypeFromJson,
+      toJson: _connectionTypeToJson,
+    )
+    @Default(ConnectionType.explicit)
+    ConnectionType connectionType,
+
     @Default(<ChallengeConstraintModel>[])
     List<ChallengeConstraintModel> constraints,
   }) = _ChallengeEngineConfigModel;
 
   factory ChallengeEngineConfigModel.fromJson(Map<String, dynamic> json) =>
       _$ChallengeEngineConfigModelFromJson(json);
+}
+
+ConnectionType _connectionTypeFromJson(String? value) {
+  switch (value?.trim().toUpperCase()) {
+    case null:
+    case '':
+    case 'EXPLICIT':
+      return ConnectionType.explicit;
+    case 'IMPLICIT':
+      return ConnectionType.implicit;
+    case 'NONE':
+      return ConnectionType.none;
+    default:
+      throw FormatException('Unknown connection type: $value');
+  }
+}
+
+String _connectionTypeToJson(ConnectionType value) {
+  switch (value) {
+    case ConnectionType.implicit:
+      return 'IMPLICIT';
+    case ConnectionType.explicit:
+      return 'EXPLICIT';
+    case ConnectionType.none:
+      return 'NONE';
+  }
 }
 
 @Freezed(unionKey: 'type')

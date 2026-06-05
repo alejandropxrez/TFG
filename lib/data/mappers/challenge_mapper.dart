@@ -22,6 +22,7 @@ class ChallengeMapper {
         ),
         layoutStrategy: challengeModel.engineConfig.layoutStrategy,
         interactionMode: challengeModel.engineConfig.interactionMode,
+        connectionType: challengeModel.engineConfig.connectionType,
         constraints: challengeModel.engineConfig.constraints
             .map(_mapConstraint)
             .toList(growable: false),

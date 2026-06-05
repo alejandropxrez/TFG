@@ -41,6 +41,7 @@ void main() {
           validationStrategy: BstValidationStrategy(),
           layoutStrategy: LayoutStrategyType.linear,
           interactionMode: InteractionModeType.drag,
+          connectionType: ConnectionType.explicit,
           constraints: const [MaxMovesConstraint(3)],
         ),
         initialState: const ChallengeInitialStateSpec(

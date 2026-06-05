@@ -20,6 +20,7 @@ void main() {
         validationStrategy: MaxHeapValidationStrategy(),
         layoutStrategy: LayoutStrategyType.pyramid,
         interactionMode: InteractionModeType.swap,
+        connectionType: ConnectionType.explicit,
         constraints: const [],
       ),
       initialState: ChallengeInitialStateSpec(

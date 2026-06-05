@@ -9,6 +9,7 @@
 		"validationStrategy": "MAX_HEAP",
 		"layoutStrategy": "PYRAMID",
 		"interactionMode": "SWAP",
+		"connectionType": "EXPLICIT",
 		"constraints": [
 			{
 				"type": "MAX_MOVES",
