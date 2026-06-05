@@ -20,6 +20,6 @@ class ContentRepositoryImpl implements ContentRepository {
   @override
   Future<ChallengeSpec> getChallenge(String challengeId) async {
     final model = await _localDataSource.getChallenge(challengeId);
-    return ChallengeMapper.toDomain(model);
+    return ChallengeMapper.toDomain(challengeId, model);
   }
 }

@@ -6,8 +6,12 @@ import 'package:algoquest/domain/strategies/min_heap_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
 
 class ChallengeMapper {
-  static ChallengeSpec toDomain(ChallengeModel challengeModel) {
+  static ChallengeSpec toDomain(
+    String challengeId,
+    ChallengeModel challengeModel,
+  ) {
     return ChallengeSpec(
+      id: challengeId,
       title: challengeModel.metadata.title,
       instruction: challengeModel.metadata.instruction,
       theoryRef: challengeModel.metadata.theoryRef,

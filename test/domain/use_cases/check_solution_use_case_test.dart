@@ -19,6 +19,7 @@ class AlwaysFalseValidator implements ValidationStrategy {
 void main() {
   ChallengeSpec buildSpec({required ValidationStrategy validationStrategy}) {
     return ChallengeSpec(
+      id: 'challenge_1',
       title: 'Challenge',
       instruction: 'Solve it',
       theoryRef: null,

@@ -32,6 +32,7 @@ void main() {
       final repo = FakeContentRepository();
 
       repo.specsById['c1'] = ChallengeSpec(
+        id: 'c1',
         title: 'BST insertion',
         instruction: 'Insert the node into the BST',
         theoryRef: 'bst_insert',

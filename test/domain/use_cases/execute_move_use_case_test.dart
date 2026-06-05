@@ -20,6 +20,7 @@ void main() {
     List<ChallengeConstraint> constraints = const [],
   }) {
     return ChallengeSpec(
+      id: 'challenge_1',
       title: 'Heap Repair',
       instruction: 'Swap nodes to fix the heap',
       theoryRef: null,
@@ -46,6 +47,7 @@ void main() {
     List<ChallengeConstraint> constraints = const [],
   }) {
     return ChallengeSpec(
+      id: 'challenge_1',
       title: 'Fill blank',
       instruction: 'Assign a value to the empty slot',
       theoryRef: null,
@@ -208,6 +210,7 @@ void main() {
 
   test('does not execute SetValueAction if slot is already filled', () {
     final spec = ChallengeSpec(
+      id: 'challenge_1',
       title: 'Filled slot',
       instruction: 'Cannot overwrite slot',
       theoryRef: null,
@@ -257,6 +260,7 @@ void main() {
 
   test('does not execute SetValueAction if value is not in inventory', () {
     final spec = ChallengeSpec(
+      id: 'challenge_1',
       title: 'Wrong inventory',
       instruction: 'Value missing from inventory',
       theoryRef: null,

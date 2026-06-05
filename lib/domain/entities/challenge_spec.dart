@@ -79,6 +79,7 @@ class ChallengeInitialStateSpec {
 
 /// Static configuration loaded at challenge start
 class ChallengeSpec {
+  final String id;
   final String title;
   final String instruction;
   final String? theoryRef;
@@ -86,6 +87,7 @@ class ChallengeSpec {
   final ChallengeInitialStateSpec initialState;
 
   const ChallengeSpec({
+    required this.id,
     required this.title,
     required this.instruction,
     required this.theoryRef,

@@ -95,6 +95,7 @@ void main() {
 
   ChallengeSpec buildChallengeSpec({required String title}) {
     return ChallengeSpec(
+      id: 'challenge_1',
       title: title,
       instruction: 'Swap nodes to repair the heap',
       theoryRef: null,

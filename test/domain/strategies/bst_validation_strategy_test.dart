@@ -11,6 +11,7 @@ void main() {
     required List<ChallengeEdgeSpec> edges,
   }) {
     final spec = ChallengeSpec(
+      id: 'challenge_bst',
       title: 'BST',
       instruction: 'Validate BST',
       theoryRef: null,

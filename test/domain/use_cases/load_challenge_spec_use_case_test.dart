@@ -27,6 +27,7 @@ void main() {
     final repo = FakeContentRepository();
 
     repo.spec = ChallengeSpec(
+      id: 'c1',
       title: 't',
       instruction: 'i',
       theoryRef: null,

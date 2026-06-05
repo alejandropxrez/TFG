@@ -8,6 +8,7 @@ import 'package:algoquest/domain/strategies/min_heap_validation_strategy.dart';
 void main() {
   ChallengeSession buildSession(List<ChallengeNodeSpec> nodes) {
     final spec = ChallengeSpec(
+      id: 'challenge_min_heap',
       title: 'Min Heap',
       instruction: 'Fix the heap',
       theoryRef: null,
@@ -67,6 +68,7 @@ void main() {
 
   test('returns true for a single node heap', () {
     final spec = ChallengeSpec(
+      id: 'challenge_single_node_heap',
       title: 'Single Node Heap',
       instruction: 'Check heap',
       theoryRef: null,
