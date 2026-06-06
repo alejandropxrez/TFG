@@ -2,7 +2,11 @@
 	"id": "level_heap_intro",
 	"title": "Introducción a Heaps",
 	"topic": "HEAPS",
-	"challenges": ["heap_repair_intro", "heap_repair_swap"],
+	"challenges": [
+		"heap_repair_intro",
+		"heap_repair_swap",
+		"heap_insert_value"
+	],
 	"rewards": {
 		"xp": 100,
 		"stars": 3

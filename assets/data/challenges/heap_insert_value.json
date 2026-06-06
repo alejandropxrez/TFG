@@ -1,0 +1,31 @@
+{
+	"metadata": {
+		"title": "Inserta el valor correcto",
+		"instruction": "Selecciona el valor del inventario y colócalo en el hueco vacío.",
+		"theoryRef": "heap_intro"
+	},
+	"engineConfig": {
+		"structureType": "HEAP",
+		"validationStrategy": "MAX_HEAP",
+		"layoutStrategy": "FREE",
+		"interactionMode": "SET_VALUE",
+		"connectionType": "NONE",
+		"constraints": [
+			{
+				"type": "MAX_MOVES",
+				"maxMoves": 1
+			}
+		]
+	},
+	"initialState": {
+		"nodes": [],
+		"edges": [],
+		"slots": [
+			{
+				"id": "s1",
+				"index": 0
+			}
+		],
+		"inventory": [10]
+	}
+}

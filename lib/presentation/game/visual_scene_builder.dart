@@ -47,6 +47,24 @@ class VisualSceneBuilder {
       canvasSize: canvasSize,
     );
 
+    final slotNodeIds = state.slots.values
+        .map((slot) => slot.filledNodeId)
+        .whereType<String>()
+        .toSet();
+
+    final slotNodePositions = <String, Vector2>{};
+
+    for (final slot in state.slots.values) {
+      final filledNodeId = slot.filledNodeId;
+      if (filledNodeId == null) continue;
+
+      slotNodePositions[filledNodeId] = _slotPosition(
+        slotIndex: slot.index,
+        slotCount: state.slots.length,
+        canvasSize: canvasSize,
+      );
+    }
+
     final connectionStrategy = _connectionStrategyFactory.create(
       spec.engineConfig.connectionType,
     );
@@ -54,8 +72,8 @@ class VisualSceneBuilder {
     final edgesToRender = connectionStrategy.buildConnections(state);
 
     for (final edge in edgesToRender) {
-      final start = positions[edge.source];
-      final end = positions[edge.target];
+      final start = slotNodePositions[edge.source] ?? positions[edge.source];
+      final end = slotNodePositions[edge.target] ?? positions[edge.target];
 
       if (start != null && end != null) {
         components.add(EdgeComponent(start: start, end: end));
@@ -63,6 +81,8 @@ class VisualSceneBuilder {
     }
 
     for (final entry in state.nodes.entries) {
+      if (slotNodeIds.contains(entry.key)) continue;
+
       final position = positions[entry.key];
       if (position == null) continue;
 
@@ -86,17 +106,44 @@ class VisualSceneBuilder {
     }
 
     for (final slot in state.slots.values) {
-      if (slot.filledNodeId != null) continue;
-
-      final position = _slotPosition(
+      final slotPosition = _slotPosition(
         slotIndex: slot.index,
+        slotCount: state.slots.length,
         canvasSize: canvasSize,
       );
+
+      final filledNodeId = slot.filledNodeId;
+
+      if (filledNodeId != null) {
+        final filledNode = state.nodes[filledNodeId];
+
+        if (filledNode != null) {
+          components.add(
+            NodeComponent(
+              nodeId: filledNode.id,
+              value: filledNode.value,
+              position: slotPosition,
+              isSelected: interactionStrategy.selectedNodeId == filledNode.id,
+              onTapNode: (nodeId) {
+                final action = interactionStrategy.handleNodeTap(nodeId);
+
+                if (action != null) {
+                  onActionRequested(action);
+                }
+
+                onInteractionChanged();
+              },
+            ),
+          );
+        }
+
+        continue;
+      }
 
       components.add(
         SlotComponent(
           slotId: slot.id,
-          position: position,
+          position: slotPosition,
           isSelected: interactionStrategy.selectedNodeId == slot.id,
           onTapSlot: (slotId) {
             final action = interactionStrategy.handleNodeTap(slotId);
@@ -143,12 +190,15 @@ class VisualSceneBuilder {
 
   Vector2 _slotPosition({
     required int? slotIndex,
+    required int slotCount,
     required Vector2 canvasSize,
   }) {
     final index = slotIndex ?? 0;
-    const spacing = 72.0;
+    const spacing = 88.0;
 
-    return Vector2(canvasSize.x / 2.0 + index * spacing, canvasSize.y * 0.45);
+    final startX = canvasSize.x / 2.0 - ((slotCount - 1) * spacing) / 2.0;
+
+    return Vector2(startX + index * spacing, canvasSize.y * 0.35);
   }
 
   Vector2 _inventoryPosition({
@@ -156,10 +206,10 @@ class VisualSceneBuilder {
     required int total,
     required Vector2 canvasSize,
   }) {
-    const spacing = 68.0;
+    const spacing = 76.0;
 
     final startX = canvasSize.x / 2.0 - ((total - 1) * spacing) / 2.0;
 
-    return Vector2(startX + index * spacing, canvasSize.y - 72.0);
+    return Vector2(startX + index * spacing, canvasSize.y - 96.0);
   }
 }
