@@ -12,6 +12,9 @@ class SetValueInteractionStrategy implements InteractionStrategy {
   int? get selectedInventoryValue => _selectedInventoryValue;
 
   @override
+  GameAction? handleEdgeTap(String sourceNodeId, String targetNodeId) => null;
+
+  @override
   GameAction? handleInventoryTap(int value) {
     if (_selectedInventoryValue == value) {
       _selectedInventoryValue = null;

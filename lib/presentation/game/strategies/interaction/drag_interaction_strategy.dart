@@ -9,6 +9,9 @@ class DragInteractionStrategy implements InteractionStrategy {
   int? get selectedInventoryValue => null;
 
   @override
+  GameAction? handleEdgeTap(String sourceNodeId, String targetNodeId) => null;
+
+  @override
   GameAction? handleNodeTap(String nodeId) {
     throw UnimplementedError(
       'Drag interaction strategy is not implemented yet.',

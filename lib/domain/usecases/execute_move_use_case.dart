@@ -46,25 +46,29 @@ class ExecuteMoveUseCase {
       }
 
       if (constraint is LockedNodesConstraint) {
-        if (action case SwapNodesAction(
-          :final firstNodeId,
-          :final secondNodeId,
-        )) {
-          if (constraint.nodeIds.contains(firstNodeId) ||
-              constraint.nodeIds.contains(secondNodeId)) {
+        if (action is SwapNodesAction) {
+          if (constraint.nodeIds.contains(action.firstNodeId) ||
+              constraint.nodeIds.contains(action.secondNodeId)) {
             return false;
           }
         }
 
-        if (action case SetValueAction(:final slotId)) {
-          if (constraint.nodeIds.contains(slotId)) {
+        if (action is SetValueAction) {
+          if (constraint.nodeIds.contains(action.slotId)) {
             return false;
           }
         }
 
-        if (action case LinkAction(:final sourceNodeId, :final targetNodeId)) {
-          if (constraint.nodeIds.contains(sourceNodeId) ||
-              constraint.nodeIds.contains(targetNodeId)) {
+        if (action is LinkAction) {
+          if (constraint.nodeIds.contains(action.sourceNodeId) ||
+              constraint.nodeIds.contains(action.targetNodeId)) {
+            return false;
+          }
+        }
+
+        if (action is RemoveLinkAction) {
+          if (constraint.nodeIds.contains(action.sourceNodeId) ||
+              constraint.nodeIds.contains(action.targetNodeId)) {
             return false;
           }
         }
@@ -92,7 +96,7 @@ class ExecuteMoveUseCase {
         return false;
 
       case InteractionModeType.link:
-        return action is LinkAction;
+        return action is LinkAction || action is RemoveLinkAction;
     }
   }
 }

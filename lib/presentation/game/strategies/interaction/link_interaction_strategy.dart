@@ -32,4 +32,14 @@ class LinkInteractionStrategy implements InteractionStrategy {
 
     return LinkAction(sourceNodeId: source, targetNodeId: target);
   }
+
+  @override
+  GameAction? handleEdgeTap(String sourceNodeId, String targetNodeId) {
+    _selectedSourceNodeId = null;
+
+    return RemoveLinkAction(
+      sourceNodeId: sourceNodeId,
+      targetNodeId: targetNodeId,
+    );
+  }
 }

@@ -89,7 +89,26 @@ class VisualSceneBuilder {
       final end = slotNodePositions[edge.target] ?? positions[edge.target];
 
       if (start != null && end != null) {
-        components.add(EdgeComponent(start: start, end: end));
+        components.add(
+          EdgeComponent(
+            start: start,
+            end: end,
+            sourceNodeId: edge.source,
+            targetNodeId: edge.target,
+            onTapEdge: (sourceNodeId, targetNodeId) {
+              final action = interactionStrategy.handleEdgeTap(
+                sourceNodeId,
+                targetNodeId,
+              );
+
+              if (action != null) {
+                onActionRequested(action);
+              }
+
+              onInteractionChanged();
+            },
+          ),
+        );
       }
     }
 

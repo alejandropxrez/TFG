@@ -571,4 +571,87 @@ void main() {
 
     expect(movedAgain.redoStack, isEmpty);
   });
+
+  test(
+    'executes RemoveLinkAction and removes existing edge in link interaction mode',
+    () {
+      final spec = buildLinkSpec();
+
+      final session = ChallengeSession.start(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: spec,
+      );
+
+      final updated = useCase(
+        session: session,
+        action: const RemoveLinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
+      );
+
+      expect(updated.movesUsed, 1);
+      expect(updated.history.length, 1);
+      expect(updated.currentState.edges, isEmpty);
+    },
+  );
+
+  test('does not execute RemoveLinkAction when edge does not exist', () {
+    final spec = buildLinkSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const RemoveLinkAction(sourceNodeId: 'n2', targetNodeId: 'n3'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
+
+  test('does not execute RemoveLinkAction on locked nodes', () {
+    final spec = buildLinkSpec(
+      constraints: const [
+        LockedNodesConstraint(['n1']),
+      ],
+    );
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const RemoveLinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
+
+  test('does not execute RemoveLinkAction in swap interaction mode', () {
+    final spec = buildSwapSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const RemoveLinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
+    );
+
+    expect(updated.movesUsed, 0);
+    expect(updated.history, isEmpty);
+    expect(updated.currentState.edges.length, 1);
+  });
 }

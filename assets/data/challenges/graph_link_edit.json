@@ -1,0 +1,31 @@
+{
+	"metadata": {
+		"title": "Edita conexiones",
+		"instruction": "Toca dos nodos para crear una conexión. Toca una conexión existente para eliminarla.",
+		"theoryRef": "graph_intro"
+	},
+	"engineConfig": {
+		"structureType": "GRAPH",
+		"validationStrategy": "BST",
+		"layoutStrategy": "CIRCULAR",
+		"interactionMode": "LINK",
+		"connectionType": "EXPLICIT",
+		"constraints": [
+			{
+				"type": "MAX_MOVES",
+				"maxMoves": 6
+			}
+		]
+	},
+	"initialState": {
+		"nodes": [
+			{ "id": "n1", "value": 1 },
+			{ "id": "n2", "value": 2 },
+			{ "id": "n3", "value": 3 },
+			{ "id": "n4", "value": 4 }
+		],
+		"edges": [{ "source": "n1", "target": "n2" }],
+		"slots": [],
+		"inventory": []
+	}
+}

@@ -11,6 +11,9 @@ class SwapInteractionStrategy implements InteractionStrategy {
   int? get selectedInventoryValue => null;
 
   @override
+  GameAction? handleEdgeTap(String sourceNodeId, String targetNodeId) => null;
+
+  @override
   GameAction? handleNodeTap(String nodeId) {
     if (_selectedNodeId == null) {
       _selectedNodeId = nodeId;

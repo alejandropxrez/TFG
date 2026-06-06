@@ -5,7 +5,8 @@
 	"challenges": [
 		"heap_repair_intro",
 		"heap_repair_swap",
-		"heap_insert_value"
+		"heap_insert_value",
+		"graph_link_edit"
 	],
 	"rewards": {
 		"xp": 100,

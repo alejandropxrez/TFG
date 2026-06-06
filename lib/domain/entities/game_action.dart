@@ -112,3 +112,39 @@ class LinkAction extends GameAction {
     );
   }
 }
+
+class RemoveLinkAction extends GameAction {
+  final String sourceNodeId;
+  final String targetNodeId;
+
+  const RemoveLinkAction({
+    required this.sourceNodeId,
+    required this.targetNodeId,
+  });
+
+  @override
+  bool isApplicableTo(StructureState state) {
+    return state.edges.any(
+      (edge) =>
+          (edge.source == sourceNodeId && edge.target == targetNodeId) ||
+          (edge.source == targetNodeId && edge.target == sourceNodeId),
+    );
+  }
+
+  @override
+  StructureState transform(StructureState currentState) {
+    if (!isApplicableTo(currentState)) return currentState;
+
+    return currentState.copyWith(
+      edges: currentState.edges
+          .where(
+            (edge) =>
+                !((edge.source == sourceNodeId &&
+                        edge.target == targetNodeId) ||
+                    (edge.source == targetNodeId &&
+                        edge.target == sourceNodeId)),
+          )
+          .toList(growable: false),
+    );
+  }
+}
