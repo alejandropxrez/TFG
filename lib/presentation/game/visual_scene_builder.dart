@@ -1,4 +1,8 @@
+import 'package:algoquest/domain/entities/game_action.dart';
+import 'package:algoquest/presentation/game/components/inventory_item_component.dart';
+import 'package:algoquest/presentation/game/components/slot_component.dart';
 import 'package:algoquest/presentation/game/strategies/connection/connection_strategy_factory.dart';
+import 'package:algoquest/presentation/game/strategies/interaction/interaction_strategy.dart';
 import 'package:flame/components.dart';
 
 import 'package:algoquest/domain/entities/challenge_spec.dart';
@@ -28,9 +32,12 @@ class VisualSceneBuilder {
     required ChallengeSpec spec,
     required StructureState state,
     required Vector2 canvasSize,
-    String? selectedNodeId,
-    void Function(String nodeId)? onTapNode,
+    required InteractionStrategy interactionStrategy,
+    required void Function(GameAction action) onActionRequested,
+    required void Function() onInteractionChanged,
   }) {
+    final components = <Component>[];
+
     final layoutStrategy = _layoutStrategyFactory.create(
       spec.engineConfig.layoutStrategy,
     );
@@ -39,8 +46,6 @@ class VisualSceneBuilder {
       state: state,
       canvasSize: canvasSize,
     );
-
-    final components = <Component>[];
 
     final connectionStrategy = _connectionStrategyFactory.create(
       spec.engineConfig.connectionType,
@@ -66,12 +71,95 @@ class VisualSceneBuilder {
           nodeId: entry.key,
           value: entry.value.value,
           position: position,
-          isSelected: selectedNodeId == entry.key,
-          onTapNode: onTapNode,
+          isSelected: interactionStrategy.selectedNodeId == entry.key,
+          onTapNode: (nodeId) {
+            final action = interactionStrategy.handleNodeTap(nodeId);
+
+            if (action != null) {
+              onActionRequested(action);
+            }
+
+            onInteractionChanged();
+          },
+        ),
+      );
+    }
+
+    for (final slot in state.slots.values) {
+      if (slot.filledNodeId != null) continue;
+
+      final position = _slotPosition(
+        slotIndex: slot.index,
+        canvasSize: canvasSize,
+      );
+
+      components.add(
+        SlotComponent(
+          slotId: slot.id,
+          position: position,
+          isSelected: interactionStrategy.selectedNodeId == slot.id,
+          onTapSlot: (slotId) {
+            final action = interactionStrategy.handleNodeTap(slotId);
+
+            if (action != null) {
+              onActionRequested(action);
+            }
+
+            onInteractionChanged();
+          },
+        ),
+      );
+    }
+
+    for (var i = 0; i < state.inventory.length; i++) {
+      final value = state.inventory[i];
+
+      components.add(
+        InventoryItemComponent(
+          value: value,
+          position: _inventoryPosition(
+            index: i,
+            total: state.inventory.length,
+            canvasSize: canvasSize,
+          ),
+          isSelected: interactionStrategy.selectedInventoryValue == value,
+          onTapInventoryItem: (selectedValue) {
+            final action = interactionStrategy.handleInventoryTap(
+              selectedValue,
+            );
+
+            if (action != null) {
+              onActionRequested(action);
+            }
+
+            onInteractionChanged();
+          },
         ),
       );
     }
 
     return VisualScene(components);
+  }
+
+  Vector2 _slotPosition({
+    required int? slotIndex,
+    required Vector2 canvasSize,
+  }) {
+    final index = slotIndex ?? 0;
+    const spacing = 72.0;
+
+    return Vector2(canvasSize.x / 2.0 + index * spacing, canvasSize.y * 0.45);
+  }
+
+  Vector2 _inventoryPosition({
+    required int index,
+    required int total,
+    required Vector2 canvasSize,
+  }) {
+    const spacing = 68.0;
+
+    final startX = canvasSize.x / 2.0 - ((total - 1) * spacing) / 2.0;
+
+    return Vector2(startX + index * spacing, canvasSize.y - 72.0);
   }
 }

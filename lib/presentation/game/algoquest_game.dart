@@ -52,28 +52,25 @@ class AlgoQuestGame extends FlameGame {
     }
   }
 
-  void _handleNodeTap(String nodeId) {
-    final action = _interactionStrategy?.handleNodeTap(nodeId);
-
-    if (action != null) {
-      onActionRequested?.call(action);
-    }
-
-    _rebuildScene();
-  }
-
   void _rebuildScene() {
-    if (_spec == null || _state == null) return;
+    final spec = _spec;
+    final state = _state;
+    final interactionStrategy = _interactionStrategy;
+
+    if (spec == null || state == null || interactionStrategy == null) return;
     if (size.x == 0 || size.y == 0) return;
 
     removeAll(children.toList());
 
     final scene = _sceneBuilder.build(
-      spec: _spec!,
-      state: _state!,
+      spec: spec,
+      state: state,
       canvasSize: size,
-      selectedNodeId: _interactionStrategy?.selectedNodeId,
-      onTapNode: _handleNodeTap,
+      interactionStrategy: interactionStrategy,
+      onActionRequested: (action) {
+        onActionRequested?.call(action);
+      },
+      onInteractionChanged: _rebuildScene,
     );
 
     addAll(scene.components);
