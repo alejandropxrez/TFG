@@ -8,6 +8,7 @@ class ChallengeSession {
   final ChallengeSpec spec;
   final StructureState currentState;
   final List<StructureState> history;
+  final List<StructureState> redoStack;
   final int movesUsed;
   final SessionStatus status;
   final DateTime startedAt;
@@ -19,6 +20,7 @@ class ChallengeSession {
     required this.spec,
     required this.currentState,
     required this.history,
+    required this.redoStack,
     required this.movesUsed,
     required this.status,
     required this.startedAt,
@@ -52,6 +54,7 @@ class ChallengeSession {
       spec: spec,
       currentState: initialState,
       history: const [],
+      redoStack: const [],
       movesUsed: 0,
       status: SessionStatus.inProgress,
       startedAt: now,
@@ -62,6 +65,7 @@ class ChallengeSession {
   ChallengeSession copyWith({
     StructureState? currentState,
     List<StructureState>? history,
+    List<StructureState>? redoStack,
     int? movesUsed,
     SessionStatus? status,
     DateTime? updatedAt,
@@ -72,6 +76,7 @@ class ChallengeSession {
       spec: spec,
       currentState: currentState ?? this.currentState,
       history: history ?? this.history,
+      redoStack: redoStack ?? this.redoStack,
       movesUsed: movesUsed ?? this.movesUsed,
       status: status ?? this.status,
       startedAt: startedAt,

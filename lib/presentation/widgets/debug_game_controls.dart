@@ -16,6 +16,8 @@ class DebugGameControls extends StatelessWidget {
   final Future<void> Function() onStartChallenge;
   final VoidCallback onSwapDebug;
   final VoidCallback onUndo;
+  final bool canRedo;
+  final VoidCallback onRedo;
   final VoidCallback onCheckSolution;
   final Future<void> Function() onCompleteChallenge;
   final VoidCallback onReset;
@@ -31,10 +33,12 @@ class DebugGameControls extends StatelessWidget {
     required this.canStartChallenge,
     required this.canInteract,
     required this.canUndo,
+    required this.canRedo,
     required this.onLoadLevel,
     required this.onStartChallenge,
     required this.onSwapDebug,
     required this.onUndo,
+    required this.onRedo,
     required this.onCheckSolution,
     required this.onCompleteChallenge,
     required this.onReset,
@@ -85,6 +89,10 @@ class DebugGameControls extends StatelessWidget {
               ElevatedButton(
                 onPressed: canUndo ? onUndo : null,
                 child: const Text('Undo'),
+              ),
+              ElevatedButton(
+                onPressed: canRedo ? onRedo : null,
+                child: const Text('Redo'),
               ),
               ElevatedButton(
                 onPressed: canInteract ? onCheckSolution : null,

@@ -1,6 +1,7 @@
 import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
+import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/challenge_session.dart';
@@ -543,5 +544,31 @@ void main() {
     expect(updated.movesUsed, 0);
     expect(updated.history, isEmpty);
     expect(updated.currentState.edges.length, 1);
+  });
+
+  test('clears redo stack when executing a new action after undo', () {
+    final spec = buildSwapSpec();
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final moved = useCase(
+      session: session,
+      action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
+    );
+
+    final undone = const UndoMoveUseCase()(moved);
+
+    expect(undone.redoStack, isNotEmpty);
+
+    final movedAgain = useCase(
+      session: undone,
+      action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
+    );
+
+    expect(movedAgain.redoStack, isEmpty);
   });
 }

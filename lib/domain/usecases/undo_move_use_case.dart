@@ -18,6 +18,7 @@ class UndoMoveUseCase {
     return session.copyWith(
       currentState: previousState,
       history: updatedHistory,
+      redoStack: [...session.redoStack, session.currentState],
       movesUsed: session.movesUsed > 0 ? session.movesUsed - 1 : 0,
       status: SessionStatus.inProgress,
       updatedAt: DateTime.now(),

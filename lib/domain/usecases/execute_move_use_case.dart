@@ -29,6 +29,8 @@ class ExecuteMoveUseCase {
     return session.copyWith(
       currentState: nextState,
       history: [...session.history, currentState],
+      // If undo is used, we should clear the redo stack, as the user is creating a new branch of history.
+      redoStack: const [],
       movesUsed: session.movesUsed + 1,
       updatedAt: DateTime.now(),
       status: SessionStatus.inProgress,
