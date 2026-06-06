@@ -1,6 +1,7 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/domain/entities/structure_state.dart';
+import 'package:algoquest/presentation/game/interaction/drop_resolver.dart';
 import 'package:algoquest/presentation/game/strategies/interaction/interaction_strategy.dart';
 import 'package:algoquest/presentation/game/strategies/interaction/interaction_strategy_factory.dart';
 import 'package:algoquest/presentation/game/visual_scene_builder.dart';
@@ -14,14 +15,19 @@ class AlgoQuestGame extends FlameGame {
   StructureState? _state;
   InteractionStrategy? _interactionStrategy;
 
+  final DropResolver _dropResolver;
+  VisualScene? _lastScene;
+
   void Function(GameAction action)? onActionRequested;
 
   AlgoQuestGame({
     VisualSceneBuilder sceneBuilder = const VisualSceneBuilder(),
     InteractionStrategyFactory interactionStrategyFactory =
         const InteractionStrategyFactory(),
+    DropResolver dropResolver = const DropResolver(),
   }) : _sceneBuilder = sceneBuilder,
-       _interactionStrategyFactory = interactionStrategyFactory;
+       _interactionStrategyFactory = interactionStrategyFactory,
+       _dropResolver = dropResolver;
 
   void updateScene({
     required ChallengeSpec spec,
@@ -71,7 +77,12 @@ class AlgoQuestGame extends FlameGame {
         onActionRequested?.call(action);
       },
       onInteractionChanged: _rebuildScene,
+      onInventoryDragStart: _handleInventoryDragStart,
+      onInventoryDragUpdate: _handleInventoryDragUpdate,
+      onInventoryDragEnd: _handleInventoryDragEnd,
     );
+
+    _lastScene = scene;
 
     addAll(scene.components);
   }
@@ -81,5 +92,32 @@ class AlgoQuestGame extends FlameGame {
     _state = null;
     _interactionStrategy = null;
     removeAll(children.toList());
+  }
+
+  void _handleInventoryDragStart(int value, Vector2 position) {
+    _interactionStrategy?.handleInventoryTap(value);
+  }
+
+  void _handleInventoryDragUpdate(int value, Vector2 position) {
+    // Reserved for future hover feedback.
+  }
+
+  void _handleInventoryDragEnd(int value, Vector2 position) {
+    final slotId = _dropResolver.resolveSlot(
+      dropPosition: position,
+      slotPositions: _lastScene?.slotPositions ?? const {},
+    );
+
+    if (slotId != null) {
+      if (_interactionStrategy?.selectedInventoryValue != value) {
+        _interactionStrategy?.handleInventoryTap(value);
+      }
+
+      final action = _interactionStrategy?.handleNodeTap(slotId);
+
+      if (action != null) {
+        onActionRequested?.call(action);
+      }
+    }
   }
 }

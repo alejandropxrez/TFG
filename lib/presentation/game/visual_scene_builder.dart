@@ -13,8 +13,9 @@ import 'strategies/layout/layout_strategy_factory.dart';
 
 class VisualScene {
   final List<Component> components;
+  final Map<String, Vector2> slotPositions;
 
-  const VisualScene(this.components);
+  const VisualScene({required this.components, required this.slotPositions});
 }
 
 class VisualSceneBuilder {
@@ -35,6 +36,9 @@ class VisualSceneBuilder {
     required InteractionStrategy interactionStrategy,
     required void Function(GameAction action) onActionRequested,
     required void Function() onInteractionChanged,
+    void Function(int value, Vector2 position)? onInventoryDragStart,
+    void Function(int value, Vector2 position)? onInventoryDragUpdate,
+    void Function(int value, Vector2 position)? onInventoryDragEnd,
   }) {
     final components = <Component>[];
 
@@ -47,6 +51,16 @@ class VisualSceneBuilder {
       canvasSize: canvasSize,
     );
 
+    final slotPositions = <String, Vector2>{};
+
+    for (final slot in state.slots.values) {
+      slotPositions[slot.id] = _slotPosition(
+        slotIndex: slot.index,
+        slotCount: state.slots.length,
+        canvasSize: canvasSize,
+      );
+    }
+
     final slotNodeIds = state.slots.values
         .map((slot) => slot.filledNodeId)
         .whereType<String>()
@@ -58,11 +72,10 @@ class VisualSceneBuilder {
       final filledNodeId = slot.filledNodeId;
       if (filledNodeId == null) continue;
 
-      slotNodePositions[filledNodeId] = _slotPosition(
-        slotIndex: slot.index,
-        slotCount: state.slots.length,
-        canvasSize: canvasSize,
-      );
+      final slotPosition = slotPositions[slot.id];
+      if (slotPosition == null) continue;
+
+      slotNodePositions[filledNodeId] = slotPosition;
     }
 
     final connectionStrategy = _connectionStrategyFactory.create(
@@ -106,11 +119,8 @@ class VisualSceneBuilder {
     }
 
     for (final slot in state.slots.values) {
-      final slotPosition = _slotPosition(
-        slotIndex: slot.index,
-        slotCount: state.slots.length,
-        canvasSize: canvasSize,
-      );
+      final slotPosition = slotPositions[slot.id];
+      if (slotPosition == null) continue;
 
       final filledNodeId = slot.filledNodeId;
 
@@ -181,11 +191,14 @@ class VisualSceneBuilder {
 
             onInteractionChanged();
           },
+          onDragStartItem: onInventoryDragStart,
+          onDragUpdateItem: onInventoryDragUpdate,
+          onDragEndItem: onInventoryDragEnd,
         ),
       );
     }
 
-    return VisualScene(components);
+    return VisualScene(components: components, slotPositions: slotPositions);
   }
 
   Vector2 _slotPosition({
