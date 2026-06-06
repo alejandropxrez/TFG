@@ -6,6 +6,7 @@ import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
+import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 
 class UseCases {
   final GetLevelSyllabusUseCase getLevelSyllabus;
@@ -18,6 +19,7 @@ class UseCases {
   final LoadUserProgressUseCase loadUserProgress;
   final SaveProgressUseCase saveProgress;
   final ManageProgressUseCase manageProgress;
+  final UndoMoveUseCase undoMove;
 
   const UseCases({
     required this.getLevelSyllabus,
@@ -28,5 +30,6 @@ class UseCases {
     required this.loadUserProgress,
     required this.saveProgress,
     required this.manageProgress,
+    required this.undoMove,
   });
 }

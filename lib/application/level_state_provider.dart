@@ -289,4 +289,17 @@ class LevelStateNotifier extends Notifier<LevelState> {
       clearError: true,
     );
   }
+
+  void undoLastAction() {
+    final session = state.currentSession;
+    if (session == null) return;
+
+    final updatedSession = _useCases.undoMove(session);
+
+    state = state.copyWith(
+      currentSession: updatedSession,
+      status: LevelFlowStatus.playing,
+      clearError: true,
+    );
+  }
 }

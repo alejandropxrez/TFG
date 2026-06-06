@@ -94,6 +94,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             errorMessage: state.errorMessage,
             canStartChallenge: state.currentChallengeId != null,
             canInteract: state.currentSession != null,
+            canUndo: state.currentSession?.history.isNotEmpty ?? false,
             onLoadLevel: () => notifier.loadLevel(widget.levelId),
             onStartChallenge: () => notifier.startCurrentChallenge(
               userId: userId,
@@ -102,6 +103,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             onSwapDebug: () => notifier.executeAction(
               const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
             ),
+            onUndo: notifier.undoLastAction,
             onCheckSolution: () => _showFeedbackDialog(
               context: context,
               notifier: notifier,

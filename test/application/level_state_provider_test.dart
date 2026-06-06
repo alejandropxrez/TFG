@@ -1,5 +1,6 @@
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
+import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -192,6 +193,7 @@ void main() {
       saveProgress: SaveProgressUseCase(userRepository),
       manageProgress: const ManageProgressUseCase(),
       loadUserProgress: LoadUserProgressUseCase(userRepository),
+      undoMove: const UndoMoveUseCase(),
     );
 
     container = ProviderContainer(
