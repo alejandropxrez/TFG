@@ -392,4 +392,36 @@ void main() {
 
     expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.free);
   });
+
+  test('parses MAX_ATTEMPTS constraint correctly', () {
+    final json = {'type': 'MAX_ATTEMPTS', 'maxAttempts': 3};
+
+    final constraint = ChallengeConstraintModel.fromJson(json);
+
+    expect(
+      constraint.when(
+        maxMoves: (_) => null,
+        lockedNodes: (_) => null,
+        maxAttempts: (maxAttempts) => maxAttempts,
+        livesConsumedOnFail: (_) => null,
+      ),
+      3,
+    );
+  });
+
+  test('parses LIVES_CONSUMED_ON_FAIL constraint correctly', () {
+    final json = {'type': 'LIVES_CONSUMED_ON_FAIL', 'lives': 0};
+
+    final constraint = ChallengeConstraintModel.fromJson(json);
+
+    expect(
+      constraint.when(
+        maxMoves: (_) => null,
+        lockedNodes: (_) => null,
+        maxAttempts: (_) => null,
+        livesConsumedOnFail: (lives) => lives,
+      ),
+      0,
+    );
+  });
 }

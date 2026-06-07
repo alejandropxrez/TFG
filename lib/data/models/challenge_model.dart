@@ -213,6 +213,16 @@ sealed class ChallengeConstraintModel with _$ChallengeConstraintModel {
     required List<String> nodeIds,
   }) = LockedNodesConstraintModel;
 
+  @FreezedUnionValue('MAX_ATTEMPTS')
+  const factory ChallengeConstraintModel.maxAttempts({
+    required int maxAttempts,
+  }) = MaxAttemptsConstraintModel;
+
+  @FreezedUnionValue('LIVES_CONSUMED_ON_FAIL')
+  const factory ChallengeConstraintModel.livesConsumedOnFail({
+    required int lives,
+  }) = LivesConsumedOnFailConstraintModel;
+
   factory ChallengeConstraintModel.fromJson(Map<String, dynamic> json) =>
       _$ChallengeConstraintModelFromJson(json);
 }

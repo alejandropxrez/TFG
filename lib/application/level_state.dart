@@ -8,6 +8,7 @@ enum LevelFlowStatus {
   loading,
   playing,
   challengeSolved,
+  challengeFailed,
   completed,
   failed,
 }

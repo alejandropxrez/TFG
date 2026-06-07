@@ -1,4 +1,8 @@
 import 'package:algoquest/application/app_providers.dart';
+import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
+import 'package:algoquest/data/models/level_syllabus_model.dart' as model;
+import 'package:algoquest/domain/enums/session_status.dart';
+import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
@@ -34,6 +38,11 @@ import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart'
 class AlwaysTrueValidationStrategy implements ValidationStrategy {
   @override
   bool isSolved(ChallengeSession session) => true;
+}
+
+class AlwaysFalseValidationStrategy implements ValidationStrategy {
+  @override
+  bool isSolved(ChallengeSession session) => false;
 }
 
 class FakeContentRepository implements ContentRepository {
@@ -162,6 +171,35 @@ void main() {
     );
   }
 
+  ChallengeSpec buildAttemptsSpec({
+    required ValidationStrategy validationStrategy,
+    List<ChallengeConstraint> constraints = const [],
+  }) {
+    return ChallengeSpec(
+      id: 'challenge_attempts',
+      title: 'Attempts Challenge',
+      instruction: 'Try it',
+      theoryRef: null,
+      engineConfig: ChallengeEngineConfig(
+        structureType: StructureType.heap,
+        validationStrategy: validationStrategy,
+        layoutStrategy: LayoutStrategyType.pyramid,
+        interactionMode: InteractionModeType.swap,
+        connectionType: ConnectionType.explicit,
+        constraints: constraints,
+      ),
+      initialState: const ChallengeInitialStateSpec(
+        nodes: [
+          ChallengeNodeSpec(id: 'n1', value: 3),
+          ChallengeNodeSpec(id: 'n2', value: 10),
+        ],
+        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+        slots: [],
+        inventory: [],
+      ),
+    );
+  }
+
   setUp(() {
     contentRepository = FakeContentRepository();
     userRepository = FakeUserRepository();
@@ -196,6 +234,7 @@ void main() {
       loadUserProgress: LoadUserProgressUseCase(userRepository),
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
+      consumeAttempt: const ConsumeAttemptUseCase(),
     );
 
     container = ProviderContainer(
@@ -466,4 +505,255 @@ void main() {
       expect(userRepository.savedProgress!.currentLevelId, 'next_level');
     },
   );
+
+  test('checkSolution consumes one attempt when solution is wrong', () async {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    contentRepository.syllabuses['level_attempts'] = LevelSyllabus(
+      id: 'level_attempts',
+      title: 'Attempts Level',
+      topic: LevelTopic.heaps,
+      challenges: const ['challenge_attempts'],
+      rewards: const LevelRewards(xp: 100, stars: 3),
+    );
+
+    contentRepository.specs['challenge_attempts'] = buildAttemptsSpec(
+      validationStrategy: AlwaysFalseValidationStrategy(),
+      constraints: const [
+        MaxAttemptsConstraint(3),
+        LivesConsumedOnFailConstraint(1),
+      ],
+    );
+
+    await notifier.loadLevel('level_attempts');
+
+    await notifier.startCurrentChallenge(
+      userId: 'user_1',
+      sessionId: 'session_1',
+    );
+
+    final solved = notifier.checkSolution();
+
+    final state = container.read(levelStateProvider);
+
+    expect(solved, isFalse);
+    expect(state.status, LevelFlowStatus.playing);
+    expect(state.currentSession!.attemptsRemaining, 2);
+    expect(state.currentSession!.status, SessionStatus.inProgress);
+  });
+
+  test(
+    'checkSolution marks challenge as failed when attempts reach zero',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_attempts'] = LevelSyllabus(
+        id: 'level_attempts',
+        title: 'Attempts Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['challenge_attempts'],
+        rewards: const LevelRewards(xp: 100, stars: 3),
+      );
+
+      contentRepository.specs['challenge_attempts'] = buildAttemptsSpec(
+        validationStrategy: AlwaysFalseValidationStrategy(),
+        constraints: const [
+          MaxAttemptsConstraint(1),
+          LivesConsumedOnFailConstraint(1),
+        ],
+      );
+
+      await notifier.loadLevel('level_attempts');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_1',
+      );
+
+      final solved = notifier.checkSolution();
+
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isFalse);
+      expect(state.status, LevelFlowStatus.challengeFailed);
+      expect(state.currentSession!.attemptsRemaining, 0);
+      expect(state.currentSession!.status, SessionStatus.failed);
+      expect(state.errorMessage, isNotNull);
+    },
+  );
+
+  test(
+    'checkSolution does not consume attempts when solution is correct',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_attempts'] = LevelSyllabus(
+        id: 'level_attempts',
+        title: 'Attempts Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['challenge_attempts'],
+        rewards: const LevelRewards(xp: 100, stars: 3),
+      );
+
+      contentRepository.specs['challenge_attempts'] = buildAttemptsSpec(
+        validationStrategy: AlwaysTrueValidationStrategy(),
+        constraints: const [
+          MaxAttemptsConstraint(3),
+          LivesConsumedOnFailConstraint(1),
+        ],
+      );
+
+      await notifier.loadLevel('level_attempts');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_1',
+      );
+
+      final solved = notifier.checkSolution();
+
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isTrue);
+      expect(state.status, LevelFlowStatus.challengeSolved);
+      expect(state.currentSession!.attemptsRemaining, 3);
+      expect(state.currentSession!.status, SessionStatus.completed);
+    },
+  );
+
+  test(
+    'checkSolution does not consume attempts when livesConsumedOnFail is zero',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_tutorial'] = LevelSyllabus(
+        id: 'level_tutorial',
+        title: 'Tutorial Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['challenge_tutorial'],
+        rewards: const LevelRewards(xp: 100, stars: 3),
+      );
+
+      contentRepository.specs['challenge_tutorial'] = buildAttemptsSpec(
+        validationStrategy: AlwaysFalseValidationStrategy(),
+        constraints: const [
+          MaxAttemptsConstraint(3),
+          LivesConsumedOnFailConstraint(0),
+        ],
+      );
+
+      await notifier.loadLevel('level_tutorial');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_1',
+      );
+
+      final solved = notifier.checkSolution();
+
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isFalse);
+      expect(state.status, LevelFlowStatus.playing);
+      expect(state.currentSession!.attemptsRemaining, 3);
+      expect(state.currentSession!.status, SessionStatus.inProgress);
+    },
+  );
+
+  test(
+    'completeCurrentChallenge applies lives reward when level is completed',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      userRepository.savedProgress = const UserProgress(
+        userId: 'user_1',
+        currentLevelId: 'single_challenge_level',
+        unlockedLevels: {'single_challenge_level'},
+        experiencePoints: 0,
+        level: 1,
+        livesRemaining: 2,
+      );
+
+      contentRepository.syllabuses['single_challenge_level'] = LevelSyllabus(
+        id: 'single_challenge_level',
+        title: 'Single Challenge Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['challenge_attempts'],
+        rewards: const LevelRewards(xp: 100, stars: 3, lives: 1),
+      );
+
+      contentRepository.specs['challenge_attempts'] = buildAttemptsSpec(
+        validationStrategy: AlwaysTrueValidationStrategy(),
+        constraints: const [
+          MaxAttemptsConstraint(3),
+          LivesConsumedOnFailConstraint(1),
+        ],
+      );
+
+      await notifier.loadLevel('single_challenge_level');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_1',
+      );
+
+      final solved = notifier.checkSolution();
+      expect(solved, isTrue);
+
+      await notifier.completeCurrentChallenge(
+        userId: 'user_1',
+        nextSessionId: 'unused_session',
+      );
+
+      final state = container.read(levelStateProvider);
+
+      expect(state.status, LevelFlowStatus.completed);
+      expect(state.errorMessage, isNull);
+
+      expect(userRepository.savedProgress, isNotNull);
+      expect(userRepository.savedProgress!.experiencePoints, 100);
+      expect(userRepository.savedProgress!.livesRemaining, 3);
+
+      expect(
+        userRepository.savedProgress!.unlockedLevels,
+        contains('next_level'),
+      );
+
+      expect(userRepository.savedProgress!.currentLevelId, 'next_level');
+    },
+  );
+
+  test('parses lives reward when present', () {
+    final json = {
+      'id': 'level_heap_intro',
+      'title': 'Heap Intro',
+      'topic': 'HEAPS',
+      'challenges': ['challenge_1'],
+      'rewards': {'xp': 100, 'stars': 3, 'lives': 1},
+    };
+
+    final levelModel = model.LevelSyllabusModel.fromJson(json);
+    final domain = LevelSyllabusMapper.toDomain(levelModel);
+
+    expect(domain.rewards.xp, 100);
+    expect(domain.rewards.stars, 3);
+    expect(domain.rewards.lives, 1);
+  });
+
+  test('defaults lives reward to zero when omitted', () {
+    final json = {
+      'id': 'level_heap_intro',
+      'title': 'Heap Intro',
+      'topic': 'HEAPS',
+      'challenges': ['challenge_1'],
+      'rewards': {'xp': 100, 'stars': 3},
+    };
+
+    final levelModel = model.LevelSyllabusModel.fromJson(json);
+    final domain = LevelSyllabusMapper.toDomain(levelModel);
+
+    expect(domain.rewards.xp, 100);
+    expect(domain.rewards.stars, 3);
+    expect(domain.rewards.lives, 0);
+  });
 }

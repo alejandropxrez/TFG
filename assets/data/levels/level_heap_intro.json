@@ -10,6 +10,7 @@
 	],
 	"rewards": {
 		"xp": 100,
-		"stars": 3
+		"stars": 3,
+		"lives": 1
 	}
 }

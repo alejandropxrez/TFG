@@ -21,6 +21,7 @@ class DebugGameControls extends StatelessWidget {
   final VoidCallback onCheckSolution;
   final Future<void> Function() onCompleteChallenge;
   final VoidCallback onReset;
+  final int? attemptsRemaining;
 
   const DebugGameControls({
     super.key,
@@ -42,6 +43,7 @@ class DebugGameControls extends StatelessWidget {
     required this.onCheckSolution,
     required this.onCompleteChallenge,
     required this.onReset,
+    required this.attemptsRemaining,
   });
 
   @override
@@ -57,7 +59,8 @@ class DebugGameControls extends StatelessWidget {
             'Status: $status'
             ' | Challenge: ${challengeId ?? "-"}'
             ' | $currentChallengeNumber/$totalChallenges'
-            ' | Moves: $movesUsed',
+            ' | Moves: $movesUsed'
+            ' | Attempts: ${attemptsRemaining?.toString() ?? "-"}',
             textAlign: TextAlign.center,
           ),
           if (errorMessage != null) ...[

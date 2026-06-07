@@ -24,6 +24,40 @@ class LockedNodesConstraint extends ChallengeConstraint {
   const LockedNodesConstraint(this.nodeIds);
 }
 
+class MaxAttemptsConstraint extends ChallengeConstraint {
+  final int maxAttempts;
+
+  const MaxAttemptsConstraint(this.maxAttempts);
+}
+
+class LivesConsumedOnFailConstraint extends ChallengeConstraint {
+  final int lives;
+
+  const LivesConsumedOnFailConstraint(this.lives);
+}
+
+extension ChallengeSpecAttempts on ChallengeSpec {
+  int? get maxAttempts {
+    for (final constraint in engineConfig.constraints) {
+      if (constraint is MaxAttemptsConstraint) {
+        return constraint.maxAttempts;
+      }
+    }
+
+    return null;
+  }
+
+  int get livesConsumedOnFail {
+    for (final constraint in engineConfig.constraints) {
+      if (constraint is LivesConsumedOnFailConstraint) {
+        return constraint.lives;
+      }
+    }
+
+    return 1;
+  }
+}
+
 class ChallengeEngineConfig {
   final StructureType structureType;
   final ValidationStrategy validationStrategy;

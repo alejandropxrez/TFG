@@ -32,8 +32,11 @@ abstract class LevelSyllabusModel with _$LevelSyllabusModel {
 
 @freezed
 abstract class RewardsModel with _$RewardsModel {
-  const factory RewardsModel({required int xp, required int stars}) =
-      _RewardsModel;
+  const factory RewardsModel({
+    required int xp,
+    required int stars,
+    @Default(0) int lives,
+  }) = _RewardsModel;
 
   factory RewardsModel.fromJson(Map<String, dynamic> json) =>
       _$RewardsModelFromJson(json);

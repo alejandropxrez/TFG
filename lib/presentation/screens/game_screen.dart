@@ -116,6 +116,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               nextSessionId: 'session_${DateTime.now().millisecondsSinceEpoch}',
             ),
             onReset: notifier.resetLevelFlow,
+            attemptsRemaining: state.currentSession?.attemptsRemaining,
           ),
         ],
       ),

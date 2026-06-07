@@ -13,6 +13,7 @@ class ChallengeSession {
   final SessionStatus status;
   final DateTime startedAt;
   final DateTime updatedAt;
+  final int? attemptsRemaining;
 
   const ChallengeSession({
     required this.sessionId,
@@ -25,6 +26,7 @@ class ChallengeSession {
     required this.status,
     required this.startedAt,
     required this.updatedAt,
+    required this.attemptsRemaining,
   });
 
   factory ChallengeSession.start({
@@ -59,6 +61,7 @@ class ChallengeSession {
       status: SessionStatus.inProgress,
       startedAt: now,
       updatedAt: now,
+      attemptsRemaining: spec.maxAttempts,
     );
   }
 
@@ -69,6 +72,7 @@ class ChallengeSession {
     int? movesUsed,
     SessionStatus? status,
     DateTime? updatedAt,
+    int? attemptsRemaining,
   }) {
     return ChallengeSession(
       sessionId: sessionId,
@@ -81,6 +85,7 @@ class ChallengeSession {
       status: status ?? this.status,
       startedAt: startedAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      attemptsRemaining: attemptsRemaining ?? this.attemptsRemaining,
     );
   }
 }

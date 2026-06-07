@@ -3,8 +3,9 @@ enum LevelTopic { heaps, lists, bst, mixed }
 class LevelRewards {
   final int xp;
   final int stars;
+  final int lives;
 
-  const LevelRewards({required this.xp, required this.stars});
+  const LevelRewards({required this.xp, required this.stars, this.lives = 0});
 }
 
 class LevelSyllabus {

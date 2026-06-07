@@ -51,6 +51,8 @@ class ChallengeMapper {
     return constraintModel.when(
       maxMoves: (maxMoves) => MaxMovesConstraint(maxMoves),
       lockedNodes: (nodeIds) => LockedNodesConstraint(nodeIds),
+      maxAttempts: (maxAttempts) => MaxAttemptsConstraint(maxAttempts),
+      livesConsumedOnFail: (lives) => LivesConsumedOnFailConstraint(lives),
     );
   }
 

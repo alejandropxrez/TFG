@@ -8,6 +8,7 @@ import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
 import 'package:algoquest/domain/repositories/user_repository.dart';
 import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
+import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
 import 'package:algoquest/domain/usecases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/usecases/load_challenge_spec_use_case.dart';
@@ -112,6 +113,7 @@ void main() {
       loadUserProgress: LoadUserProgressUseCase(userRepository),
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
+      consumeAttempt: const ConsumeAttemptUseCase(),
     );
 
     container = ProviderContainer(

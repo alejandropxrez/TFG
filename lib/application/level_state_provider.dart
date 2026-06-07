@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/core/composition/use_cases.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
+import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:algoquest/domain/entities/game_action.dart';
@@ -140,14 +141,33 @@ class LevelStateNotifier extends Notifier<LevelState> {
 
     final solved = _useCases.checkSolution(session);
 
+    if (solved) {
+      state = state.copyWith(
+        currentSession: session.copyWith(
+          status: SessionStatus.completed,
+          updatedAt: DateTime.now(),
+        ),
+        status: LevelFlowStatus.challengeSolved,
+        clearError: true,
+      );
+
+      return true;
+    }
+
+    final updatedSession = _useCases.consumeAttempt(session);
+
     state = state.copyWith(
-      status: solved
-          ? LevelFlowStatus.challengeSolved
+      currentSession: updatedSession,
+      status: updatedSession.status == SessionStatus.failed
+          ? LevelFlowStatus.challengeFailed
           : LevelFlowStatus.playing,
-      clearError: true,
+      errorMessage: updatedSession.status == SessionStatus.failed
+          ? 'No attempts remaining.'
+          : null,
+      clearError: updatedSession.status != SessionStatus.failed,
     );
 
-    return solved;
+    return false;
   }
 
   Future<void> completeCurrentChallenge({
@@ -195,6 +215,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
           xpGained: syllabus.rewards.xp,
           newlyUnlockedLevels: newlyUnlockedLevels,
           newCurrentLevelId: nextLevelId ?? syllabus.id,
+          livesGained: syllabus.rewards.lives,
         );
 
         await _useCases.saveProgress(updatedProgress);

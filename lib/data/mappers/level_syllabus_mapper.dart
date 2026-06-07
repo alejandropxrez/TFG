@@ -12,6 +12,7 @@ class LevelSyllabusMapper {
       rewards: domain.LevelRewards(
         xp: modelData.rewards.xp,
         stars: modelData.rewards.stars,
+        lives: modelData.rewards.lives,
       ),
     );
   }
