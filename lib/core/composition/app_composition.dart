@@ -7,6 +7,7 @@ import 'package:algoquest/data/repositories/user_repository_impl.dart';
 
 import 'package:algoquest/domain/repositories/content_repository.dart';
 import 'package:algoquest/domain/repositories/user_repository.dart';
+import 'package:algoquest/domain/usecases/check_challenge_use_case.dart';
 
 import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
 import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
@@ -18,6 +19,7 @@ import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
+import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 
 import 'use_cases.dart';
@@ -57,6 +59,8 @@ class AppComposition {
     final undomove = const UndoMoveUseCase();
     final redoMove = const RedoMoveUseCase();
     final consumeAttempt = const ConsumeAttemptUseCase();
+    final checkChallenge = const CheckChallengeUseCase();
+    final submitQuizAnswer = const SubmitQuizAnswerUseCase();
 
     final useCases = UseCases(
       getLevelSyllabus: getLevelSyllabus,
@@ -70,6 +74,8 @@ class AppComposition {
       undoMove: undomove,
       redoMove: redoMove,
       consumeAttempt: consumeAttempt,
+      checkChallenge: checkChallenge,
+      submitQuizAnswer: submitQuizAnswer,
     );
 
     return AppComposition._(

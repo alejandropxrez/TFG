@@ -32,7 +32,7 @@
 			},
 			{
 				"id": "d",
-				"text": "Los valores deben estar ordenados de menor a mayor en inorden."
+				"text": "Los valores deben aparecer ordenados de menor a mayor en recorrido inorden."
 			}
 		],
 		"correctOptionIds": ["a"],

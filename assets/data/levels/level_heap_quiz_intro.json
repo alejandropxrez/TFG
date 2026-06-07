@@ -1,0 +1,12 @@
+{
+	"id": "level_heap_quiz_intro",
+	"title": "Quiz de Heaps",
+	"topic": "HEAPS",
+	"subtitle": "Comprueba conceptos básicos",
+	"challenges": ["quiz_heap_property"],
+	"rewards": {
+		"xp": 50,
+		"stars": 1,
+		"lives": 1
+	}
+}

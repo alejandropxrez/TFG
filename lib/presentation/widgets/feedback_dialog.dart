@@ -8,25 +8,29 @@ class FeedbackDialog extends StatelessWidget {
   const FeedbackDialog({
     super.key,
     required this.solved,
-    this.theoryRef,
+    required this.theoryRef,
     this.onContinue,
   });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(solved ? '¡Reto superado!' : 'Aún no está correcto'),
+      title: Text(solved ? '¡Correcto!' : 'Inténtalo de nuevo'),
       content: Text(
         solved
-            ? 'Buen trabajo. Puedes continuar con el siguiente reto.'
-            : 'Revisa la estructura e inténtalo de nuevo.'
-                  '${theoryRef == null ? '' : '\n\nAyuda: $theoryRef'}',
+            ? 'Has superado el reto.'
+            : theoryRef ?? 'La solución todavía no es correcta.',
       ),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            onContinue?.call();
+
+            if (onContinue != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                onContinue!();
+              });
+            }
           },
           child: Text(solved ? 'Continuar' : 'Cerrar'),
         ),

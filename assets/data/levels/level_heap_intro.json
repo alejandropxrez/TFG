@@ -2,15 +2,14 @@
 	"id": "level_heap_intro",
 	"title": "Introducción a Heaps",
 	"topic": "HEAPS",
+	"subtitle": "Repara heaps usando intercambios",
 	"challenges": [
+		"quiz_heap_property",
 		"heap_repair_intro",
-		"heap_repair_swap",
-		"heap_insert_value",
-		"graph_link_edit"
+		"heap_repair_swap"
 	],
 	"rewards": {
 		"xp": 100,
-		"stars": 3,
-		"lives": 1
+		"stars": 3
 	}
 }

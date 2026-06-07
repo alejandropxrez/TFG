@@ -7,6 +7,7 @@ import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
 import 'package:algoquest/domain/repositories/user_repository.dart';
+import 'package:algoquest/domain/usecases/check_challenge_use_case.dart';
 import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
 import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
@@ -17,6 +18,7 @@ import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
+import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -114,6 +116,8 @@ void main() {
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
       consumeAttempt: const ConsumeAttemptUseCase(),
+      checkChallenge: const CheckChallengeUseCase(),
+      submitQuizAnswer: const SubmitQuizAnswerUseCase(),
     );
 
     container = ProviderContainer(

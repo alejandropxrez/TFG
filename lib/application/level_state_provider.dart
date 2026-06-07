@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/core/composition/use_cases.dart';
+import 'package:algoquest/domain/entities/quiz_action.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -139,14 +140,12 @@ class LevelStateNotifier extends Notifier<LevelState> {
     final session = state.currentSession;
     if (session == null) return false;
 
-    final solved = _useCases.checkSolution(session);
+    final checkedSession = _useCases.checkChallenge(session);
+    final solved = checkedSession.status == SessionStatus.completed;
 
     if (solved) {
       state = state.copyWith(
-        currentSession: session.copyWith(
-          status: SessionStatus.completed,
-          updatedAt: DateTime.now(),
-        ),
+        currentSession: checkedSession,
         status: LevelFlowStatus.challengeSolved,
         clearError: true,
       );
@@ -154,17 +153,16 @@ class LevelStateNotifier extends Notifier<LevelState> {
       return true;
     }
 
-    final updatedSession = _useCases.consumeAttempt(session);
+    final updatedSession = _useCases.consumeAttempt(checkedSession);
+    final failed = updatedSession.status == SessionStatus.failed;
 
     state = state.copyWith(
       currentSession: updatedSession,
-      status: updatedSession.status == SessionStatus.failed
+      status: failed
           ? LevelFlowStatus.challengeFailed
           : LevelFlowStatus.playing,
-      errorMessage: updatedSession.status == SessionStatus.failed
-          ? 'No attempts remaining.'
-          : null,
-      clearError: updatedSession.status != SessionStatus.failed,
+      errorMessage: failed ? 'No attempts remaining.' : null,
+      clearError: !failed,
     );
 
     return false;
@@ -180,11 +178,28 @@ class LevelStateNotifier extends Notifier<LevelState> {
 
     if (manager == null || session == null || syllabus == null) return;
 
-    final solved = _useCases.checkSolution(session);
+    final alreadySolved =
+        session.status == SessionStatus.completed ||
+        state.status == LevelFlowStatus.challengeSolved;
 
-    if (!solved) {
-      state = state.copyWith(status: LevelFlowStatus.playing, clearError: true);
-      return;
+    if (!alreadySolved) {
+      final checkedSession = _useCases.checkChallenge(session);
+      final solved = checkedSession.status == SessionStatus.completed;
+
+      if (!solved) {
+        state = state.copyWith(
+          currentSession: checkedSession,
+          status: LevelFlowStatus.playing,
+          clearError: true,
+        );
+        return;
+      }
+
+      state = state.copyWith(
+        currentSession: checkedSession,
+        status: LevelFlowStatus.challengeSolved,
+        clearError: true,
+      );
     }
 
     final nextManager = manager.completeCurrentChallenge();
@@ -329,6 +344,22 @@ class LevelStateNotifier extends Notifier<LevelState> {
     if (session == null) return;
 
     final updatedSession = _useCases.redoMove(session);
+
+    state = state.copyWith(
+      currentSession: updatedSession,
+      status: LevelFlowStatus.playing,
+      clearError: true,
+    );
+  }
+
+  void submitQuizAnswer(Set<String> selectedOptionIds) {
+    final session = state.currentSession;
+    if (session == null) return;
+
+    final updatedSession = _useCases.submitQuizAnswer(
+      session: session,
+      action: SubmitQuizAnswerAction(selectedOptionIds: selectedOptionIds),
+    );
 
     state = state.copyWith(
       currentSession: updatedSession,

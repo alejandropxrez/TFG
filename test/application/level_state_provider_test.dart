@@ -2,9 +2,11 @@ import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
 import 'package:algoquest/data/models/level_syllabus_model.dart' as model;
 import 'package:algoquest/domain/enums/session_status.dart';
+import 'package:algoquest/domain/usecases/check_challenge_use_case.dart';
 import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
+import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -239,6 +241,8 @@ void main() {
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
       consumeAttempt: const ConsumeAttemptUseCase(),
+      checkChallenge: const CheckChallengeUseCase(),
+      submitQuizAnswer: const SubmitQuizAnswerUseCase(),
     );
 
     container = ProviderContainer(

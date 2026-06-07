@@ -26,7 +26,7 @@ class CheckQuizAnswerUseCase {
         );
 
     return session.copyWith(
-      status: isCorrect ? SessionStatus.completed : SessionStatus.failed,
+      status: isCorrect ? SessionStatus.completed : SessionStatus.inProgress,
       updatedAt: DateTime.now(),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:algoquest/data/mappers/challenge_mapper.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
@@ -511,5 +512,55 @@ void main() {
     );
     expect(quiz.correctOptionIds, ['a']);
     expect(quiz.allowMultiple, isFalse);
+  });
+
+  test('maps SINGLE_CHOICE challenge model to QuizChallengeContent', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'SINGLE_CHOICE',
+      'metadata': {
+        'title': 'Propiedad de Max Heap',
+        'instruction': 'Selecciona la opción correcta',
+        'theoryRef': 'heap_intro',
+      },
+      'constraints': [
+        {'type': 'MAX_ATTEMPTS', 'maxAttempts': 3},
+        {'type': 'LIVES_CONSUMED_ON_FAIL', 'lives': 1},
+      ],
+      'quiz': {
+        'question': '¿Qué propiedad debe cumplir un max-heap?',
+        'options': [
+          {
+            'id': 'a',
+            'text': 'Cada padre debe ser mayor o igual que sus hijos.',
+          },
+          {'id': 'b', 'text': 'Cada hijo debe ser mayor que su padre.'},
+        ],
+        'correctOptionIds': ['a'],
+        'allowMultiple': false,
+      },
+    });
+
+    final spec = ChallengeMapper.toDomain('quiz_heap_property', model);
+
+    expect(spec.id, 'quiz_heap_property');
+    expect(spec.title, 'Propiedad de Max Heap');
+    expect(spec.instruction, 'Selecciona la opción correcta');
+    expect(spec.theoryRef, 'heap_intro');
+
+    expect(spec.constraints, hasLength(2));
+    expect(spec.maxAttempts, 3);
+    expect(spec.livesConsumedOnFail, 1);
+
+    expect(spec.content, isA<QuizChallengeContent>());
+
+    final content = spec.content as QuizChallengeContent;
+
+    expect(
+      content.quizSpec.question,
+      '¿Qué propiedad debe cumplir un max-heap?',
+    );
+    expect(content.quizSpec.options, hasLength(2));
+    expect(content.quizSpec.correctOptionIds, {'a'});
+    expect(content.quizSpec.allowMultiple, isFalse);
   });
 }

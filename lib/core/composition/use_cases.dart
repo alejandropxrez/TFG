@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/usecases/check_challenge_use_case.dart';
 import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
 import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
@@ -8,6 +9,7 @@ import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
+import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 
 class UseCases {
@@ -24,6 +26,8 @@ class UseCases {
   final UndoMoveUseCase undoMove;
   final RedoMoveUseCase redoMove;
   final ConsumeAttemptUseCase consumeAttempt;
+  final CheckChallengeUseCase checkChallenge;
+  final SubmitQuizAnswerUseCase submitQuizAnswer;
 
   const UseCases({
     required this.getLevelSyllabus,
@@ -37,5 +41,7 @@ class UseCases {
     required this.undoMove,
     required this.redoMove,
     required this.consumeAttempt,
+    required this.checkChallenge,
+    required this.submitQuizAnswer,
   });
 }

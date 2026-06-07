@@ -1,11 +1,14 @@
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/application/level_state.dart';
 import 'package:algoquest/application/level_state_provider.dart';
+import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
 import 'package:algoquest/presentation/widgets/feedback_dialog.dart';
 import 'package:algoquest/presentation/widgets/game_hud.dart';
+import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,19 +46,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         return;
       }
 
+      final runtimeState = session.runtimeState;
+
+      if (runtimeState is! StructureRuntimeState) {
+        game.clearScene();
+        return;
+      }
+
       final previousSpecId = previous?.currentChallengeSpec?.id;
       final nextSpecId = spec.id;
 
-      final previousState =
-          previous?.currentSession?.structureRuntimeState.structure;
-      final nextState = session.structureRuntimeState.structure;
+      final previousRuntimeState = previous?.currentSession?.runtimeState;
+      final previousStructure = previousRuntimeState is StructureRuntimeState
+          ? previousRuntimeState.structure
+          : null;
+
+      final nextStructure = runtimeState.structure;
 
       final shouldUpdateScene =
-          previousSpecId != nextSpecId || previousState != nextState;
+          previousSpecId != nextSpecId || previousStructure != nextStructure;
 
       if (!shouldUpdateScene) return;
 
-      game.updateScene(spec: spec, state: nextState);
+      game.updateScene(spec: spec, state: nextStructure);
     });
 
     final state = ref.watch(levelStateProvider);
@@ -73,8 +86,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             challengeId: state.currentChallengeId,
             currentChallengeNumber: currentChallengeNumber,
             totalChallenges: state.totalChallenges,
-            movesUsed:
-                state.currentSession?.structureRuntimeState.movesUsed ?? 0,
+            movesUsed: _movesUsed(state),
             attemptsRemaining: state.currentSession?.attemptsRemaining,
             instruction: state.currentChallengeSpec?.instruction,
             onCheckSolution: state.currentSession == null
@@ -85,31 +97,24 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     state: state,
                   ),
           ),
-          Expanded(child: GameWidget(game: game)),
+          Expanded(
+            child: _buildChallengeBody(
+              state: state,
+              notifier: notifier,
+              game: game,
+            ),
+          ),
           DebugGameControls(
             status: state.status.name,
             challengeId: state.currentChallengeId,
             currentChallengeNumber: currentChallengeNumber,
             totalChallenges: state.totalChallenges,
-            movesUsed:
-                state.currentSession?.structureRuntimeState.movesUsed ?? 0,
+            movesUsed: _movesUsed(state),
             errorMessage: state.errorMessage,
             canStartChallenge: state.currentChallengeId != null,
             canInteract: state.currentSession != null,
-            canUndo:
-                state
-                    .currentSession
-                    ?.structureRuntimeState
-                    .history
-                    .isNotEmpty ??
-                false,
-            canRedo:
-                state
-                    .currentSession
-                    ?.structureRuntimeState
-                    .redoStack
-                    .isNotEmpty ??
-                false,
+            canUndo: _canUndo(state),
+            canRedo: _canRedo(state),
             onLoadLevel: () => notifier.loadLevel(widget.levelId),
             onStartChallenge: () => notifier.startCurrentChallenge(
               userId: userId,
@@ -137,6 +142,34 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
+  Widget _buildChallengeBody({
+    required LevelState state,
+    required LevelStateNotifier notifier,
+    required AlgoQuestGame game,
+  }) {
+    final spec = state.currentChallengeSpec;
+    final session = state.currentSession;
+
+    if (spec == null || session == null) {
+      return GameWidget(game: game);
+    }
+
+    final content = spec.content;
+    final runtimeState = session.runtimeState;
+
+    if (content is QuizChallengeContent && runtimeState is QuizRuntimeState) {
+      return QuizChallengeView(
+        quizSpec: content.quizSpec,
+        selectedOptionIds: runtimeState.selectedOptionIds,
+        onSelectOption: (optionId) {
+          notifier.submitQuizAnswer({optionId});
+        },
+      );
+    }
+
+    return GameWidget(game: game);
+  }
+
   void _showFeedbackDialog({
     required BuildContext context,
     required LevelStateNotifier notifier,
@@ -162,5 +195,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             : null,
       ),
     );
+  }
+
+  int _movesUsed(LevelState state) {
+    final runtimeState = state.currentSession?.runtimeState;
+
+    if (runtimeState is StructureRuntimeState) {
+      return runtimeState.movesUsed;
+    }
+
+    return 0;
+  }
+
+  bool _canUndo(LevelState state) {
+    final runtimeState = state.currentSession?.runtimeState;
+
+    return runtimeState is StructureRuntimeState &&
+        runtimeState.history.isNotEmpty;
+  }
+
+  bool _canRedo(LevelState state) {
+    final runtimeState = state.currentSession?.runtimeState;
+
+    return runtimeState is StructureRuntimeState &&
+        runtimeState.redoStack.isNotEmpty;
   }
 }

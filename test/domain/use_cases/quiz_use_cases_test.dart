@@ -131,7 +131,7 @@ void main() {
   );
 
   test(
-    'CheckQuizAnswerUseCase marks session as failed when answer is incorrect',
+    'CheckQuizAnswerUseCase keeps session in progress when answer is incorrect',
     () {
       final session = ChallengeSession.start(
         sessionId: 'session_1',
@@ -146,7 +146,7 @@ void main() {
 
       final checked = const CheckQuizAnswerUseCase()(answered);
 
-      expect(checked.status, SessionStatus.failed);
+      expect(checked.status, SessionStatus.inProgress);
     },
   );
 
