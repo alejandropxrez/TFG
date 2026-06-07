@@ -46,6 +46,8 @@ class LevelState {
 
   int get currentChallengeIndex => sessionManager?.currentChallengeIndex ?? 0;
 
+  int get currentChallengeNumber => sessionManager?.currentChallengeNumber ?? 0;
+
   int get totalChallenges => sessionManager?.totalChallenges ?? 0;
 
   String? get currentChallengeId => sessionManager?.currentChallengeId;

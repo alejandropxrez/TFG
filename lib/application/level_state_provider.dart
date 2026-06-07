@@ -187,7 +187,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
       return;
     }
 
-    final nextManager = manager.moveNext();
+    final nextManager = manager.completeCurrentChallenge();
 
     if (nextManager.isLevelCompleted) {
       try {

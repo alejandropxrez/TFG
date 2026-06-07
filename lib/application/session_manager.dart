@@ -26,6 +26,11 @@ class SessionManager {
     return syllabus.challenges[currentChallengeIndex];
   }
 
+  int get currentChallengeNumber {
+    if (isLevelCompleted) return totalChallenges;
+    return currentChallengeIndex + 1;
+  }
+
   bool get hasNextChallenge => currentChallengeIndex < totalChallenges - 1;
 
   bool get isOnLastChallenge =>
@@ -33,7 +38,7 @@ class SessionManager {
 
   bool get isLevelCompleted => currentChallengeIndex >= totalChallenges;
 
-  SessionManager moveNext() {
+  SessionManager completeCurrentChallenge() {
     if (isLevelCompleted) return this;
 
     return SessionManager(

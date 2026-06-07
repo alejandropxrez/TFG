@@ -35,7 +35,7 @@ void main() {
     test('moves to the next challenge', () {
       final manager = SessionManager(syllabus: buildSyllabus());
 
-      final next = manager.moveNext();
+      final next = manager.completeCurrentChallenge();
 
       expect(next.currentChallengeIndex, 1);
       expect(next.currentChallengeId, 'challenge_2');
@@ -49,7 +49,7 @@ void main() {
     test('does not mutate the previous manager when moving next', () {
       final manager = SessionManager(syllabus: buildSyllabus());
 
-      final next = manager.moveNext();
+      final next = manager.completeCurrentChallenge();
 
       expect(manager.currentChallengeIndex, 0);
       expect(manager.currentChallengeId, 'challenge_1');
@@ -77,7 +77,7 @@ void main() {
         currentChallengeIndex: 2,
       );
 
-      final completed = manager.moveNext();
+      final completed = manager.completeCurrentChallenge();
 
       expect(completed.currentChallengeIndex, 3);
       expect(completed.currentChallengeId, isNull);
@@ -93,7 +93,7 @@ void main() {
         currentChallengeIndex: 3,
       );
 
-      final next = manager.moveNext();
+      final next = manager.completeCurrentChallenge();
 
       expect(identical(next, manager), isTrue);
       expect(next.currentChallengeIndex, 3);
@@ -115,7 +115,7 @@ void main() {
       expect(manager.isOnLastChallenge, isTrue);
       expect(manager.isLevelCompleted, isFalse);
 
-      final completed = manager.moveNext();
+      final completed = manager.completeCurrentChallenge();
 
       expect(completed.currentChallengeIndex, 1);
       expect(completed.currentChallengeId, isNull);

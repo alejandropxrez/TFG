@@ -61,9 +61,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final notifier = ref.read(levelStateProvider.notifier);
     final userId = ref.watch(currentUserIdProvider);
 
-    final currentChallengeNumber = state.totalChallenges == 0
-        ? 0
-        : state.currentChallengeIndex + 1;
+    final currentChallengeNumber = state.currentChallengeNumber;
 
     return Scaffold(
       appBar: AppBar(title: const Text('AlgoQuest')),
@@ -75,6 +73,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             currentChallengeNumber: currentChallengeNumber,
             totalChallenges: state.totalChallenges,
             movesUsed: state.currentSession?.movesUsed ?? 0,
+            attemptsRemaining: state.currentSession?.attemptsRemaining,
             instruction: state.currentChallengeSpec?.instruction,
             onCheckSolution: state.currentSession == null
                 ? null

@@ -6,6 +6,7 @@ class GameHud extends StatelessWidget {
   final int currentChallengeNumber;
   final int totalChallenges;
   final int movesUsed;
+  final int? attemptsRemaining;
   final String? instruction;
   final VoidCallback? onCheckSolution;
 
@@ -16,6 +17,7 @@ class GameHud extends StatelessWidget {
     required this.currentChallengeNumber,
     required this.totalChallenges,
     required this.movesUsed,
+    required this.attemptsRemaining,
     required this.instruction,
     this.onCheckSolution,
   });
@@ -25,6 +27,10 @@ class GameHud extends StatelessWidget {
     final progressText = totalChallenges == 0
         ? 'Reto -/-'
         : 'Reto $currentChallengeNumber/$totalChallenges';
+
+    final attemptsText = attemptsRemaining == null
+        ? 'Intentos: -'
+        : 'Intentos: $attemptsRemaining';
 
     return Container(
       width: double.infinity,
@@ -41,6 +47,8 @@ class GameHud extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
               ),
+              Text(attemptsText, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(width: 12),
               Text(
                 'Movs: $movesUsed',
                 style: Theme.of(context).textTheme.bodySmall,
