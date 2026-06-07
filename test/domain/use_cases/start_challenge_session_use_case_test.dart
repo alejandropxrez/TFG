@@ -36,21 +36,23 @@ void main() {
         title: 'BST insertion',
         instruction: 'Insert the node into the BST',
         theoryRef: 'bst_insert',
-        engineConfig: ChallengeEngineConfig(
-          structureType: StructureType.bst,
-          validationStrategy: BstValidationStrategy(),
-          layoutStrategy: LayoutStrategyType.linear,
-          interactionMode: InteractionModeType.drag,
-          connectionType: ConnectionType.explicit,
-          constraints: const [MaxMovesConstraint(3)],
-        ),
-        initialState: const ChallengeInitialStateSpec(
-          nodes: [
-            ChallengeNodeSpec(id: 'n1', value: 10),
-            ChallengeNodeSpec(id: 'n2', value: 5),
-          ],
-          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-          slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+        constraints: const [MaxMovesConstraint(3)],
+        content: StructureChallengeContent(
+          engineConfig: ChallengeEngineConfig(
+            structureType: StructureType.bst,
+            validationStrategy: BstValidationStrategy(),
+            layoutStrategy: LayoutStrategyType.linear,
+            interactionMode: InteractionModeType.drag,
+            connectionType: ConnectionType.explicit,
+          ),
+          initialState: const ChallengeInitialStateSpec(
+            nodes: [
+              ChallengeNodeSpec(id: 'n1', value: 10),
+              ChallengeNodeSpec(id: 'n2', value: 5),
+            ],
+            edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+            slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+          ),
         ),
       );
 
@@ -68,17 +70,17 @@ void main() {
       expect(session.spec.title, 'BST insertion');
 
       // Session starts from StructureState built from spec
-      expect(session.currentState.nodes.length, 2);
-      expect(session.currentState.nodes['n1']?.value, 10);
-      expect(session.currentState.nodes['n2']?.value, 5);
+      expect(session.structureRuntimeState.structure.nodes.length, 2);
+      expect(session.structureRuntimeState.structure.nodes['n1']?.value, 10);
+      expect(session.structureRuntimeState.structure.nodes['n2']?.value, 5);
 
-      expect(session.currentState.edges.length, 1);
-      expect(session.currentState.edges.first.source, 'n1');
-      expect(session.currentState.edges.first.target, 'n2');
+      expect(session.structureRuntimeState.structure.edges.length, 1);
+      expect(session.structureRuntimeState.structure.edges.first.source, 'n1');
+      expect(session.structureRuntimeState.structure.edges.first.target, 'n2');
 
       // Initial session metadata
-      expect(session.movesUsed, 0);
-      expect(session.history, isEmpty);
+      expect(session.structureRuntimeState.movesUsed, 0);
+      expect(session.structureRuntimeState.history, isEmpty);
       expect(session.status, SessionStatus.inProgress);
 
       // Timestamps should be initialized

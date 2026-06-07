@@ -15,18 +15,20 @@ void main() {
       title: 'Min Heap',
       instruction: 'Fix the heap',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: MinHeapValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: ChallengeInitialStateSpec(
-        nodes: nodes,
-        edges: edges,
-        slots: const [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: MinHeapValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: ChallengeInitialStateSpec(
+          nodes: nodes,
+          edges: edges,
+          slots: const [],
+        ),
       ),
     );
 

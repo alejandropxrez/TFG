@@ -18,19 +18,21 @@ void main() {
       title: 'Attempts Challenge',
       instruction: 'Try it',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: AlwaysFalseValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: constraints,
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [ChallengeNodeSpec(id: 'n1', value: 1)],
-        edges: [],
-        slots: [],
-        inventory: [],
+      constraints: constraints,
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: AlwaysFalseValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [ChallengeNodeSpec(id: 'n1', value: 1)],
+          edges: [],
+          slots: [],
+          inventory: [],
+        ),
       ),
     );
   }

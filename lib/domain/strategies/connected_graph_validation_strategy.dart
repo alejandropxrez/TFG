@@ -4,7 +4,7 @@ import 'package:algoquest/domain/strategies/validation_strategy.dart';
 class ConnectedGraphValidationStrategy implements ValidationStrategy {
   @override
   bool isSolved(ChallengeSession session) {
-    final state = session.currentState;
+    final state = session.structureRuntimeState.structure;
 
     if (state.nodes.isEmpty) return false;
     if (state.nodes.length == 1) return true;

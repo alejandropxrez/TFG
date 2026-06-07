@@ -41,7 +41,7 @@ class BstValidationStrategy implements ValidationStrategy {
   ///            or any node violates BST constraints
   @override
   bool isSolved(ChallengeSession session) {
-    final state = session.currentState;
+    final state = session.structureRuntimeState.structure;
 
     if (state.nodes.isEmpty) return true;
 

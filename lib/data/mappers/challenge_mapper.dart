@@ -17,32 +17,34 @@ class ChallengeMapper {
       title: challengeModel.metadata.title,
       instruction: challengeModel.metadata.instruction,
       theoryRef: challengeModel.metadata.theoryRef,
-      engineConfig: ChallengeEngineConfig(
-        structureType: challengeModel.engineConfig.structureType,
-        validationStrategy: _mapValidationStrategy(
-          challengeModel.engineConfig.validationStrategy,
+      constraints: challengeModel.engineConfig.constraints
+          .map(_mapConstraint)
+          .toList(growable: false),
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: challengeModel.engineConfig.structureType,
+          validationStrategy: _mapValidationStrategy(
+            challengeModel.engineConfig.validationStrategy,
+          ),
+          layoutStrategy: challengeModel.engineConfig.layoutStrategy,
+          interactionMode: challengeModel.engineConfig.interactionMode,
+          connectionType: challengeModel.engineConfig.connectionType,
         ),
-        layoutStrategy: challengeModel.engineConfig.layoutStrategy,
-        interactionMode: challengeModel.engineConfig.interactionMode,
-        connectionType: challengeModel.engineConfig.connectionType,
-        constraints: challengeModel.engineConfig.constraints
-            .map(_mapConstraint)
-            .toList(growable: false),
-      ),
-      initialState: ChallengeInitialStateSpec(
-        nodes: challengeModel.initialState.nodes
-            .map((node) => ChallengeNodeSpec(id: node.id, value: node.value))
-            .toList(growable: false),
-        edges: challengeModel.initialState.edges
-            .map(
-              (edge) =>
-                  ChallengeEdgeSpec(source: edge.source, target: edge.target),
-            )
-            .toList(growable: false),
-        slots: challengeModel.initialState.slots
-            .map((slot) => ChallengeSlotSpec(id: slot.id, index: slot.index))
-            .toList(growable: false),
-        inventory: challengeModel.initialState.inventory,
+        initialState: ChallengeInitialStateSpec(
+          nodes: challengeModel.initialState.nodes
+              .map((node) => ChallengeNodeSpec(id: node.id, value: node.value))
+              .toList(growable: false),
+          edges: challengeModel.initialState.edges
+              .map(
+                (edge) =>
+                    ChallengeEdgeSpec(source: edge.source, target: edge.target),
+              )
+              .toList(growable: false),
+          slots: challengeModel.initialState.slots
+              .map((slot) => ChallengeSlotSpec(id: slot.id, index: slot.index))
+              .toList(growable: false),
+          inventory: challengeModel.initialState.inventory,
+        ),
       ),
     );
   }

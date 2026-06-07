@@ -23,21 +23,23 @@ void main() {
       title: 'Challenge',
       instruction: 'Solve it',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: validationStrategy,
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [
-          ChallengeNodeSpec(id: 'n1', value: 10),
-          ChallengeNodeSpec(id: 'n2', value: 5),
-        ],
-        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-        slots: [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: validationStrategy,
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 10),
+            ChallengeNodeSpec(id: 'n2', value: 5),
+          ],
+          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+          slots: [],
+        ),
       ),
     );
   }

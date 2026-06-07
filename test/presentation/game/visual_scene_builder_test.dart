@@ -23,19 +23,21 @@ void main() {
       title: 'Set Value',
       instruction: 'Fill the slot',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: AlwaysTrueValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.linear,
-        interactionMode: InteractionModeType.setValue,
-        connectionType: ConnectionType.none,
-        constraints: const [],
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
-        edges: [],
-        slots: [ChallengeSlotSpec(id: 's1', index: 0)],
-        inventory: [42],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: AlwaysTrueValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.linear,
+          interactionMode: InteractionModeType.setValue,
+          connectionType: ConnectionType.none,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+          edges: [],
+          slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+          inventory: [42],
+        ),
       ),
     );
   }

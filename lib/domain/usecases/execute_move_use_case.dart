@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
@@ -10,37 +11,48 @@ class ExecuteMoveUseCase {
     required ChallengeSession session,
     required GameAction action,
   }) {
-    final currentState = session.currentState;
+    final runtimeState = session.runtimeState;
+
+    if (runtimeState is! StructureRuntimeState) {
+      return session;
+    }
+
+    final currentStructure = runtimeState.structure;
 
     if (!_isActionAllowedByInteractionMode(session, action)) {
       return session;
     }
 
-    if (!action.isApplicableTo(currentState)) {
+    if (!action.isApplicableTo(currentStructure)) {
       return session;
     }
 
-    if (!_satisfiesConstraints(session, action)) {
+    if (!_satisfiesConstraints(session, action, runtimeState)) {
       return session;
     }
 
-    final nextState = action.transform(currentState);
+    final nextStructure = action.transform(currentStructure);
 
     return session.copyWith(
-      currentState: nextState,
-      history: [...session.history, currentState],
-      // If undo is used, we should clear the redo stack, as the user is creating a new branch of history.
-      redoStack: const [],
-      movesUsed: session.movesUsed + 1,
+      runtimeState: runtimeState.copyWith(
+        structure: nextStructure,
+        history: [...runtimeState.history, currentStructure],
+        redoStack: const [],
+        movesUsed: runtimeState.movesUsed + 1,
+      ),
       updatedAt: DateTime.now(),
       status: SessionStatus.inProgress,
     );
   }
 
-  bool _satisfiesConstraints(ChallengeSession session, GameAction action) {
-    for (final constraint in session.spec.engineConfig.constraints) {
+  bool _satisfiesConstraints(
+    ChallengeSession session,
+    GameAction action,
+    StructureRuntimeState runtimeState,
+  ) {
+    for (final constraint in session.spec.constraints) {
       if (constraint is MaxMovesConstraint) {
-        if (session.movesUsed >= constraint.maxMoves) {
+        if (runtimeState.movesUsed >= constraint.maxMoves) {
           return false;
         }
       }
@@ -87,14 +99,11 @@ class ExecuteMoveUseCase {
     switch (mode) {
       case InteractionModeType.swap:
         return action is SwapNodesAction;
-
       case InteractionModeType.setValue:
         return action is SetValueAction;
-
       case InteractionModeType.drag:
-        // Drag is not modeled as a domain action yet.
+        // Drag is not modeleded as a domain action yet.
         return false;
-
       case InteractionModeType.link:
         return action is LinkAction || action is RemoveLinkAction;
     }

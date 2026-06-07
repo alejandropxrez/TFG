@@ -20,22 +20,24 @@ void main() {
       title: 'Undo Challenge',
       instruction: 'Swap and undo',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: AlwaysTrueValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [
-          ChallengeNodeSpec(id: 'n1', value: 3),
-          ChallengeNodeSpec(id: 'n2', value: 10),
-        ],
-        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-        slots: [],
-        inventory: [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: AlwaysTrueValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 3),
+            ChallengeNodeSpec(id: 'n2', value: 10),
+          ],
+          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+          slots: [],
+          inventory: [],
+        ),
       ),
     );
   }
@@ -51,10 +53,10 @@ void main() {
 
     final updated = useCase(session);
 
-    expect(updated.currentState.nodes['n1']!.value, 3);
-    expect(updated.currentState.nodes['n2']!.value, 10);
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
   });
 
   test('restores previous state and removes last history entry', () {
@@ -73,19 +75,22 @@ void main() {
       action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
     );
 
-    expect(movedSession.currentState.nodes['n1']!.value, 10);
-    expect(movedSession.currentState.nodes['n2']!.value, 3);
-    expect(movedSession.movesUsed, 1);
-    expect(movedSession.history.length, 1);
+    expect(movedSession.structureRuntimeState.structure.nodes['n1']!.value, 10);
+    expect(movedSession.structureRuntimeState.structure.nodes['n2']!.value, 3);
+    expect(movedSession.structureRuntimeState.movesUsed, 1);
+    expect(movedSession.structureRuntimeState.history.length, 1);
 
     const undoMove = UndoMoveUseCase();
 
     final undoneSession = undoMove(movedSession);
 
-    expect(undoneSession.currentState.nodes['n1']!.value, 3);
-    expect(undoneSession.currentState.nodes['n2']!.value, 10);
-    expect(undoneSession.movesUsed, 0);
-    expect(undoneSession.history, isEmpty);
+    expect(undoneSession.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(
+      undoneSession.structureRuntimeState.structure.nodes['n2']!.value,
+      10,
+    );
+    expect(undoneSession.structureRuntimeState.movesUsed, 0);
+    expect(undoneSession.structureRuntimeState.history, isEmpty);
     expect(undoneSession.status, SessionStatus.inProgress);
   });
 }

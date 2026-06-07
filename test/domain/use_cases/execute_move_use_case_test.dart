@@ -26,22 +26,24 @@ void main() {
       title: 'Heap Repair',
       instruction: 'Swap nodes to fix the heap',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: MaxHeapValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        connectionType: ConnectionType.explicit,
-        interactionMode: interactionMode,
-        constraints: constraints,
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [
-          ChallengeNodeSpec(id: 'n1', value: 3),
-          ChallengeNodeSpec(id: 'n2', value: 10),
-        ],
-        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-        slots: [],
-        inventory: [],
+      constraints: constraints,
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: MaxHeapValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          connectionType: ConnectionType.explicit,
+          interactionMode: interactionMode,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 3),
+            ChallengeNodeSpec(id: 'n2', value: 10),
+          ],
+          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+          slots: [],
+          inventory: [],
+        ),
       ),
     );
   }
@@ -54,19 +56,21 @@ void main() {
       title: 'Fill blank',
       instruction: 'Assign a value to the empty slot',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: MaxHeapValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.setValue,
-        connectionType: ConnectionType.explicit,
-        constraints: constraints,
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
-        edges: [],
-        slots: [ChallengeSlotSpec(id: 's1', index: 0)],
-        inventory: [42],
+      constraints: constraints,
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: MaxHeapValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.setValue,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+          edges: [],
+          slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+          inventory: [42],
+        ),
       ),
     );
   }
@@ -79,23 +83,25 @@ void main() {
       title: 'Link nodes',
       instruction: 'Connect two nodes',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.graph,
-        validationStrategy: MaxHeapValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.linear,
-        interactionMode: InteractionModeType.link,
-        connectionType: ConnectionType.explicit,
-        constraints: constraints,
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [
-          ChallengeNodeSpec(id: 'n1', value: 1),
-          ChallengeNodeSpec(id: 'n2', value: 2),
-          ChallengeNodeSpec(id: 'n3', value: 3),
-        ],
-        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-        slots: [],
-        inventory: [],
+      constraints: constraints,
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.graph,
+          validationStrategy: MaxHeapValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.linear,
+          interactionMode: InteractionModeType.link,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 1),
+            ChallengeNodeSpec(id: 'n2', value: 2),
+            ChallengeNodeSpec(id: 'n3', value: 3),
+          ],
+          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+          slots: [],
+          inventory: [],
+        ),
       ),
     );
   }
@@ -114,8 +120,8 @@ void main() {
       action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 1);
-    expect(updated.history.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 1);
+    expect(updated.structureRuntimeState.history.length, 1);
     expect(updated.status, SessionStatus.inProgress);
     expect(
       updated.updatedAt.isAfter(session.updatedAt) ||
@@ -123,8 +129,8 @@ void main() {
       isTrue,
     );
 
-    expect(updated.currentState.nodes['n1']!.value, 10);
-    expect(updated.currentState.nodes['n2']!.value, 3);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 10);
+    expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 3);
   });
 
   test('does not change session when action is not applicable', () {
@@ -144,10 +150,10 @@ void main() {
       ),
     );
 
-    expect(updated.currentState.nodes['n1']!.value, 3);
-    expect(updated.currentState.nodes['n2']!.value, 10);
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
   });
 
   test('does not execute action when MaxMovesConstraint is reached', () {
@@ -164,10 +170,10 @@ void main() {
       action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.nodes['n1']!.value, 3);
-    expect(updated.currentState.nodes['n2']!.value, 10);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
   });
 
   test('does not execute SwapNodesAction on locked nodes', () {
@@ -188,10 +194,10 @@ void main() {
       action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.nodes['n1']!.value, 3);
-    expect(updated.currentState.nodes['n2']!.value, 10);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
   });
 
   test('executes SetValueAction on unlocked slot', () {
@@ -208,13 +214,23 @@ void main() {
       action: const SetValueAction(slotId: 's1', value: 42),
     );
 
-    expect(updated.movesUsed, 1);
-    expect(updated.history.length, 1);
-    expect(updated.currentState.slots['s1']!.filledNodeId, isNotNull);
-    expect(updated.currentState.inventory.contains(42), isFalse);
+    expect(updated.structureRuntimeState.movesUsed, 1);
+    expect(updated.structureRuntimeState.history.length, 1);
+    expect(
+      updated.structureRuntimeState.structure.slots['s1']!.filledNodeId,
+      isNotNull,
+    );
+    expect(
+      updated.structureRuntimeState.structure.inventory.contains(42),
+      isFalse,
+    );
 
-    final createdNodeId = updated.currentState.slots['s1']!.filledNodeId!;
-    expect(updated.currentState.nodes[createdNodeId]!.value, 42);
+    final createdNodeId =
+        updated.structureRuntimeState.structure.slots['s1']!.filledNodeId!;
+    expect(
+      updated.structureRuntimeState.structure.nodes[createdNodeId]!.value,
+      42,
+    );
   });
 
   test('does not execute SetValueAction on locked slot', () {
@@ -235,10 +251,16 @@ void main() {
       action: const SetValueAction(slotId: 's1', value: 42),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.slots['s1']!.filledNodeId, isNull);
-    expect(updated.currentState.inventory.contains(42), isTrue);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(
+      updated.structureRuntimeState.structure.slots['s1']!.filledNodeId,
+      isNull,
+    );
+    expect(
+      updated.structureRuntimeState.structure.inventory.contains(42),
+      isTrue,
+    );
   });
 
   test('does not execute SetValueAction if slot is already filled', () {
@@ -247,19 +269,21 @@ void main() {
       title: 'Filled slot',
       instruction: 'Cannot overwrite slot',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: MaxHeapValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.setValue,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
-        edges: [],
-        slots: [ChallengeSlotSpec(id: 's1', index: 0)],
-        inventory: [42],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: MaxHeapValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.setValue,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+          edges: [],
+          slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+          inventory: [42],
+        ),
       ),
     );
 
@@ -269,9 +293,15 @@ void main() {
       spec: spec,
     );
 
+    final structureRuntimeState = initialSession.structureRuntimeState;
+
     final session = initialSession.copyWith(
-      currentState: initialSession.currentState.copyWith(
-        slots: {'s1': const SlotState(id: 's1', index: 0, filledNodeId: 'n1')},
+      runtimeState: structureRuntimeState.copyWith(
+        structure: structureRuntimeState.structure.copyWith(
+          slots: {
+            's1': const SlotState(id: 's1', index: 0, filledNodeId: 'n1'),
+          },
+        ),
       ),
     );
 
@@ -280,10 +310,16 @@ void main() {
       action: const SetValueAction(slotId: 's1', value: 42),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.slots['s1']!.filledNodeId, 'n1');
-    expect(updated.currentState.inventory.contains(42), isTrue);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(
+      updated.structureRuntimeState.structure.slots['s1']!.filledNodeId,
+      'n1',
+    );
+    expect(
+      updated.structureRuntimeState.structure.inventory.contains(42),
+      isTrue,
+    );
   });
 
   test('does not execute SetValueAction if value is not in inventory', () {
@@ -292,19 +328,21 @@ void main() {
       title: 'Wrong inventory',
       instruction: 'Value missing from inventory',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: MaxHeapValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.setValue,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
-        edges: [],
-        slots: [ChallengeSlotSpec(id: 's1', index: 0)],
-        inventory: [7],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: MaxHeapValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.setValue,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+          edges: [],
+          slots: [ChallengeSlotSpec(id: 's1', index: 0)],
+          inventory: [7],
+        ),
       ),
     );
 
@@ -319,10 +357,13 @@ void main() {
       action: const SetValueAction(slotId: 's1', value: 42),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.slots['s1']!.filledNodeId, isNull);
-    expect(updated.currentState.inventory, [7]);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(
+      updated.structureRuntimeState.structure.slots['s1']!.filledNodeId,
+      isNull,
+    );
+    expect(updated.structureRuntimeState.structure.inventory, [7]);
   });
 
   test('does not execute SetValueAction in swap interaction mode', () {
@@ -339,10 +380,10 @@ void main() {
       action: const SetValueAction(slotId: 'n1', value: 42),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.nodes['n1']!.value, 3);
-    expect(updated.currentState.nodes['n2']!.value, 10);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
   });
 
   test('does not execute SwapNodesAction in setValue interaction mode', () {
@@ -359,11 +400,14 @@ void main() {
       action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 's1'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.nodes['n1']!.value, 10);
-    expect(updated.currentState.slots['s1']!.filledNodeId, isNull);
-    expect(updated.currentState.inventory, [42]);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 10);
+    expect(
+      updated.structureRuntimeState.structure.slots['s1']!.filledNodeId,
+      isNull,
+    );
+    expect(updated.structureRuntimeState.structure.inventory, [42]);
   });
 
   test('does not execute SwapNodesAction in drag interaction mode', () {
@@ -380,10 +424,10 @@ void main() {
       action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.nodes['n1']!.value, 3);
-    expect(updated.currentState.nodes['n2']!.value, 10);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
   });
 
   test('executes LinkAction and adds a new edge in link interaction mode', () {
@@ -400,10 +444,10 @@ void main() {
       action: const LinkAction(sourceNodeId: 'n2', targetNodeId: 'n3'),
     );
 
-    expect(updated.movesUsed, 1);
-    expect(updated.history.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 1);
+    expect(updated.structureRuntimeState.history.length, 1);
     expect(
-      updated.currentState.edges.any(
+      updated.structureRuntimeState.structure.edges.any(
         (edge) => edge.source == 'n2' && edge.target == 'n3',
       ),
       isTrue,
@@ -424,9 +468,9 @@ void main() {
       action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('does not execute LinkAction when linking node to itself', () {
@@ -443,9 +487,9 @@ void main() {
       action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'n1'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('does not execute LinkAction when source node does not exist', () {
@@ -462,9 +506,9 @@ void main() {
       action: const LinkAction(sourceNodeId: 'missing', targetNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('does not execute LinkAction when target node does not exist', () {
@@ -481,9 +525,9 @@ void main() {
       action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'missing'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('does not execute LinkAction on locked nodes', () {
@@ -504,9 +548,9 @@ void main() {
       action: const LinkAction(sourceNodeId: 'n2', targetNodeId: 'n3'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('does not execute LinkAction in swap interaction mode', () {
@@ -523,8 +567,8 @@ void main() {
       action: const LinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
   });
 
   test('does not execute LinkAction when reverse edge already exists', () {
@@ -541,9 +585,9 @@ void main() {
       action: const LinkAction(sourceNodeId: 'n2', targetNodeId: 'n1'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('clears redo stack when executing a new action after undo', () {
@@ -562,14 +606,14 @@ void main() {
 
     final undone = const UndoMoveUseCase()(moved);
 
-    expect(undone.redoStack, isNotEmpty);
+    expect(undone.structureRuntimeState.redoStack, isNotEmpty);
 
     final movedAgain = useCase(
       session: undone,
       action: const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
     );
 
-    expect(movedAgain.redoStack, isEmpty);
+    expect(movedAgain.structureRuntimeState.redoStack, isEmpty);
   });
 
   test(
@@ -588,9 +632,9 @@ void main() {
         action: const RemoveLinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
       );
 
-      expect(updated.movesUsed, 1);
-      expect(updated.history.length, 1);
-      expect(updated.currentState.edges, isEmpty);
+      expect(updated.structureRuntimeState.movesUsed, 1);
+      expect(updated.structureRuntimeState.history.length, 1);
+      expect(updated.structureRuntimeState.structure.edges, isEmpty);
     },
   );
 
@@ -608,9 +652,9 @@ void main() {
       action: const RemoveLinkAction(sourceNodeId: 'n2', targetNodeId: 'n3'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('does not execute RemoveLinkAction on locked nodes', () {
@@ -631,9 +675,9 @@ void main() {
       action: const RemoveLinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 
   test('does not execute RemoveLinkAction in swap interaction mode', () {
@@ -650,8 +694,8 @@ void main() {
       action: const RemoveLinkAction(sourceNodeId: 'n1', targetNodeId: 'n2'),
     );
 
-    expect(updated.movesUsed, 0);
-    expect(updated.history, isEmpty);
-    expect(updated.currentState.edges.length, 1);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.history, isEmpty);
+    expect(updated.structureRuntimeState.structure.edges.length, 1);
   });
 }

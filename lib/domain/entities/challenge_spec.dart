@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
 
 import 'package:algoquest/domain/enums/structure_type.dart';
@@ -44,7 +45,7 @@ class LivesConsumedOnFailConstraint extends ChallengeConstraint {
 
 extension ChallengeSpecAttempts on ChallengeSpec {
   int? get maxAttempts {
-    for (final constraint in engineConfig.constraints) {
+    for (final constraint in constraints) {
       if (constraint is MaxAttemptsConstraint) {
         return constraint.maxAttempts;
       }
@@ -54,7 +55,7 @@ extension ChallengeSpecAttempts on ChallengeSpec {
   }
 
   int get livesConsumedOnFail {
-    for (final constraint in engineConfig.constraints) {
+    for (final constraint in constraints) {
       if (constraint is LivesConsumedOnFailConstraint) {
         return constraint.lives;
       }
@@ -70,7 +71,6 @@ class ChallengeEngineConfig {
   final LayoutStrategyType layoutStrategy;
   final InteractionModeType interactionMode;
   final ConnectionType connectionType;
-  final List<ChallengeConstraint> constraints;
 
   const ChallengeEngineConfig({
     required this.structureType,
@@ -78,7 +78,6 @@ class ChallengeEngineConfig {
     required this.layoutStrategy,
     required this.interactionMode,
     required this.connectionType,
-    required this.constraints,
   });
 }
 
@@ -126,15 +125,51 @@ class ChallengeSpec {
   final String title;
   final String instruction;
   final String? theoryRef;
-  final ChallengeEngineConfig engineConfig;
-  final ChallengeInitialStateSpec initialState;
+  final ChallengeContent content;
+  final List<ChallengeConstraint> constraints;
 
   const ChallengeSpec({
     required this.id,
     required this.title,
     required this.instruction,
     required this.theoryRef,
+    required this.content,
+    this.constraints = const [],
+  });
+
+  bool get isStructureChallenge => content is StructureChallengeContent;
+
+  StructureChallengeContent get structureContent {
+    final challengeContent = content;
+
+    if (challengeContent is StructureChallengeContent) {
+      return challengeContent;
+    }
+
+    throw StateError('Challenge is not a structure challenge: $id');
+  }
+
+  ChallengeEngineConfig get engineConfig => structureContent.engineConfig;
+
+  ChallengeInitialStateSpec get initialState => structureContent.initialState;
+}
+
+sealed class ChallengeContent {
+  const ChallengeContent();
+}
+
+class StructureChallengeContent extends ChallengeContent {
+  final ChallengeEngineConfig engineConfig;
+  final ChallengeInitialStateSpec initialState;
+
+  const StructureChallengeContent({
     required this.engineConfig,
     required this.initialState,
   });
+}
+
+class QuizChallengeContent extends ChallengeContent {
+  final QuizSpec quizSpec;
+
+  const QuizChallengeContent({required this.quizSpec});
 }

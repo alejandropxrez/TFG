@@ -14,19 +14,21 @@ void main() {
       title: 'Connected Graph',
       instruction: 'Connect all nodes',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.graph,
-        validationStrategy: ConnectedGraphValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.circular,
-        interactionMode: InteractionModeType.link,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: ChallengeInitialStateSpec(
-        nodes: nodes,
-        edges: edges,
-        slots: const [],
-        inventory: const [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.graph,
+          validationStrategy: ConnectedGraphValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.circular,
+          interactionMode: InteractionModeType.link,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: ChallengeInitialStateSpec(
+          nodes: nodes,
+          edges: edges,
+          slots: const [],
+          inventory: const [],
+        ),
       ),
     );
 

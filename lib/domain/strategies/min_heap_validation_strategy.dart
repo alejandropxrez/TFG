@@ -37,7 +37,7 @@ class MinHeapValidationStrategy implements ValidationStrategy {
   /// - false → if any parent node is greater than a child
   @override
   bool isSolved(ChallengeSession session) {
-    final state = session.currentState;
+    final state = session.structureRuntimeState.structure;
 
     if (!_structureValidator.hasValidHeapShape(state)) {
       return false;

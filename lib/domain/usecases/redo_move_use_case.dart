@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 
@@ -5,22 +6,29 @@ class RedoMoveUseCase {
   const RedoMoveUseCase();
 
   ChallengeSession call(ChallengeSession session) {
-    if (session.redoStack.isEmpty) {
+    final runtimeState = session.runtimeState;
+
+    if (runtimeState is! StructureRuntimeState) {
       return session;
     }
 
-    final nextState = session.redoStack.last;
+    if (runtimeState.redoStack.isEmpty) {
+      return session;
+    }
 
-    final updatedRedoStack = session.redoStack.sublist(
+    final nextStructure = runtimeState.redoStack.last;
+    final updatedRedoStack = runtimeState.redoStack.sublist(
       0,
-      session.redoStack.length - 1,
+      runtimeState.redoStack.length - 1,
     );
 
     return session.copyWith(
-      currentState: nextState,
-      history: [...session.history, session.currentState],
-      redoStack: updatedRedoStack,
-      movesUsed: session.movesUsed + 1,
+      runtimeState: runtimeState.copyWith(
+        structure: nextStructure,
+        history: [...runtimeState.history, runtimeState.structure],
+        redoStack: updatedRedoStack,
+        movesUsed: runtimeState.movesUsed + 1,
+      ),
       status: SessionStatus.inProgress,
       updatedAt: DateTime.now(),
     );

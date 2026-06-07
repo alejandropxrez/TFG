@@ -151,22 +151,24 @@ void main() {
       title: title,
       instruction: 'Swap nodes to repair the heap',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: AlwaysTrueValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [
-          ChallengeNodeSpec(id: 'n1', value: 3),
-          ChallengeNodeSpec(id: 'n2', value: 10),
-        ],
-        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-        slots: [],
-        inventory: [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: AlwaysTrueValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 3),
+            ChallengeNodeSpec(id: 'n2', value: 10),
+          ],
+          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+          slots: [],
+          inventory: [],
+        ),
       ),
     );
   }
@@ -180,22 +182,24 @@ void main() {
       title: 'Attempts Challenge',
       instruction: 'Try it',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: validationStrategy,
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: constraints,
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [
-          ChallengeNodeSpec(id: 'n1', value: 3),
-          ChallengeNodeSpec(id: 'n2', value: 10),
-        ],
-        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-        slots: [],
-        inventory: [],
+      constraints: constraints,
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: validationStrategy,
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 3),
+            ChallengeNodeSpec(id: 'n2', value: 10),
+          ],
+          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+          slots: [],
+          inventory: [],
+        ),
       ),
     );
   }
@@ -306,8 +310,14 @@ void main() {
     expect(state.currentSession!.sessionId, 'session_1');
     expect(state.currentSession!.userId, 'user_1');
 
-    expect(state.currentSession!.currentState.nodes['n1']!.value, 3);
-    expect(state.currentSession!.currentState.nodes['n2']!.value, 10);
+    expect(
+      state.currentSession!.structureRuntimeState.structure.nodes['n1']!.value,
+      3,
+    );
+    expect(
+      state.currentSession!.structureRuntimeState.structure.nodes['n2']!.value,
+      10,
+    );
 
     expect(state.currentChallengeIndex, 0);
     expect(state.totalChallenges, 2);
@@ -354,11 +364,11 @@ void main() {
     final session = state.currentSession!;
 
     expect(state.status, LevelFlowStatus.playing);
-    expect(session.movesUsed, 1);
-    expect(session.history.length, 1);
+    expect(session.structureRuntimeState.movesUsed, 1);
+    expect(session.structureRuntimeState.history.length, 1);
 
-    expect(session.currentState.nodes['n1']!.value, 10);
-    expect(session.currentState.nodes['n2']!.value, 3);
+    expect(session.structureRuntimeState.structure.nodes['n1']!.value, 10);
+    expect(session.structureRuntimeState.structure.nodes['n2']!.value, 3);
   });
 
   test('checkSolution marks current challenge as solved', () async {

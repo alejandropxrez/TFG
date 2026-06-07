@@ -20,22 +20,24 @@ void main() {
       title: 'Undo Challenge',
       instruction: 'Swap and undo',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.heap,
-        validationStrategy: AlwaysTrueValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: const ChallengeInitialStateSpec(
-        nodes: [
-          ChallengeNodeSpec(id: 'n1', value: 3),
-          ChallengeNodeSpec(id: 'n2', value: 10),
-        ],
-        edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
-        slots: [],
-        inventory: [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.heap,
+          validationStrategy: AlwaysTrueValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: const ChallengeInitialStateSpec(
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 3),
+            ChallengeNodeSpec(id: 'n2', value: 10),
+          ],
+          edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
+          slots: [],
+          inventory: [],
+        ),
       ),
     );
   }
@@ -51,9 +53,9 @@ void main() {
 
     final updated = useCase(session);
 
-    expect(updated.redoStack, isEmpty);
-    expect(updated.movesUsed, 0);
-    expect(updated.currentState.nodes['n1']!.value, 3);
+    expect(updated.structureRuntimeState.redoStack, isEmpty);
+    expect(updated.structureRuntimeState.movesUsed, 0);
+    expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
   });
   test('redoes previously undone move', () {
     final spec = buildSpec();
@@ -75,16 +77,16 @@ void main() {
 
     final undone = undoMove(moved);
 
-    expect(undone.redoStack.length, 1);
-    expect(undone.currentState.nodes['n1']!.value, 3);
-    expect(undone.currentState.nodes['n2']!.value, 10);
+    expect(undone.structureRuntimeState.redoStack.length, 1);
+    expect(undone.structureRuntimeState.structure.nodes['n1']!.value, 3);
+    expect(undone.structureRuntimeState.structure.nodes['n2']!.value, 10);
 
     final redone = redoMove(undone);
 
-    expect(redone.currentState.nodes['n1']!.value, 10);
-    expect(redone.currentState.nodes['n2']!.value, 3);
-    expect(redone.movesUsed, 1);
-    expect(redone.history.length, 1);
-    expect(redone.redoStack, isEmpty);
+    expect(redone.structureRuntimeState.structure.nodes['n1']!.value, 10);
+    expect(redone.structureRuntimeState.structure.nodes['n2']!.value, 3);
+    expect(redone.structureRuntimeState.movesUsed, 1);
+    expect(redone.structureRuntimeState.history.length, 1);
+    expect(redone.structureRuntimeState.redoStack, isEmpty);
   });
 }

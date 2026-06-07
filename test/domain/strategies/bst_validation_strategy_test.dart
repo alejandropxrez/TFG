@@ -15,18 +15,20 @@ void main() {
       title: 'BST',
       instruction: 'Validate BST',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.bst,
-        validationStrategy: BstValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.pyramid,
-        interactionMode: InteractionModeType.swap,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: ChallengeInitialStateSpec(
-        nodes: nodes,
-        edges: edges,
-        slots: const [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.bst,
+          validationStrategy: BstValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.pyramid,
+          interactionMode: InteractionModeType.swap,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: ChallengeInitialStateSpec(
+          nodes: nodes,
+          edges: edges,
+          slots: const [],
+        ),
       ),
     );
 

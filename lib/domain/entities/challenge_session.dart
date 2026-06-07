@@ -2,14 +2,17 @@ import 'package:algoquest/domain/enums/session_status.dart';
 import 'challenge_spec.dart';
 import 'structure_state.dart';
 
+import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
+import 'package:algoquest/domain/enums/session_status.dart';
+
+import 'challenge_spec.dart';
+import 'structure_state.dart';
+
 class ChallengeSession {
   final String sessionId;
   final String userId;
   final ChallengeSpec spec;
-  final StructureState currentState;
-  final List<StructureState> history;
-  final List<StructureState> redoStack;
-  final int movesUsed;
+  final ChallengeRuntimeState runtimeState;
   final SessionStatus status;
   final DateTime startedAt;
   final DateTime updatedAt;
@@ -19,10 +22,7 @@ class ChallengeSession {
     required this.sessionId,
     required this.userId,
     required this.spec,
-    required this.currentState,
-    required this.history,
-    required this.redoStack,
-    required this.movesUsed,
+    required this.runtimeState,
     required this.status,
     required this.startedAt,
     required this.updatedAt,
@@ -36,28 +36,11 @@ class ChallengeSession {
   }) {
     final now = DateTime.now();
 
-    final initialState = StructureState.fromNodesAndEdges(
-      type: spec.engineConfig.structureType,
-      nodes: spec.initialState.nodes
-          .map((node) => NodeState(id: node.id, value: node.value))
-          .toList(growable: false),
-      edges: spec.initialState.edges
-          .map((edge) => EdgeState(source: edge.source, target: edge.target))
-          .toList(growable: false),
-      slots: spec.initialState.slots
-          .map((slot) => SlotState(id: slot.id, index: slot.index))
-          .toList(growable: false),
-      inventory: spec.initialState.inventory,
-    );
-
     return ChallengeSession(
       sessionId: sessionId,
       userId: userId,
       spec: spec,
-      currentState: initialState,
-      history: const [],
-      redoStack: const [],
-      movesUsed: 0,
+      runtimeState: _initialRuntimeStateFromSpec(spec),
       status: SessionStatus.inProgress,
       startedAt: now,
       updatedAt: now,
@@ -65,11 +48,44 @@ class ChallengeSession {
     );
   }
 
+  static ChallengeRuntimeState _initialRuntimeStateFromSpec(
+    ChallengeSpec spec,
+  ) {
+    return switch (spec.content) {
+      StructureChallengeContent(:final engineConfig, :final initialState) =>
+        StructureRuntimeState(
+          structure: StructureState.fromNodesAndEdges(
+            type: engineConfig.structureType,
+            nodes: initialState.nodes
+                .map((node) => NodeState(id: node.id, value: node.value))
+                .toList(growable: false),
+            edges: initialState.edges
+                .map(
+                  (edge) => EdgeState(source: edge.source, target: edge.target),
+                )
+                .toList(growable: false),
+            slots: initialState.slots
+                .map((slot) => SlotState(id: slot.id, index: slot.index))
+                .toList(growable: false),
+            inventory: initialState.inventory,
+          ),
+        ),
+      QuizChallengeContent() => const QuizRuntimeState(),
+    };
+  }
+
+  StructureRuntimeState get structureRuntimeState {
+    final state = runtimeState;
+
+    if (state is StructureRuntimeState) {
+      return state;
+    }
+
+    throw StateError('Challenge session does not contain a structure state.');
+  }
+
   ChallengeSession copyWith({
-    StructureState? currentState,
-    List<StructureState>? history,
-    List<StructureState>? redoStack,
-    int? movesUsed,
+    ChallengeRuntimeState? runtimeState,
     SessionStatus? status,
     DateTime? updatedAt,
     int? attemptsRemaining,
@@ -78,10 +94,7 @@ class ChallengeSession {
       sessionId: sessionId,
       userId: userId,
       spec: spec,
-      currentState: currentState ?? this.currentState,
-      history: history ?? this.history,
-      redoStack: redoStack ?? this.redoStack,
-      movesUsed: movesUsed ?? this.movesUsed,
+      runtimeState: runtimeState ?? this.runtimeState,
       status: status ?? this.status,
       startedAt: startedAt,
       updatedAt: updatedAt ?? this.updatedAt,

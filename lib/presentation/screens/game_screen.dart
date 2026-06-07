@@ -46,8 +46,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       final previousSpecId = previous?.currentChallengeSpec?.id;
       final nextSpecId = spec.id;
 
-      final previousState = previous?.currentSession?.currentState;
-      final nextState = session.currentState;
+      final previousState =
+          previous?.currentSession?.structureRuntimeState.structure;
+      final nextState = session.structureRuntimeState.structure;
 
       final shouldUpdateScene =
           previousSpecId != nextSpecId || previousState != nextState;
@@ -72,7 +73,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             challengeId: state.currentChallengeId,
             currentChallengeNumber: currentChallengeNumber,
             totalChallenges: state.totalChallenges,
-            movesUsed: state.currentSession?.movesUsed ?? 0,
+            movesUsed:
+                state.currentSession?.structureRuntimeState.movesUsed ?? 0,
             attemptsRemaining: state.currentSession?.attemptsRemaining,
             instruction: state.currentChallengeSpec?.instruction,
             onCheckSolution: state.currentSession == null
@@ -89,12 +91,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             challengeId: state.currentChallengeId,
             currentChallengeNumber: currentChallengeNumber,
             totalChallenges: state.totalChallenges,
-            movesUsed: state.currentSession?.movesUsed ?? 0,
+            movesUsed:
+                state.currentSession?.structureRuntimeState.movesUsed ?? 0,
             errorMessage: state.errorMessage,
             canStartChallenge: state.currentChallengeId != null,
             canInteract: state.currentSession != null,
-            canUndo: state.currentSession?.history.isNotEmpty ?? false,
-            canRedo: state.currentSession?.redoStack.isNotEmpty ?? false,
+            canUndo:
+                state
+                    .currentSession
+                    ?.structureRuntimeState
+                    .history
+                    .isNotEmpty ??
+                false,
+            canRedo:
+                state
+                    .currentSession
+                    ?.structureRuntimeState
+                    .redoStack
+                    .isNotEmpty ??
+                false,
             onLoadLevel: () => notifier.loadLevel(widget.levelId),
             onStartChallenge: () => notifier.startCurrentChallenge(
               userId: userId,

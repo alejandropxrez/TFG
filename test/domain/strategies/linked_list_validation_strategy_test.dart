@@ -14,19 +14,21 @@ void main() {
       title: 'Linked List',
       instruction: 'Build a valid linked list',
       theoryRef: null,
-      engineConfig: ChallengeEngineConfig(
-        structureType: StructureType.linkedList,
-        validationStrategy: LinkedListValidationStrategy(),
-        layoutStrategy: LayoutStrategyType.linear,
-        interactionMode: InteractionModeType.link,
-        connectionType: ConnectionType.explicit,
-        constraints: const [],
-      ),
-      initialState: ChallengeInitialStateSpec(
-        nodes: nodes,
-        edges: edges,
-        slots: const [],
-        inventory: const [],
+      constraints: const [],
+      content: StructureChallengeContent(
+        engineConfig: ChallengeEngineConfig(
+          structureType: StructureType.linkedList,
+          validationStrategy: LinkedListValidationStrategy(),
+          layoutStrategy: LayoutStrategyType.linear,
+          interactionMode: InteractionModeType.link,
+          connectionType: ConnectionType.explicit,
+        ),
+        initialState: ChallengeInitialStateSpec(
+          nodes: nodes,
+          edges: edges,
+          slots: const [],
+          inventory: const [],
+        ),
       ),
     );
 
