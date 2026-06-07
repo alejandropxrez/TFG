@@ -43,42 +43,54 @@ void main() {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
       final challenge = ChallengeModel.fromJson(jsonMap);
 
+      final engineConfig = challenge.engineConfig!;
+      final initialState = challenge.initialState!;
+
       // Metadata
       expect(challenge.metadata.title, 'Reparación de Heap');
       expect(challenge.metadata.instruction, 'Arrastra para corregir');
       expect(challenge.metadata.theoryRef, 'heap_repair');
 
       // Engine config
-      expect(challenge.engineConfig.structureType, StructureType.heap);
-      expect(
-        challenge.engineConfig.validationStrategy,
-        ValidationStrategyType.maxHeap,
-      );
-      expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.pyramid);
-      expect(challenge.engineConfig.interactionMode, InteractionModeType.swap);
+      expect(engineConfig.structureType, StructureType.heap);
+      expect(engineConfig.validationStrategy, ValidationStrategyType.maxHeap);
+      expect(engineConfig.layoutStrategy, LayoutStrategyType.pyramid);
+      expect(engineConfig.interactionMode, InteractionModeType.swap);
 
       // Constraints
-      expect(challenge.engineConfig.constraints.length, 2);
+      expect(engineConfig.constraints.length, 2);
 
-      final maxMovesConstraint =
-          challenge.engineConfig.constraints.first as MaxMovesConstraintModel;
-      expect(maxMovesConstraint.maxMoves, 5);
+      expect(
+        engineConfig.constraints.first.when(
+          maxMoves: (maxMoves) => maxMoves,
+          lockedNodes: (_) => null,
+          maxAttempts: (_) => null,
+          livesConsumedOnFail: (_) => null,
+        ),
+        5,
+      );
 
-      final lockedNodesConstraint =
-          challenge.engineConfig.constraints.last as LockedNodesConstraintModel;
-      expect(lockedNodesConstraint.nodeIds, ['n1', 'n3']);
+      expect(
+        engineConfig.constraints.last.when(
+          maxMoves: (_) => null,
+          lockedNodes: (nodeIds) => nodeIds,
+          maxAttempts: (_) => null,
+          livesConsumedOnFail: (_) => null,
+        ),
+        ['n1', 'n3'],
+      );
 
       // Initial state
-      expect(challenge.initialState.nodes.length, 2);
-      expect(challenge.initialState.nodes.first.id, 'n1');
-      expect(challenge.initialState.nodes.first.value, 10);
+      expect(initialState.nodes.length, 2);
+      expect(initialState.nodes.first.id, 'n1');
+      expect(initialState.nodes.first.value, 10);
 
-      expect(challenge.initialState.edges.length, 1);
-      expect(challenge.initialState.edges.first.source, 'n1');
-      expect(challenge.initialState.edges.first.target, 'n2');
+      expect(initialState.edges.length, 1);
+      expect(initialState.edges.first.source, 'n1');
+      expect(initialState.edges.first.target, 'n2');
 
-      expect(challenge.initialState.slots, isEmpty);
-      expect(challenge.initialState.inventory, isEmpty);
+      expect(initialState.slots, isEmpty);
+      expect(initialState.inventory, isEmpty);
     });
 
     test('parses a challenge with nullable node values and inventory', () {
@@ -115,24 +127,21 @@ void main() {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
       final challenge = ChallengeModel.fromJson(jsonMap);
 
-      expect(challenge.engineConfig.structureType, StructureType.bst);
-      expect(
-        challenge.engineConfig.validationStrategy,
-        ValidationStrategyType.bst,
-      );
-      expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.linear);
-      expect(
-        challenge.engineConfig.interactionMode,
-        InteractionModeType.setValue,
-      );
+      final engineConfig = challenge.engineConfig!;
+      final initialState = challenge.initialState!;
 
-      expect(challenge.initialState.nodes.length, 2);
-      expect(challenge.initialState.nodes[0].value, 10);
-      expect(challenge.initialState.nodes[1].value, isNull);
+      expect(engineConfig.structureType, StructureType.bst);
+      expect(engineConfig.validationStrategy, ValidationStrategyType.bst);
+      expect(engineConfig.layoutStrategy, LayoutStrategyType.linear);
+      expect(engineConfig.interactionMode, InteractionModeType.setValue);
 
-      expect(challenge.initialState.slots.length, 1);
-      expect(challenge.initialState.slots.first.id, 's1');
-      expect(challenge.initialState.inventory, [5, 15]);
+      expect(initialState.nodes.length, 2);
+      expect(initialState.nodes[0].value, 10);
+      expect(initialState.nodes[1].value, isNull);
+
+      expect(initialState.slots.length, 1);
+      expect(initialState.slots.first.id, 's1');
+      expect(initialState.inventory, [5, 15]);
     });
 
     test('throws when an unknown constraint type is provided', () {
@@ -263,7 +272,7 @@ void main() {
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     final challenge = ChallengeModel.fromJson(jsonMap);
 
-    expect(challenge.engineConfig.connectionType, ConnectionType.none);
+    expect(challenge.engineConfig!.connectionType, ConnectionType.none);
   });
 
   test('defaults connection type to explicit when omitted', () {
@@ -292,39 +301,7 @@ void main() {
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     final challenge = ChallengeModel.fromJson(jsonMap);
 
-    expect(challenge.engineConfig.connectionType, ConnectionType.explicit);
-  });
-  test('parses CIRCULAR layout strategy correctly', () {
-    final jsonString = '''
-  {
-    "metadata": {
-      "title": "Circular graph",
-      "instruction": "Inspect the graph"
-    },
-    "engineConfig": {
-      "structureType": "GRAPH",
-      "validationStrategy": "BST",
-      "layoutStrategy": "CIRCULAR",
-      "interactionMode": "LINK",
-      "connectionType": "EXPLICIT",
-      "constraints": []
-    },
-    "initialState": {
-      "nodes": [
-        { "id": "n1", "value": 1 },
-        { "id": "n2", "value": 2 }
-      ],
-      "edges": [],
-      "slots": [],
-      "inventory": []
-    }
-  }
-  ''';
-
-    final Map<String, dynamic> jsonMap = json.decode(jsonString);
-    final challenge = ChallengeModel.fromJson(jsonMap);
-
-    expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.circular);
+    expect(challenge.engineConfig!.connectionType, ConnectionType.explicit);
   });
 
   test('parses CIRCULAR layout strategy correctly', () {
@@ -357,7 +334,7 @@ void main() {
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     final challenge = ChallengeModel.fromJson(jsonMap);
 
-    expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.circular);
+    expect(challenge.engineConfig!.layoutStrategy, LayoutStrategyType.circular);
   });
 
   test('parses FREE layout strategy correctly', () {
@@ -390,7 +367,7 @@ void main() {
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     final challenge = ChallengeModel.fromJson(jsonMap);
 
-    expect(challenge.engineConfig.layoutStrategy, LayoutStrategyType.free);
+    expect(challenge.engineConfig!.layoutStrategy, LayoutStrategyType.free);
   });
 
   test('parses MAX_ATTEMPTS constraint correctly', () {
@@ -423,5 +400,116 @@ void main() {
       ),
       0,
     );
+  });
+
+  test('defaults challenge kind to structure when omitted', () {
+    final jsonString = '''
+  {
+    "metadata": {
+      "title": "Default structure",
+      "instruction": "Solve it"
+    },
+    "engineConfig": {
+      "structureType": "HEAP",
+      "validationStrategy": "MAX_HEAP",
+      "layoutStrategy": "PYRAMID",
+      "interactionMode": "SWAP",
+      "connectionType": "EXPLICIT",
+      "constraints": []
+    },
+    "initialState": {
+      "nodes": [],
+      "edges": [],
+      "slots": [],
+      "inventory": []
+    }
+  }
+  ''';
+
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(challenge.kind, ChallengeKindModel.structure);
+    expect(challenge.engineConfig, isNotNull);
+    expect(challenge.initialState, isNotNull);
+    expect(challenge.quiz, isNull);
+  });
+
+  test('parses SINGLE_CHOICE quiz challenge correctly', () {
+    final jsonString = '''
+  {
+    "kind": "SINGLE_CHOICE",
+    "metadata": {
+      "title": "Propiedad de Max Heap",
+      "instruction": "Selecciona la opción correcta",
+      "theoryRef": "heap_intro"
+    },
+    "constraints": [
+      { "type": "MAX_ATTEMPTS", "maxAttempts": 3 },
+      { "type": "LIVES_CONSUMED_ON_FAIL", "lives": 1 }
+    ],
+    "quiz": {
+      "question": "¿Qué propiedad debe cumplir un max-heap?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cada padre debe ser mayor o igual que sus hijos."
+        },
+        {
+          "id": "b",
+          "text": "Cada hijo debe ser mayor que su padre."
+        }
+      ],
+      "correctOptionIds": ["a"],
+      "allowMultiple": false
+    }
+  }
+  ''';
+
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(challenge.kind, ChallengeKindModel.singleChoice);
+
+    expect(challenge.metadata.title, 'Propiedad de Max Heap');
+    expect(challenge.metadata.instruction, 'Selecciona la opción correcta');
+    expect(challenge.metadata.theoryRef, 'heap_intro');
+
+    expect(challenge.engineConfig, isNull);
+    expect(challenge.initialState, isNull);
+
+    expect(challenge.constraints.length, 2);
+
+    expect(
+      challenge.constraints.first.when(
+        maxMoves: (_) => null,
+        lockedNodes: (_) => null,
+        maxAttempts: (maxAttempts) => maxAttempts,
+        livesConsumedOnFail: (_) => null,
+      ),
+      3,
+    );
+
+    expect(
+      challenge.constraints.last.when(
+        maxMoves: (_) => null,
+        lockedNodes: (_) => null,
+        maxAttempts: (_) => null,
+        livesConsumedOnFail: (lives) => lives,
+      ),
+      1,
+    );
+
+    final quiz = challenge.quiz!;
+
+    expect(quiz.question, '¿Qué propiedad debe cumplir un max-heap?');
+    expect(quiz.options.length, 2);
+    expect(quiz.options.first.id, 'a');
+    expect(
+      quiz.options.first.text,
+      'Cada padre debe ser mayor o igual que sus hijos.',
+    );
+    expect(quiz.correctOptionIds, ['a']);
+    expect(quiz.allowMultiple, isFalse);
   });
 }

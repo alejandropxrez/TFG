@@ -1,0 +1,41 @@
+{
+	"kind": "SINGLE_CHOICE",
+	"metadata": {
+		"title": "Propiedad de Max Heap",
+		"instruction": "Selecciona la opción correcta",
+		"theoryRef": "heap_intro"
+	},
+	"constraints": [
+		{
+			"type": "MAX_ATTEMPTS",
+			"maxAttempts": 3
+		},
+		{
+			"type": "LIVES_CONSUMED_ON_FAIL",
+			"lives": 1
+		}
+	],
+	"quiz": {
+		"question": "¿Qué propiedad debe cumplir un max-heap?",
+		"options": [
+			{
+				"id": "a",
+				"text": "Cada padre debe ser mayor o igual que sus hijos."
+			},
+			{
+				"id": "b",
+				"text": "Cada hijo debe ser mayor que su padre."
+			},
+			{
+				"id": "c",
+				"text": "Todos los nodos deben tener exactamente dos hijos."
+			},
+			{
+				"id": "d",
+				"text": "Los valores deben estar ordenados de menor a mayor en inorden."
+			}
+		],
+		"correctOptionIds": ["a"],
+		"allowMultiple": false
+	}
+}

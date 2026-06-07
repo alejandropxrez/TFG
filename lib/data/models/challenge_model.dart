@@ -9,9 +9,19 @@ part 'challenge_model.g.dart';
 @freezed
 abstract class ChallengeModel with _$ChallengeModel {
   const factory ChallengeModel({
+    @JsonKey(fromJson: _challengeKindFromJson, toJson: _challengeKindToJson)
+    @Default(ChallengeKindModel.structure)
+    ChallengeKindModel kind,
+
     required ChallengeMetadataModel metadata,
-    required ChallengeEngineConfigModel engineConfig,
-    required ChallengeInitialStateModel initialState,
+
+    ChallengeEngineConfigModel? engineConfig,
+
+    ChallengeInitialStateModel? initialState,
+
+    @Default([]) List<ChallengeConstraintModel> constraints,
+
+    QuizModel? quiz,
   }) = _ChallengeModel;
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) =>
@@ -278,4 +288,50 @@ abstract class ChallengeSlotModel with _$ChallengeSlotModel {
 
   factory ChallengeSlotModel.fromJson(Map<String, dynamic> json) =>
       _$ChallengeSlotModelFromJson(json);
+}
+
+enum ChallengeKindModel { structure, singleChoice }
+
+ChallengeKindModel _challengeKindFromJson(String? value) {
+  switch (value?.trim().toUpperCase()) {
+    case null:
+    case '':
+    case 'STRUCTURE':
+      return ChallengeKindModel.structure;
+    case 'SINGLE_CHOICE':
+      return ChallengeKindModel.singleChoice;
+    default:
+      throw FormatException('Unknown challenge kind: $value');
+  }
+}
+
+String _challengeKindToJson(ChallengeKindModel kind) {
+  switch (kind) {
+    case ChallengeKindModel.structure:
+      return 'STRUCTURE';
+    case ChallengeKindModel.singleChoice:
+      return 'SINGLE_CHOICE';
+  }
+}
+
+@freezed
+abstract class QuizModel with _$QuizModel {
+  const factory QuizModel({
+    required String question,
+    required List<QuizOptionModel> options,
+    required List<String> correctOptionIds,
+    @Default(false) bool allowMultiple,
+  }) = _QuizModel;
+
+  factory QuizModel.fromJson(Map<String, dynamic> json) =>
+      _$QuizModelFromJson(json);
+}
+
+@freezed
+abstract class QuizOptionModel with _$QuizOptionModel {
+  const factory QuizOptionModel({required String id, required String text}) =
+      _QuizOptionModel;
+
+  factory QuizOptionModel.fromJson(Map<String, dynamic> json) =>
+      _$QuizOptionModelFromJson(json);
 }

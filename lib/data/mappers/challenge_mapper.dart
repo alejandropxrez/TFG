@@ -1,5 +1,6 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
+import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/min_heap_validation_strategy.dart';
@@ -12,41 +13,122 @@ class ChallengeMapper {
     String challengeId,
     ChallengeModel challengeModel,
   ) {
+    return switch (challengeModel.kind) {
+      ChallengeKindModel.structure => _mapStructureChallenge(
+        challengeId,
+        challengeModel,
+      ),
+      ChallengeKindModel.singleChoice => _mapSingleChoiceChallenge(
+        challengeId,
+        challengeModel,
+      ),
+    };
+  }
+
+  static ChallengeSpec _mapStructureChallenge(
+    String challengeId,
+    ChallengeModel challengeModel,
+  ) {
+    final engineConfig = challengeModel.engineConfig;
+    final initialState = challengeModel.initialState;
+
+    if (engineConfig == null) {
+      throw FormatException('STRUCTURE challenge requires engineConfig.');
+    }
+
+    if (initialState == null) {
+      throw FormatException('STRUCTURE challenge requires initialState.');
+    }
+
     return ChallengeSpec(
       id: challengeId,
       title: challengeModel.metadata.title,
       instruction: challengeModel.metadata.instruction,
       theoryRef: challengeModel.metadata.theoryRef,
-      constraints: challengeModel.engineConfig.constraints
-          .map(_mapConstraint)
-          .toList(growable: false),
+      constraints: _mapConstraints(challengeModel),
       content: StructureChallengeContent(
         engineConfig: ChallengeEngineConfig(
-          structureType: challengeModel.engineConfig.structureType,
+          structureType: engineConfig.structureType,
           validationStrategy: _mapValidationStrategy(
-            challengeModel.engineConfig.validationStrategy,
+            engineConfig.validationStrategy,
           ),
-          layoutStrategy: challengeModel.engineConfig.layoutStrategy,
-          interactionMode: challengeModel.engineConfig.interactionMode,
-          connectionType: challengeModel.engineConfig.connectionType,
+          layoutStrategy: engineConfig.layoutStrategy,
+          interactionMode: engineConfig.interactionMode,
+          connectionType: engineConfig.connectionType,
         ),
         initialState: ChallengeInitialStateSpec(
-          nodes: challengeModel.initialState.nodes
+          nodes: initialState.nodes
               .map((node) => ChallengeNodeSpec(id: node.id, value: node.value))
               .toList(growable: false),
-          edges: challengeModel.initialState.edges
+          edges: initialState.edges
               .map(
                 (edge) =>
                     ChallengeEdgeSpec(source: edge.source, target: edge.target),
               )
               .toList(growable: false),
-          slots: challengeModel.initialState.slots
+          slots: initialState.slots
               .map((slot) => ChallengeSlotSpec(id: slot.id, index: slot.index))
               .toList(growable: false),
-          inventory: challengeModel.initialState.inventory,
+          inventory: initialState.inventory,
         ),
       ),
     );
+  }
+
+  static ChallengeSpec _mapSingleChoiceChallenge(
+    String challengeId,
+    ChallengeModel challengeModel,
+  ) {
+    final quiz = challengeModel.quiz;
+
+    if (quiz == null) {
+      throw FormatException('SINGLE_CHOICE challenge requires quiz.');
+    }
+
+    if (quiz.allowMultiple) {
+      throw FormatException(
+        'SINGLE_CHOICE challenge cannot have allowMultiple=true.',
+      );
+    }
+
+    if (quiz.correctOptionIds.length != 1) {
+      throw FormatException(
+        'SINGLE_CHOICE challenge requires exactly one correct option.',
+      );
+    }
+
+    return ChallengeSpec(
+      id: challengeId,
+      title: challengeModel.metadata.title,
+      instruction: challengeModel.metadata.instruction,
+      theoryRef: challengeModel.metadata.theoryRef,
+      constraints: _mapConstraints(challengeModel),
+      content: QuizChallengeContent(
+        quizSpec: QuizSpec(
+          question: quiz.question,
+          options: quiz.options
+              .map((option) => QuizOption(id: option.id, text: option.text))
+              .toList(growable: false),
+          correctOptionIds: quiz.correctOptionIds.toSet(),
+          allowMultiple: false,
+        ),
+      ),
+    );
+  }
+
+  static List<ChallengeConstraint> _mapConstraints(
+    ChallengeModel challengeModel,
+  ) {
+    final rootConstraints = challengeModel.constraints;
+
+    if (rootConstraints.isNotEmpty) {
+      return rootConstraints.map(_mapConstraint).toList(growable: false);
+    }
+
+    return challengeModel.engineConfig?.constraints
+            .map(_mapConstraint)
+            .toList(growable: false) ??
+        const [];
   }
 
   static ChallengeConstraint _mapConstraint(
