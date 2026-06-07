@@ -6,7 +6,13 @@ enum LayoutStrategyType { pyramid, linear, circular, free }
 
 enum InteractionModeType { swap, drag, setValue, link }
 
-enum ValidationStrategyType { maxHeap, minHeap, bst }
+enum ValidationStrategyType {
+  maxHeap,
+  minHeap,
+  bst,
+  connectedGraph,
+  linkedList,
+}
 
 enum ConnectionType { implicit, explicit, none }
 

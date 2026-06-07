@@ -4,6 +4,8 @@ import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/min_heap_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
+import 'package:algoquest/domain/strategies/connected_graph_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/linked_list_validation_strategy.dart';
 
 class ChallengeMapper {
   static ChallengeSpec toDomain(
@@ -66,6 +68,10 @@ class ChallengeMapper {
         return MinHeapValidationStrategy();
       case ValidationStrategyType.bst:
         return BstValidationStrategy();
+      case ValidationStrategyType.connectedGraph:
+        return ConnectedGraphValidationStrategy();
+      case ValidationStrategyType.linkedList:
+        return LinkedListValidationStrategy();
     }
   }
 }

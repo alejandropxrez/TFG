@@ -127,6 +127,10 @@ ValidationStrategyType _validationFromJson(String value) {
       return ValidationStrategyType.minHeap;
     case 'BST':
       return ValidationStrategyType.bst;
+    case 'CONNECTED_GRAPH':
+      return ValidationStrategyType.connectedGraph;
+    case 'LINKED_LIST':
+      return ValidationStrategyType.linkedList;
     default:
       throw FormatException('Unknown validation strategy: $value');
   }
@@ -140,6 +144,10 @@ String _validationToJson(ValidationStrategyType value) {
       return 'MIN_HEAP';
     case ValidationStrategyType.bst:
       return 'BST';
+    case ValidationStrategyType.connectedGraph:
+      return 'CONNECTED_GRAPH';
+    case ValidationStrategyType.linkedList:
+      return 'LINKED_LIST';
   }
 }
 
