@@ -10,12 +10,14 @@ import 'package:flame/game.dart';
 class AlgoQuestGame extends FlameGame {
   final VisualSceneBuilder _sceneBuilder;
   final InteractionStrategyFactory _interactionStrategyFactory;
-
-  ChallengeSpec? _spec;
-  StructureState? _state;
-  InteractionStrategy? _interactionStrategy;
-
   final DropResolver _dropResolver;
+
+  StructureChallengeContent? _lastStructureContent;
+  StructureState? _state;
+
+  InteractionStrategy? _internalInteractionStrategy;
+  InteractionStrategy? _externalInteractionStrategy;
+
   VisualScene? _lastScene;
 
   void Function(GameAction action)? onActionRequested;
@@ -30,19 +32,27 @@ class AlgoQuestGame extends FlameGame {
        _dropResolver = dropResolver;
 
   void updateScene({
-    required ChallengeSpec spec,
+    required StructureChallengeContent structureContent,
     required StructureState state,
+    InteractionStrategy? interactionStrategy,
   }) {
-    final shouldResetInteraction =
-        _spec?.engineConfig.interactionMode !=
-        spec.engineConfig.interactionMode;
+    final previousInteractionMode =
+        _lastStructureContent?.engineConfig.interactionMode;
 
-    _spec = spec;
+    final nextInteractionMode = structureContent.engineConfig.interactionMode;
+
+    final shouldResetInternalStrategy =
+        interactionStrategy == null &&
+        (previousInteractionMode != nextInteractionMode ||
+            _internalInteractionStrategy == null);
+
+    _lastStructureContent = structureContent;
     _state = state;
+    _externalInteractionStrategy = interactionStrategy;
 
-    if (_interactionStrategy == null || shouldResetInteraction) {
-      _interactionStrategy = _interactionStrategyFactory.create(
-        spec.engineConfig.interactionMode,
+    if (shouldResetInternalStrategy) {
+      _internalInteractionStrategy = _interactionStrategyFactory.create(
+        nextInteractionMode,
       );
     }
 
@@ -53,29 +63,32 @@ class AlgoQuestGame extends FlameGame {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    if (_spec != null && _state != null) {
+    if (_lastStructureContent != null && _state != null) {
       _rebuildScene();
     }
   }
 
   void _rebuildScene() {
-    final spec = _spec;
+    final structureContent = _lastStructureContent;
     final state = _state;
-    final interactionStrategy = _interactionStrategy;
+    final interactionStrategy = _currentInteractionStrategy;
 
-    if (spec == null || state == null || interactionStrategy == null) return;
+    if (structureContent == null ||
+        state == null ||
+        interactionStrategy == null) {
+      return;
+    }
+
     if (size.x == 0 || size.y == 0) return;
 
     removeAll(children.toList());
 
     final scene = _sceneBuilder.build(
-      spec: spec,
+      structureContent: structureContent,
       state: state,
       canvasSize: size,
       interactionStrategy: interactionStrategy,
-      onActionRequested: (action) {
-        onActionRequested?.call(action);
-      },
+      onActionRequested: _emitAction,
       onInteractionChanged: _rebuildScene,
       onInventoryDragStart: _handleInventoryDragStart,
       onInventoryDragUpdate: _handleInventoryDragUpdate,
@@ -88,14 +101,29 @@ class AlgoQuestGame extends FlameGame {
   }
 
   void clearScene() {
-    _spec = null;
+    _lastStructureContent = null;
     _state = null;
-    _interactionStrategy = null;
+    _internalInteractionStrategy = null;
+    _externalInteractionStrategy = null;
+    _lastScene = null;
+
     removeAll(children.toList());
   }
 
+  InteractionStrategy? get _currentInteractionStrategy {
+    return _externalInteractionStrategy ?? _internalInteractionStrategy;
+  }
+
+  void _emitAction(GameAction action) {
+    onActionRequested?.call(action);
+  }
+
   void _handleInventoryDragStart(int value, Vector2 position) {
-    _interactionStrategy?.handleInventoryTap(value);
+    final strategy = _currentInteractionStrategy;
+    if (strategy == null) return;
+
+    strategy.handleInventoryTap(value);
+    _rebuildScene();
   }
 
   void _handleInventoryDragUpdate(int value, Vector2 position) {
@@ -103,21 +131,29 @@ class AlgoQuestGame extends FlameGame {
   }
 
   void _handleInventoryDragEnd(int value, Vector2 position) {
+    final strategy = _currentInteractionStrategy;
+    if (strategy == null) return;
+
     final slotId = _dropResolver.resolveSlot(
       dropPosition: position,
       slotPositions: _lastScene?.slotPositions ?? const {},
     );
 
-    if (slotId != null) {
-      if (_interactionStrategy?.selectedInventoryValue != value) {
-        _interactionStrategy?.handleInventoryTap(value);
-      }
-
-      final action = _interactionStrategy?.handleNodeTap(slotId);
-
-      if (action != null) {
-        onActionRequested?.call(action);
-      }
+    if (slotId == null) {
+      _rebuildScene();
+      return;
     }
+
+    if (strategy.selectedInventoryValue != value) {
+      strategy.handleInventoryTap(value);
+    }
+
+    final action = strategy.handleNodeTap(slotId);
+
+    if (action != null) {
+      _emitAction(action);
+    }
+
+    _rebuildScene();
   }
 }

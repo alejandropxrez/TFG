@@ -6,6 +6,7 @@
 	"challenges": [
 		"quiz_heap_property",
 		"quiz_heap_properties_multiple",
+		"identify_heap_wrong_node",
 		"heap_repair_intro",
 		"heap_repair_swap"
 	],

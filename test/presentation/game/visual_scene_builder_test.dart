@@ -57,7 +57,7 @@ void main() {
     final strategy = SetValueInteractionStrategy();
 
     final scene = builder.build(
-      spec: buildSpec(),
+      structureContent: buildSpec().structureContent,
       state: buildState(),
       canvasSize: Vector2(400, 300),
       interactionStrategy: strategy,
@@ -83,7 +83,7 @@ void main() {
     );
 
     final scene = builder.build(
-      spec: buildSpec(),
+      structureContent: buildSpec().structureContent,
       state: state,
       canvasSize: Vector2(400, 300),
       interactionStrategy: strategy,
@@ -112,7 +112,7 @@ void main() {
       );
 
       final scene = builder.build(
-        spec: buildSpec(),
+        structureContent: buildSpec().structureContent,
         state: state,
         canvasSize: Vector2(400, 300),
         interactionStrategy: strategy,

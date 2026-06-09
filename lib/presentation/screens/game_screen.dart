@@ -5,6 +5,7 @@ import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
+import 'package:algoquest/presentation/game/strategies/interaction/identify_interaction_strategy.dart';
 import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
 import 'package:algoquest/presentation/widgets/feedback_dialog.dart';
 import 'package:algoquest/presentation/widgets/game_hud.dart';
@@ -46,29 +47,79 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         return;
       }
 
+      final content = spec.content;
       final runtimeState = session.runtimeState;
-
-      if (runtimeState is! StructureRuntimeState) {
-        game.clearScene();
-        return;
-      }
 
       final previousSpecId = previous?.currentChallengeSpec?.id;
       final nextSpecId = spec.id;
-
       final previousRuntimeState = previous?.currentSession?.runtimeState;
-      final previousStructure = previousRuntimeState is StructureRuntimeState
-          ? previousRuntimeState.structure
-          : null;
 
-      final nextStructure = runtimeState.structure;
+      switch ((content, runtimeState)) {
+        case (
+          final StructureChallengeContent structureContent,
+          StructureRuntimeState(:final structure),
+        ):
+          final previousStructure =
+              previousRuntimeState is StructureRuntimeState
+              ? previousRuntimeState.structure
+              : null;
 
-      final shouldUpdateScene =
-          previousSpecId != nextSpecId || previousStructure != nextStructure;
+          final shouldUpdateScene =
+              previousSpecId != nextSpecId || previousStructure != structure;
 
-      if (!shouldUpdateScene) return;
+          if (!shouldUpdateScene) return;
 
-      game.updateScene(spec: spec, state: nextStructure);
+          game.updateScene(
+            structureContent: structureContent,
+            state: structure,
+          );
+        case (
+          IdentifyTargetChallengeContent(
+            :final identifySpec,
+            :final visualStructure,
+          ),
+          IdentifyTargetRuntimeState(
+            :final visualState,
+            :final selectedTargetIds,
+          ),
+        ):
+          final previousVisualState =
+              previousRuntimeState is IdentifyTargetRuntimeState
+              ? previousRuntimeState.visualState
+              : null;
+
+          final previousSelectedTargetIds =
+              previousRuntimeState is IdentifyTargetRuntimeState
+              ? previousRuntimeState.selectedTargetIds
+              : const <String>{};
+
+          final shouldUpdateScene =
+              previousSpecId != nextSpecId ||
+              previousVisualState != visualState ||
+              previousSelectedTargetIds != selectedTargetIds;
+
+          if (!shouldUpdateScene) return;
+
+          game.updateScene(
+            structureContent: visualStructure,
+            state: visualState,
+            interactionStrategy: IdentifyInteractionStrategy(
+              selectedTargetIds: selectedTargetIds,
+              allowMultiple: identifySpec.allowMultiple,
+              onSelectionChanged: (nextSelection) {
+                ref
+                    .read(levelStateProvider.notifier)
+                    .submitIdentifyTarget(nextSelection);
+              },
+            ),
+          );
+
+        case (QuizChallengeContent(), QuizRuntimeState()):
+          game.clearScene();
+
+        default:
+          game.clearScene();
+      }
     });
 
     final state = ref.watch(levelStateProvider);
@@ -183,13 +234,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     required LevelStateNotifier notifier,
     required LevelState state,
   }) {
+    final theoryRef = state.currentChallengeSpec?.theoryRef;
     final solved = notifier.checkSolution();
 
     showDialog<void>(
       context: context,
       builder: (_) => FeedbackDialog(
         solved: solved,
-        theoryRef: state.currentChallengeSpec?.theoryRef,
+        theoryRef: theoryRef,
         onContinue: solved
             ? () {
                 final userId = ref.read(currentUserIdProvider);

@@ -3,10 +3,6 @@ import 'challenge_spec.dart';
 import 'structure_state.dart';
 
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
-import 'package:algoquest/domain/enums/session_status.dart';
-
-import 'challenge_spec.dart';
-import 'structure_state.dart';
 
 class ChallengeSession {
   final String sessionId;
@@ -51,27 +47,38 @@ class ChallengeSession {
   static ChallengeRuntimeState _initialRuntimeStateFromSpec(
     ChallengeSpec spec,
   ) {
+    StructureState _structureStateFromContent(
+      StructureChallengeContent content,
+    ) {
+      final engineConfig = content.engineConfig;
+      final initialState = content.initialState;
+
+      return StructureState.fromNodesAndEdges(
+        type: engineConfig.structureType,
+        nodes: initialState.nodes
+            .map((node) => NodeState(id: node.id, value: node.value))
+            .toList(growable: false),
+        edges: initialState.edges
+            .map((edge) => EdgeState(source: edge.source, target: edge.target))
+            .toList(growable: false),
+        slots: initialState.slots
+            .map((slot) => SlotState(id: slot.id, index: slot.index))
+            .toList(growable: false),
+        inventory: initialState.inventory,
+      );
+    }
+
     return switch (spec.content) {
-      StructureChallengeContent(:final engineConfig, :final initialState) =>
-        StructureRuntimeState(
-          structure: StructureState.fromNodesAndEdges(
-            type: engineConfig.structureType,
-            nodes: initialState.nodes
-                .map((node) => NodeState(id: node.id, value: node.value))
-                .toList(growable: false),
-            edges: initialState.edges
-                .map(
-                  (edge) => EdgeState(source: edge.source, target: edge.target),
-                )
-                .toList(growable: false),
-            slots: initialState.slots
-                .map((slot) => SlotState(id: slot.id, index: slot.index))
-                .toList(growable: false),
-            inventory: initialState.inventory,
-          ),
-        ),
+      StructureChallengeContent() => StructureRuntimeState(
+        structure: _structureStateFromContent(spec.structureContent),
+      ),
+
       QuizChallengeContent() => const QuizRuntimeState(),
-      IdentifyTargetChallengeContent() => const IdentifyTargetRuntimeState(),
+
+      IdentifyTargetChallengeContent(:final visualStructure) =>
+        IdentifyTargetRuntimeState(
+          visualState: _structureStateFromContent(visualStructure),
+        ),
     };
   }
 

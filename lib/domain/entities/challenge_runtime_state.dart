@@ -50,19 +50,23 @@ class QuizRuntimeState extends ChallengeRuntimeState {
 }
 
 class IdentifyTargetRuntimeState extends ChallengeRuntimeState {
+  final StructureState visualState;
   final Set<String> selectedTargetIds;
   final bool submitted;
 
   const IdentifyTargetRuntimeState({
+    required this.visualState,
     this.selectedTargetIds = const {},
     this.submitted = false,
   });
 
   IdentifyTargetRuntimeState copyWith({
+    StructureState? visualState,
     Set<String>? selectedTargetIds,
     bool? submitted,
   }) {
     return IdentifyTargetRuntimeState(
+      visualState: visualState ?? this.visualState,
       selectedTargetIds: selectedTargetIds ?? this.selectedTargetIds,
       submitted: submitted ?? this.submitted,
     );

@@ -30,7 +30,7 @@ class VisualSceneBuilder {
        _connectionStrategyFactory = connectionStrategyFactory;
 
   VisualScene build({
-    required ChallengeSpec spec,
+    required StructureChallengeContent structureContent,
     required StructureState state,
     required Vector2 canvasSize,
     required InteractionStrategy interactionStrategy,
@@ -42,8 +42,41 @@ class VisualSceneBuilder {
   }) {
     final components = <Component>[];
 
+    void handleNodeTap(String nodeId) {
+      final action = interactionStrategy.handleNodeTap(nodeId);
+
+      if (action != null) {
+        onActionRequested(action);
+      }
+
+      onInteractionChanged();
+    }
+
+    void handleEdgeTap(String sourceNodeId, String targetNodeId) {
+      final action = interactionStrategy.handleEdgeTap(
+        sourceNodeId,
+        targetNodeId,
+      );
+
+      if (action != null) {
+        onActionRequested(action);
+      }
+
+      onInteractionChanged();
+    }
+
+    void handleInventoryTap(int selectedValue) {
+      final action = interactionStrategy.handleInventoryTap(selectedValue);
+
+      if (action != null) {
+        onActionRequested(action);
+      }
+
+      onInteractionChanged();
+    }
+
     final layoutStrategy = _layoutStrategyFactory.create(
-      spec.engineConfig.layoutStrategy,
+      structureContent.engineConfig.layoutStrategy,
     );
 
     final positions = layoutStrategy.calculatePositions(
@@ -79,7 +112,7 @@ class VisualSceneBuilder {
     }
 
     final connectionStrategy = _connectionStrategyFactory.create(
-      spec.engineConfig.connectionType,
+      structureContent.engineConfig.connectionType,
     );
 
     final edgesToRender = connectionStrategy.buildConnections(state);
@@ -95,18 +128,7 @@ class VisualSceneBuilder {
             end: end,
             sourceNodeId: edge.source,
             targetNodeId: edge.target,
-            onTapEdge: (sourceNodeId, targetNodeId) {
-              final action = interactionStrategy.handleEdgeTap(
-                sourceNodeId,
-                targetNodeId,
-              );
-
-              if (action != null) {
-                onActionRequested(action);
-              }
-
-              onInteractionChanged();
-            },
+            onTapEdge: handleEdgeTap,
           ),
         );
       }
@@ -123,16 +145,8 @@ class VisualSceneBuilder {
           nodeId: entry.key,
           value: entry.value.value,
           position: position,
-          isSelected: interactionStrategy.selectedNodeId == entry.key,
-          onTapNode: (nodeId) {
-            final action = interactionStrategy.handleNodeTap(nodeId);
-
-            if (action != null) {
-              onActionRequested(action);
-            }
-
-            onInteractionChanged();
-          },
+          isSelected: interactionStrategy.selectedNodeIds.contains(entry.key),
+          onTapNode: handleNodeTap,
         ),
       );
     }
@@ -152,16 +166,10 @@ class VisualSceneBuilder {
               nodeId: filledNode.id,
               value: filledNode.value,
               position: slotPosition,
-              isSelected: interactionStrategy.selectedNodeId == filledNode.id,
-              onTapNode: (nodeId) {
-                final action = interactionStrategy.handleNodeTap(nodeId);
-
-                if (action != null) {
-                  onActionRequested(action);
-                }
-
-                onInteractionChanged();
-              },
+              isSelected: interactionStrategy.selectedNodeIds.contains(
+                filledNode.id,
+              ),
+              onTapNode: handleNodeTap,
             ),
           );
         }
@@ -173,16 +181,8 @@ class VisualSceneBuilder {
         SlotComponent(
           slotId: slot.id,
           position: slotPosition,
-          isSelected: interactionStrategy.selectedNodeId == slot.id,
-          onTapSlot: (slotId) {
-            final action = interactionStrategy.handleNodeTap(slotId);
-
-            if (action != null) {
-              onActionRequested(action);
-            }
-
-            onInteractionChanged();
-          },
+          isSelected: interactionStrategy.selectedNodeIds.contains(slot.id),
+          onTapSlot: handleNodeTap,
         ),
       );
     }
@@ -199,17 +199,7 @@ class VisualSceneBuilder {
             canvasSize: canvasSize,
           ),
           isSelected: interactionStrategy.selectedInventoryValue == value,
-          onTapInventoryItem: (selectedValue) {
-            final action = interactionStrategy.handleInventoryTap(
-              selectedValue,
-            );
-
-            if (action != null) {
-              onActionRequested(action);
-            }
-
-            onInteractionChanged();
-          },
+          onTapInventoryItem: handleInventoryTap,
           onDragStartItem: onInventoryDragStart,
           onDragUpdateItem: onInventoryDragUpdate,
           onDragEndItem: onInventoryDragEnd,

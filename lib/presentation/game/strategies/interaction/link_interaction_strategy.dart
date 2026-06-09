@@ -5,7 +5,9 @@ class LinkInteractionStrategy implements InteractionStrategy {
   String? _selectedSourceNodeId;
 
   @override
-  String? get selectedNodeId => _selectedSourceNodeId;
+  Set<String> get selectedNodeIds {
+    return _selectedSourceNodeId == null ? const {} : {_selectedSourceNodeId!};
+  }
 
   @override
   int? get selectedInventoryValue => null;

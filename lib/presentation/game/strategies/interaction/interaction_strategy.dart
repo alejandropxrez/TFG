@@ -1,7 +1,7 @@
 import 'package:algoquest/domain/entities/game_action.dart';
 
 abstract class InteractionStrategy {
-  String? get selectedNodeId;
+  Set<String> get selectedNodeIds;
   int? get selectedInventoryValue => null;
 
   GameAction? handleNodeTap(String nodeId) => null;

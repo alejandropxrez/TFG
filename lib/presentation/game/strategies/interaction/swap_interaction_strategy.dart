@@ -5,7 +5,9 @@ class SwapInteractionStrategy implements InteractionStrategy {
   String? _selectedNodeId;
 
   @override
-  String? get selectedNodeId => _selectedNodeId;
+  Set<String> get selectedNodeIds {
+    return _selectedNodeId == null ? const {} : {_selectedNodeId!};
+  }
 
   @override
   int? get selectedInventoryValue => null;

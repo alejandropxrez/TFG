@@ -3,7 +3,7 @@ import 'package:algoquest/presentation/game/strategies/interaction/interaction_s
 
 class DragInteractionStrategy implements InteractionStrategy {
   @override
-  String? get selectedNodeId => null;
+  Set<String> get selectedNodeIds => const {};
 
   @override
   int? get selectedInventoryValue => null;

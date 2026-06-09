@@ -37,7 +37,7 @@ void main() {
       expect(setValueAction.slotId, 's1');
       expect(setValueAction.value, 42);
       expect(strategy.selectedInventoryValue, isNull);
-      expect(strategy.selectedNodeId, isNull);
+      expect(strategy.selectedNodeIds, isEmpty);
     },
   );
 
@@ -47,6 +47,6 @@ void main() {
     final action = strategy.handleNodeTap('s1');
 
     expect(action, isNull);
-    expect(strategy.selectedNodeId, 's1');
+    expect(strategy.selectedNodeIds, contains('s1'));
   });
 }
