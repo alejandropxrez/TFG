@@ -37,4 +37,9 @@ class SwapInteractionStrategy implements InteractionStrategy {
 
   @override
   GameAction? handleInventoryTap(int value) => null;
+
+  @override
+  void clearSelection() {
+    _selectedNodeId = null;
+  }
 }

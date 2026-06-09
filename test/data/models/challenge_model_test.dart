@@ -5,6 +5,7 @@ import 'package:algoquest/data/models/challenge_model.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
+import 'package:algoquest/domain/strategies/ordered_sequence_validation_strategy.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -1041,6 +1042,87 @@ void main() {
     expect(
       () => ChallengeMapper.toDomain('invalid_identify_node', model),
       throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('parses ORDERED_SEQUENCE validation strategy correctly', () {
+    final jsonString = '''
+  {
+    "metadata": {
+      "title": "Ordena la secuencia",
+      "instruction": "Arrastra los valores en orden ascendente"
+    },
+    "engineConfig": {
+      "structureType": "LINKED_LIST",
+      "validationStrategy": "ORDERED_SEQUENCE",
+      "layoutStrategy": "LINEAR",
+      "interactionMode": "DRAG",
+      "connectionType": "NONE",
+      "constraints": []
+    },
+    "initialState": {
+      "nodes": [
+        { "id": "n1", "value": 3 },
+        { "id": "n2", "value": 1 },
+        { "id": "n3", "value": 2 }
+      ],
+      "edges": [],
+      "slots": [
+        { "id": "s1", "index": 0 },
+        { "id": "s2", "index": 1 },
+        { "id": "s3", "index": 2 }
+      ],
+      "inventory": [3, 1, 2]
+    }
+  }
+  ''';
+
+    final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(
+      challenge.engineConfig!.validationStrategy,
+      ValidationStrategyType.orderedSequence,
+    );
+  });
+
+  test('maps ORDERED_SEQUENCE validation strategy', () {
+    final model = ChallengeModel.fromJson({
+      'metadata': {
+        'title': 'Ordena la secuencia',
+        'instruction': 'Arrastra los valores en orden ascendente',
+      },
+      'engineConfig': {
+        'structureType': 'LINKED_LIST',
+        'validationStrategy': 'ORDERED_SEQUENCE',
+        'layoutStrategy': 'LINEAR',
+        'interactionMode': 'DRAG',
+        'connectionType': 'NONE',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [
+          {'id': 'n1', 'value': 3},
+          {'id': 'n2', 'value': 1},
+          {'id': 'n3', 'value': 2},
+        ],
+        'edges': [],
+        'slots': [
+          {'id': 's1', 'index': 0},
+          {'id': 's2', 'index': 1},
+          {'id': 's3', 'index': 2},
+        ],
+        'inventory': [3, 1, 2],
+      },
+    });
+
+    final spec = ChallengeMapper.toDomain('list_order_sequence_intro', model);
+
+    final content = spec.content as StructureChallengeContent;
+
+    expect(
+      content.engineConfig.validationStrategy,
+      isA<OrderedSequenceValidationStrategy>(),
     );
   });
 }

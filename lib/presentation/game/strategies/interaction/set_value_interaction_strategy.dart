@@ -41,4 +41,10 @@ class SetValueInteractionStrategy implements InteractionStrategy {
 
     return SetValueAction(slotId: nodeId, value: value);
   }
+
+  @override
+  void clearSelection() {
+    _selectedInventoryValue = null;
+    _selectedNodeId = null;
+  }
 }

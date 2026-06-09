@@ -122,8 +122,8 @@ class AlgoQuestGame extends FlameGame {
     final strategy = _currentInteractionStrategy;
     if (strategy == null) return;
 
+    strategy.clearSelection();
     strategy.handleInventoryTap(value);
-    _rebuildScene();
   }
 
   void _handleInventoryDragUpdate(int value, Vector2 position) {
@@ -140,7 +140,7 @@ class AlgoQuestGame extends FlameGame {
     );
 
     if (slotId == null) {
-      _rebuildScene();
+      strategy.clearSelection();
       return;
     }
 
@@ -154,6 +154,6 @@ class AlgoQuestGame extends FlameGame {
       _emitAction(action);
     }
 
-    _rebuildScene();
+    strategy.clearSelection();
   }
 }

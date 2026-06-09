@@ -26,7 +26,6 @@ class NodeComponent extends CircleComponent with TapCallbacks {
 
   @override
   void onTapDown(TapDownEvent event) {
-    debugPrint('Tapped node: $nodeId');
     onTapNode?.call(nodeId);
   }
 

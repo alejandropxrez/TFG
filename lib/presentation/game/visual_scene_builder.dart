@@ -99,6 +99,20 @@ class VisualSceneBuilder {
         .whereType<String>()
         .toSet();
 
+    final remainingInventoryValues = List<int>.from(state.inventory);
+    final inventoryNodeIds = <String>{};
+
+    for (final node in state.nodes.values) {
+      final value = node.value;
+      if (value == null) continue;
+
+      final inventoryIndex = remainingInventoryValues.indexOf(value);
+      if (inventoryIndex == -1) continue;
+
+      inventoryNodeIds.add(node.id);
+      remainingInventoryValues.removeAt(inventoryIndex);
+    }
+
     final slotNodePositions = <String, Vector2>{};
 
     for (final slot in state.slots.values) {
@@ -136,6 +150,7 @@ class VisualSceneBuilder {
 
     for (final entry in state.nodes.entries) {
       if (slotNodeIds.contains(entry.key)) continue;
+      if (inventoryNodeIds.contains(entry.key)) continue;
 
       final position = positions[entry.key];
       if (position == null) continue;

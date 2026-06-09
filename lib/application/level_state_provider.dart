@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/core/composition/use_cases.dart';
+import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/identify_target_action.dart';
 import 'package:algoquest/domain/entities/quiz_action.dart';
+import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,6 +131,9 @@ class LevelStateNotifier extends Notifier<LevelState> {
       session: session,
       action: action,
     );
+
+    final beforeRuntime = session.runtimeState;
+    final afterRuntime = updatedSession.runtimeState;
 
     state = state.copyWith(
       currentSession: updatedSession,

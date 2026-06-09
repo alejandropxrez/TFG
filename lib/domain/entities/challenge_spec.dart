@@ -14,6 +14,7 @@ enum ValidationStrategyType {
   bst,
   connectedGraph,
   linkedList,
+  orderedSequence,
 }
 
 enum ConnectionType { implicit, explicit, none }

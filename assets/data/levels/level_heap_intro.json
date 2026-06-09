@@ -4,6 +4,7 @@
 	"topic": "HEAPS",
 	"subtitle": "Repara heaps usando intercambios",
 	"challenges": [
+		"list_order_sequence_intro",
 		"quiz_heap_property",
 		"quiz_heap_properties_multiple",
 		"identify_heap_wrong_node",

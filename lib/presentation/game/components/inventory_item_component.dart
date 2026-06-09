@@ -13,7 +13,6 @@ class InventoryItemComponent extends RectangleComponent
   final void Function(int value, Vector2 position)? onDragEndItem;
 
   Vector2? _initialPosition;
-
   InventoryItemComponent({
     required this.value,
     required Vector2 position,
@@ -53,14 +52,16 @@ class InventoryItemComponent extends RectangleComponent
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
-    final dropPosition = position.clone();
+    final dropPosition = absolutePosition.clone();
 
     // Reset visual position locally. If the drop is valid, Riverpod will update
     // the game state and the scene will rebuild naturally.
     if (_initialPosition != null) position = _initialPosition!.clone();
     _initialPosition = null;
 
-    onDragEndItem?.call(value, dropPosition);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      onDragEndItem?.call(value, dropPosition);
+    });
   }
 
   @override

@@ -142,6 +142,8 @@ ValidationStrategyType _validationFromJson(String value) {
       return ValidationStrategyType.connectedGraph;
     case 'LINKED_LIST':
       return ValidationStrategyType.linkedList;
+    case 'ORDERED_SEQUENCE':
+      return ValidationStrategyType.orderedSequence;
     default:
       throw FormatException('Unknown validation strategy: $value');
   }
@@ -159,6 +161,8 @@ String _validationToJson(ValidationStrategyType value) {
       return 'CONNECTED_GRAPH';
     case ValidationStrategyType.linkedList:
       return 'LINKED_LIST';
+    case ValidationStrategyType.orderedSequence:
+      return 'ORDERED_SEQUENCE';
   }
 }
 

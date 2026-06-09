@@ -50,6 +50,7 @@ void main() {
 
   ChallengeSpec buildSetValueSpec({
     List<ChallengeConstraint> constraints = const [],
+    InteractionModeType interactionMode = InteractionModeType.setValue,
   }) {
     return ChallengeSpec(
       id: 'challenge_1',
@@ -62,11 +63,14 @@ void main() {
           structureType: StructureType.heap,
           validationStrategy: MaxHeapValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
-          interactionMode: InteractionModeType.setValue,
+          interactionMode: interactionMode,
           connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
-          nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
+          nodes: [
+            ChallengeNodeSpec(id: 'n1', value: 10),
+            ChallengeNodeSpec(id: 'n2', value: 42),
+          ],
           edges: [],
           slots: [ChallengeSlotSpec(id: 's1', index: 0)],
           inventory: [42],
@@ -214,23 +218,14 @@ void main() {
       action: const SetValueAction(slotId: 's1', value: 42),
     );
 
+    final structure = updated.structureRuntimeState.structure;
+
     expect(updated.structureRuntimeState.movesUsed, 1);
     expect(updated.structureRuntimeState.history.length, 1);
-    expect(
-      updated.structureRuntimeState.structure.slots['s1']!.filledNodeId,
-      isNotNull,
-    );
-    expect(
-      updated.structureRuntimeState.structure.inventory.contains(42),
-      isFalse,
-    );
 
-    final createdNodeId =
-        updated.structureRuntimeState.structure.slots['s1']!.filledNodeId!;
-    expect(
-      updated.structureRuntimeState.structure.nodes[createdNodeId]!.value,
-      42,
-    );
+    expect(structure.slots['s1']!.filledNodeId, 'n2');
+    expect(structure.nodes['n2']!.value, 42);
+    expect(structure.inventory.contains(42), isFalse);
   });
 
   test('does not execute SetValueAction on locked slot', () {
@@ -428,6 +423,29 @@ void main() {
     expect(updated.structureRuntimeState.history, isEmpty);
     expect(updated.structureRuntimeState.structure.nodes['n1']!.value, 3);
     expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
+  });
+
+  test('executes SetValueAction in drag interaction mode', () {
+    final spec = buildSetValueSpec(interactionMode: InteractionModeType.drag);
+
+    final session = ChallengeSession.start(
+      sessionId: 'session_1',
+      userId: 'user_1',
+      spec: spec,
+    );
+
+    final updated = useCase(
+      session: session,
+      action: const SetValueAction(slotId: 's1', value: 42),
+    );
+
+    final structure = updated.structureRuntimeState.structure;
+
+    expect(updated.structureRuntimeState.movesUsed, 1);
+    expect(updated.structureRuntimeState.history.length, 1);
+    expect(structure.slots['s1']!.filledNodeId, 'n2');
+    expect(structure.nodes['n2']!.value, 42);
+    expect(structure.inventory.contains(42), isFalse);
   });
 
   test('executes LinkAction and adds a new edge in link interaction mode', () {

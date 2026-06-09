@@ -1,0 +1,33 @@
+{
+	"metadata": {
+		"title": "Ordena la secuencia",
+		"instruction": "Arrastra los valores a los huecos en orden ascendente",
+		"theoryRef": "ordered_sequence_intro"
+	},
+	"constraints": [
+		{ "type": "MAX_ATTEMPTS", "maxAttempts": 3 },
+		{ "type": "LIVES_CONSUMED_ON_FAIL", "lives": 1 }
+	],
+	"engineConfig": {
+		"structureType": "LINKED_LIST",
+		"validationStrategy": "ORDERED_SEQUENCE",
+		"layoutStrategy": "LINEAR",
+		"interactionMode": "DRAG",
+		"connectionType": "NONE",
+		"constraints": []
+	},
+	"initialState": {
+		"nodes": [
+			{ "id": "n1", "value": 3 },
+			{ "id": "n2", "value": 1 },
+			{ "id": "n3", "value": 2 }
+		],
+		"edges": [],
+		"slots": [
+			{ "id": "s1", "index": 0 },
+			{ "id": "s2", "index": 1 },
+			{ "id": "s3", "index": 2 }
+		],
+		"inventory": [3, 1, 2]
+	}
+}

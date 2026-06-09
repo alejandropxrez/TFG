@@ -102,8 +102,7 @@ class ExecuteMoveUseCase {
       case InteractionModeType.setValue:
         return action is SetValueAction;
       case InteractionModeType.drag:
-        // Drag is not modeleded as a domain action yet.
-        return false;
+        return action is SetValueAction;
       case InteractionModeType.link:
         return action is LinkAction || action is RemoveLinkAction;
     }

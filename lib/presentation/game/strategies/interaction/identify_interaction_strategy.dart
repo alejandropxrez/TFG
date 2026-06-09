@@ -36,4 +36,7 @@ class IdentifyInteractionStrategy implements InteractionStrategy {
 
   @override
   GameAction? handleInventoryTap(int value) => null;
+
+  @override
+  void clearSelection() {}
 }

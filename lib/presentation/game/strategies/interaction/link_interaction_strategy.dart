@@ -44,4 +44,9 @@ class LinkInteractionStrategy implements InteractionStrategy {
       targetNodeId: targetNodeId,
     );
   }
+
+  @override
+  void clearSelection() {
+    _selectedSourceNodeId = null;
+  }
 }

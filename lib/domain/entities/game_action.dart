@@ -48,10 +48,12 @@ class SetValueAction extends GameAction {
   @override
   bool isApplicableTo(StructureState state) {
     final slot = state.slots[slotId];
+
     if (slot == null) return false;
     if (slot.filledNodeId != null) return false;
     if (!state.inventory.contains(value)) return false;
-    return true;
+
+    return _findAvailableNodeForValue(state) != null;
   }
 
   @override
@@ -59,23 +61,36 @@ class SetValueAction extends GameAction {
     if (!isApplicableTo(currentState)) return currentState;
 
     final slot = currentState.slots[slotId]!;
+    final node = _findAvailableNodeForValue(currentState);
 
-    final newNodeId = slotId;
+    if (node == null) return currentState;
 
-    final updatedNodes = Map<String, NodeState>.from(currentState.nodes);
-    updatedNodes[newNodeId] = NodeState(id: newNodeId, value: value);
+    final updatedSlots = Map<String, SlotState>.from(currentState.slots)
+      ..[slotId] = slot.copyWith(filledNodeId: node.id);
 
-    final updatedSlots = Map<String, SlotState>.from(currentState.slots);
-    updatedSlots[slotId] = slot.copyWith(filledNodeId: newNodeId);
-
-    final updatedInventory = List<int>.from(currentState.inventory);
-    updatedInventory.remove(value);
+    final updatedInventory = List<int>.from(currentState.inventory)
+      ..remove(value);
 
     return currentState.copyWith(
-      nodes: updatedNodes,
       slots: updatedSlots,
       inventory: updatedInventory,
     );
+  }
+
+  NodeState? _findAvailableNodeForValue(StructureState state) {
+    final usedNodeIds = state.slots.values
+        .map((slot) => slot.filledNodeId)
+        .whereType<String>()
+        .toSet();
+
+    for (final node in state.nodes.values) {
+      if (usedNodeIds.contains(node.id)) continue;
+      if (node.value != value) continue;
+
+      return node;
+    }
+
+    return null;
   }
 }
 

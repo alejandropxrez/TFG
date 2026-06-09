@@ -5,6 +5,7 @@ import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/min_heap_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/ordered_sequence_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
 import 'package:algoquest/domain/strategies/connected_graph_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/linked_list_validation_strategy.dart';
@@ -261,6 +262,8 @@ class ChallengeMapper {
         return ConnectedGraphValidationStrategy();
       case ValidationStrategyType.linkedList:
         return LinkedListValidationStrategy();
+      case ValidationStrategyType.orderedSequence:
+        return OrderedSequenceValidationStrategy();
     }
   }
 
