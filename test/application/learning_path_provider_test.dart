@@ -57,49 +57,61 @@ void main() {
   late UseCases useCases;
 
   const syllabusJson = '''
-  {
-    "version": "1.0",
-    "title": "AlgoQuest",
-    "phases": [
-      {
-        "id": "phase_heaps",
-        "title": "Heaps",
-        "levels": [
-          {
-            "id": "level_heap_intro",
-            "title": "Introducción a Heaps",
-            "topic": "HEAPS",
-            "subtitle": "Repara heaps usando intercambios",
-            "challenges": ["heap_repair_intro"],
-            "rewards": { "xp": 100, "stars": 3 }
-          },
-          {
-            "id": "level_heap_advanced",
-            "title": "Heaps avanzados",
-            "topic": "HEAPS",
-            "subtitle": "Retos avanzados de heaps",
-            "challenges": ["heap_advanced_1"],
-            "rewards": { "xp": 150, "stars": 3 }
-          }
-        ]
-      },
-      {
-        "id": "phase_trees",
-        "title": "Árboles",
-        "levels": [
-          {
-            "id": "level_bst_intro",
-            "title": "BST básico",
-            "topic": "BST",
-            "subtitle": "Valida árboles BST",
-            "challenges": ["bst_intro"],
-            "rewards": { "xp": 120, "stars": 3 }
-          }
-        ]
-      }
-    ]
-  }
-  ''';
+{
+  "version": "1.0",
+  "title": "AlgoQuest",
+  "phases": [
+    {
+      "id": "phase_heaps",
+      "title": "Heaps",
+      "levels": [
+        { "id": "level_heap_intro" },
+        { "id": "level_heap_advanced" }
+      ]
+    },
+    {
+      "id": "phase_trees",
+      "title": "Árboles",
+      "levels": [
+        { "id": "level_bst_intro" }
+      ]
+    }
+  ]
+}
+''';
+
+  const levelHeapIntroJson = '''
+{
+  "id": "level_heap_intro",
+  "title": "Introducción a Heaps",
+  "topic": "HEAPS",
+  "subtitle": "Repara heaps usando intercambios",
+  "challenges": ["heap_repair_intro"],
+  "rewards": { "xp": 100, "stars": 3, "lives": 1 }
+}
+''';
+
+  const levelHeapAdvancedJson = '''
+{
+  "id": "level_heap_advanced",
+  "title": "Heaps avanzados",
+  "topic": "HEAPS",
+  "subtitle": "Retos avanzados de heaps",
+  "challenges": ["heap_advanced_1"],
+  "rewards": { "xp": 150, "stars": 3, "lives": 1 }
+}
+''';
+
+  const levelBstIntroJson = '''
+{
+  "id": "level_bst_intro",
+  "title": "BST básico",
+  "topic": "BST",
+  "subtitle": "Valida árboles BST",
+  "challenges": ["bst_intro"],
+  "rewards": { "xp": 120, "stars": 3, "lives": 1 }
+}
+''';
 
   setUp(() {
     contentRepository = FakeContentRepository();
@@ -127,6 +139,14 @@ void main() {
         useCasesProvider.overrideWithValue(useCases),
         currentUserIdProvider.overrideWithValue('user_1'),
         syllabusJsonLoaderProvider.overrideWithValue(() async => syllabusJson),
+        levelJsonLoaderProvider.overrideWithValue((levelId) async {
+          return switch (levelId) {
+            'level_heap_intro' => levelHeapIntroJson,
+            'level_heap_advanced' => levelHeapAdvancedJson,
+            'level_bst_intro' => levelBstIntroJson,
+            _ => throw StateError('Missing test level JSON for $levelId'),
+          };
+        }),
       ],
     );
   });

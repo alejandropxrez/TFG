@@ -7,21 +7,7 @@
 			"title": "Heaps",
 			"levels": [
 				{
-					"id": "level_heap_intro",
-					"title": "Introducción a Heaps",
-					"topic": "HEAPS",
-					"subtitle": "Repara heaps usando intercambios",
-					"challenges": [
-						"quiz_heap_property",
-						"quiz_heap_properties_multiple",
-						"identify_heap_wrong_node",
-						"heap_repair_intro",
-						"heap_repair_swap"
-					],
-					"rewards": {
-						"xp": 100,
-						"stars": 3
-					}
+					"id": "level_heap_intro"
 				}
 			]
 		},
@@ -30,15 +16,7 @@
 			"title": "Árboles",
 			"levels": [
 				{
-					"id": "level_bst_intro",
-					"title": "BST básico",
-					"topic": "BST",
-					"subtitle": "Valida árboles binarios de búsqueda",
-					"challenges": ["bst_intro"],
-					"rewards": {
-						"xp": 120,
-						"stars": 3
-					}
+					"id": "level_bst_intro"
 				}
 			]
 		}

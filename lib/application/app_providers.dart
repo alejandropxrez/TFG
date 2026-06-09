@@ -16,3 +16,10 @@ final currentUserIdProvider = Provider<String>((ref) {
 final syllabusJsonLoaderProvider = Provider<Future<String> Function()>((ref) {
   return () => rootBundle.loadString('assets/data/syllabus.json');
 });
+
+final levelJsonLoaderProvider =
+    Provider<Future<String> Function(String levelId)>((ref) {
+      return (levelId) {
+        return rootBundle.loadString('assets/data/levels/$levelId.json');
+      };
+    });

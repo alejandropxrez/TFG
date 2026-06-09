@@ -25,6 +25,7 @@ class LearningPathNotifier extends Notifier<LearningPathState> {
       final useCases = ref.read(useCasesProvider);
       final userId = ref.read(currentUserIdProvider);
       final loadSyllabusJson = ref.read(syllabusJsonLoaderProvider);
+      final loadLevelJson = ref.read(levelJsonLoaderProvider);
 
       final jsonString = await loadSyllabusJson();
 
@@ -35,38 +36,37 @@ class LearningPathNotifier extends Notifier<LearningPathState> {
       final unlockedLevels = userProgress?.unlockedLevels ?? const <String>{};
 
       var globalLevelIndex = 0;
+      final phases = <LearningPathPhaseItem>[];
 
-      final phases = phasesJson
-          .map((phaseJson) {
-            final phaseMap = phaseJson as Map<String, dynamic>;
-            final levelsJson = phaseMap['levels'] as List<dynamic>;
+      for (final phaseJson in phasesJson) {
+        final phaseMap = phaseJson as Map<String, dynamic>;
+        final levelsJson = phaseMap['levels'] as List<dynamic>;
 
-            final levels = levelsJson
-                .map((levelJson) {
-                  final levelMap = levelJson as Map<String, dynamic>;
-                  final levelId = levelMap['id'] as String;
+        final levels = <LearningPathLevelItem>[];
 
-                  final isFirstLevel = globalLevelIndex == 0;
+        for (final levelJson in levelsJson) {
+          final levelRefMap = levelJson as Map<String, dynamic>;
+          final levelId = levelRefMap['id'] as String;
 
-                  final locked =
-                      !isFirstLevel && !unlockedLevels.contains(levelId);
+          final levelJsonString = await loadLevelJson(levelId);
+          final levelMap = json.decode(levelJsonString) as Map<String, dynamic>;
 
-                  globalLevelIndex++;
+          final isFirstLevel = globalLevelIndex == 0;
+          final locked = !isFirstLevel && !unlockedLevels.contains(levelId);
 
-                  return LearningPathLevelItem.fromJson(
-                    levelMap,
-                    locked: locked,
-                  );
-                })
-                .toList(growable: false);
+          globalLevelIndex++;
 
-            return LearningPathPhaseItem(
-              id: phaseMap['id'] as String,
-              title: phaseMap['title'] as String,
-              levels: levels,
-            );
-          })
-          .toList(growable: false);
+          levels.add(LearningPathLevelItem.fromJson(levelMap, locked: locked));
+        }
+
+        phases.add(
+          LearningPathPhaseItem(
+            id: phaseMap['id'] as String,
+            title: phaseMap['title'] as String,
+            levels: levels,
+          ),
+        );
+      }
 
       state = state.copyWith(
         status: LearningPathStatus.loaded,
