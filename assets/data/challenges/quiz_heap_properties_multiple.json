@@ -1,0 +1,41 @@
+{
+	"kind": "MULTIPLE_CHOICE",
+	"metadata": {
+		"title": "Propiedades de Max Heap",
+		"instruction": "Selecciona todas las afirmaciones correctas",
+		"theoryRef": "heap_intro"
+	},
+	"constraints": [
+		{
+			"type": "MAX_ATTEMPTS",
+			"maxAttempts": 3
+		},
+		{
+			"type": "LIVES_CONSUMED_ON_FAIL",
+			"lives": 1
+		}
+	],
+	"quiz": {
+		"question": "¿Qué afirmaciones son verdaderas sobre un max-heap?",
+		"options": [
+			{
+				"id": "a",
+				"text": "Cada padre es mayor o igual que sus hijos."
+			},
+			{
+				"id": "b",
+				"text": "El valor máximo está en la raíz."
+			},
+			{
+				"id": "c",
+				"text": "Los valores deben estar ordenados de menor a mayor en recorrido inorden."
+			},
+			{
+				"id": "d",
+				"text": "Todo max-heap debe ser un árbol binario de búsqueda."
+			}
+		],
+		"correctOptionIds": ["a", "b"],
+		"allowMultiple": true
+	}
+}

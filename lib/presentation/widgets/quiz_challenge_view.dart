@@ -15,6 +15,10 @@ class QuizChallengeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final helperText = quizSpec.allowMultiple
+        ? 'Selecciona todas las opciones correctas.'
+        : 'Selecciona una opción.';
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 520),
@@ -25,6 +29,12 @@ class QuizChallengeView extends StatelessWidget {
               quizSpec.question,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              helperText,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 20),
             for (final option in quizSpec.options)

@@ -563,4 +563,156 @@ void main() {
     expect(content.quizSpec.correctOptionIds, {'a'});
     expect(content.quizSpec.allowMultiple, isFalse);
   });
+
+  test('parses MULTIPLE_CHOICE quiz challenge correctly', () {
+    final jsonString = '''
+  {
+    "kind": "MULTIPLE_CHOICE",
+    "metadata": {
+      "title": "Propiedades de Max Heap",
+      "instruction": "Selecciona todas las afirmaciones correctas",
+      "theoryRef": "heap_intro"
+    },
+    "constraints": [
+      { "type": "MAX_ATTEMPTS", "maxAttempts": 3 },
+      { "type": "LIVES_CONSUMED_ON_FAIL", "lives": 1 }
+    ],
+    "quiz": {
+      "question": "¿Qué afirmaciones son verdaderas sobre un max-heap?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cada padre es mayor o igual que sus hijos."
+        },
+        {
+          "id": "b",
+          "text": "El valor máximo está en la raíz."
+        },
+        {
+          "id": "c",
+          "text": "Los valores deben estar ordenados en inorden."
+        }
+      ],
+      "correctOptionIds": ["a", "b"],
+      "allowMultiple": true
+    }
+  }
+  ''';
+
+    final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(challenge.kind, ChallengeKindModel.multipleChoice);
+    expect(challenge.engineConfig, isNull);
+    expect(challenge.initialState, isNull);
+
+    expect(challenge.constraints.length, 2);
+
+    final quiz = challenge.quiz!;
+    expect(
+      quiz.question,
+      '¿Qué afirmaciones son verdaderas sobre un max-heap?',
+    );
+    expect(quiz.options.length, 3);
+    expect(quiz.correctOptionIds, ['a', 'b']);
+    expect(quiz.allowMultiple, isTrue);
+  });
+
+  test('maps MULTIPLE_CHOICE challenge model to QuizChallengeContent', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'MULTIPLE_CHOICE',
+      'metadata': {
+        'title': 'Propiedades de Max Heap',
+        'instruction': 'Selecciona todas las afirmaciones correctas',
+        'theoryRef': 'heap_intro',
+      },
+      'constraints': [
+        {'type': 'MAX_ATTEMPTS', 'maxAttempts': 3},
+        {'type': 'LIVES_CONSUMED_ON_FAIL', 'lives': 1},
+      ],
+      'quiz': {
+        'question': '¿Qué afirmaciones son verdaderas sobre un max-heap?',
+        'options': [
+          {'id': 'a', 'text': 'Cada padre es mayor o igual que sus hijos.'},
+          {'id': 'b', 'text': 'El valor máximo está en la raíz.'},
+          {'id': 'c', 'text': 'Los valores deben estar ordenados en inorden.'},
+        ],
+        'correctOptionIds': ['a', 'b'],
+        'allowMultiple': true,
+      },
+    });
+
+    final spec = ChallengeMapper.toDomain(
+      'quiz_heap_properties_multiple',
+      model,
+    );
+
+    expect(spec.id, 'quiz_heap_properties_multiple');
+    expect(spec.title, 'Propiedades de Max Heap');
+    expect(spec.instruction, 'Selecciona todas las afirmaciones correctas');
+    expect(spec.theoryRef, 'heap_intro');
+
+    expect(spec.maxAttempts, 3);
+    expect(spec.livesConsumedOnFail, 1);
+
+    expect(spec.content, isA<QuizChallengeContent>());
+
+    final content = spec.content as QuizChallengeContent;
+
+    expect(
+      content.quizSpec.question,
+      '¿Qué afirmaciones son verdaderas sobre un max-heap?',
+    );
+    expect(content.quizSpec.allowMultiple, isTrue);
+    expect(content.quizSpec.correctOptionIds, {'a', 'b'});
+    expect(content.quizSpec.options.length, 3);
+  });
+
+  test('throws when MULTIPLE_CHOICE quiz has allowMultiple false', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'MULTIPLE_CHOICE',
+      'metadata': {
+        'title': 'Invalid multiple choice',
+        'instruction': 'Select answers',
+      },
+      'quiz': {
+        'question': 'Question',
+        'options': [
+          {'id': 'a', 'text': 'A'},
+          {'id': 'b', 'text': 'B'},
+        ],
+        'correctOptionIds': ['a'],
+        'allowMultiple': false,
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('invalid_multiple_choice', model),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('throws when MULTIPLE_CHOICE correct option does not exist', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'MULTIPLE_CHOICE',
+      'metadata': {
+        'title': 'Invalid multiple choice',
+        'instruction': 'Select answers',
+      },
+      'quiz': {
+        'question': 'Question',
+        'options': [
+          {'id': 'a', 'text': 'A'},
+          {'id': 'b', 'text': 'B'},
+        ],
+        'correctOptionIds': ['missing'],
+        'allowMultiple': true,
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('invalid_multiple_choice', model),
+      throwsA(isA<FormatException>()),
+    );
+  });
 }

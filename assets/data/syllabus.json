@@ -13,6 +13,7 @@
 					"subtitle": "Repara heaps usando intercambios",
 					"challenges": [
 						"quiz_heap_property",
+						"quiz_heap_properties_multiple",
 						"heap_repair_intro",
 						"heap_repair_swap"
 					],

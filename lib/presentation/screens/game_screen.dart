@@ -162,7 +162,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         quizSpec: content.quizSpec,
         selectedOptionIds: runtimeState.selectedOptionIds,
         onSelectOption: (optionId) {
-          notifier.submitQuizAnswer({optionId});
+          final currentSelected = runtimeState.selectedOptionIds;
+
+          final nextSelected = content.quizSpec.allowMultiple
+              ? currentSelected.contains(optionId)
+                    ? ({...currentSelected}..remove(optionId))
+                    : {...currentSelected, optionId}
+              : {optionId};
+
+          notifier.submitQuizAnswer(nextSelected);
         },
       );
     }

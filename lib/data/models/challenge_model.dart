@@ -290,7 +290,7 @@ abstract class ChallengeSlotModel with _$ChallengeSlotModel {
       _$ChallengeSlotModelFromJson(json);
 }
 
-enum ChallengeKindModel { structure, singleChoice }
+enum ChallengeKindModel { structure, singleChoice, multipleChoice }
 
 ChallengeKindModel _challengeKindFromJson(String? value) {
   switch (value?.trim().toUpperCase()) {
@@ -300,6 +300,8 @@ ChallengeKindModel _challengeKindFromJson(String? value) {
       return ChallengeKindModel.structure;
     case 'SINGLE_CHOICE':
       return ChallengeKindModel.singleChoice;
+    case 'MULTIPLE_CHOICE':
+      return ChallengeKindModel.multipleChoice;
     default:
       throw FormatException('Unknown challenge kind: $value');
   }
@@ -311,6 +313,8 @@ String _challengeKindToJson(ChallengeKindModel kind) {
       return 'STRUCTURE';
     case ChallengeKindModel.singleChoice:
       return 'SINGLE_CHOICE';
+    case ChallengeKindModel.multipleChoice:
+      return 'MULTIPLE_CHOICE';
   }
 }
 

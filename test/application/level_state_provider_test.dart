@@ -1,6 +1,7 @@
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
 import 'package:algoquest/data/models/level_syllabus_model.dart' as model;
+import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:algoquest/domain/usecases/check_challenge_use_case.dart';
 import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
@@ -201,6 +202,36 @@ void main() {
           edges: [ChallengeEdgeSpec(source: 'n1', target: 'n2')],
           slots: [],
           inventory: [],
+        ),
+      ),
+    );
+  }
+
+  ChallengeSpec buildMultipleChoiceQuizSpec({
+    List<ChallengeConstraint> constraints = const [],
+  }) {
+    return ChallengeSpec(
+      id: 'quiz_heap_properties_multiple',
+      title: 'Propiedades de Max Heap',
+      instruction: 'Selecciona todas las afirmaciones correctas',
+      theoryRef: 'heap_intro',
+      constraints: constraints,
+      content: QuizChallengeContent(
+        quizSpec: QuizSpec(
+          question: '¿Qué afirmaciones son verdaderas sobre un max-heap?',
+          options: [
+            QuizOption(
+              id: 'a',
+              text: 'Cada padre es mayor o igual que sus hijos.',
+            ),
+            QuizOption(id: 'b', text: 'El valor máximo está en la raíz.'),
+            QuizOption(
+              id: 'c',
+              text: 'Los valores deben estar ordenados en inorden.',
+            ),
+          ],
+          correctOptionIds: {'a', 'b'},
+          allowMultiple: true,
         ),
       ),
     );
@@ -770,4 +801,84 @@ void main() {
     expect(domain.rewards.stars, 3);
     expect(domain.rewards.lives, 0);
   });
+
+  test(
+    'checkSolution marks multiple choice quiz as solved when all correct options are selected',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_multiple_quiz'] = LevelSyllabus(
+        id: 'level_multiple_quiz',
+        title: 'Multiple Quiz Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['quiz_heap_properties_multiple'],
+        rewards: const LevelRewards(xp: 50, stars: 1),
+      );
+
+      contentRepository.specs['quiz_heap_properties_multiple'] =
+          buildMultipleChoiceQuizSpec(
+            constraints: const [
+              MaxAttemptsConstraint(3),
+              LivesConsumedOnFailConstraint(1),
+            ],
+          );
+
+      await notifier.loadLevel('level_multiple_quiz');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_multiple_quiz',
+      );
+
+      notifier.submitQuizAnswer({'a', 'b'});
+
+      final solved = notifier.checkSolution();
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isTrue);
+      expect(state.status, LevelFlowStatus.challengeSolved);
+      expect(state.currentSession!.status, SessionStatus.completed);
+      expect(state.currentSession!.attemptsRemaining, 3);
+    },
+  );
+
+  test(
+    'checkSolution consumes attempt when multiple choice answer is partial',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_multiple_quiz'] = LevelSyllabus(
+        id: 'level_multiple_quiz',
+        title: 'Multiple Quiz Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['quiz_heap_properties_multiple'],
+        rewards: const LevelRewards(xp: 50, stars: 1),
+      );
+
+      contentRepository.specs['quiz_heap_properties_multiple'] =
+          buildMultipleChoiceQuizSpec(
+            constraints: const [
+              MaxAttemptsConstraint(3),
+              LivesConsumedOnFailConstraint(1),
+            ],
+          );
+
+      await notifier.loadLevel('level_multiple_quiz');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_multiple_quiz',
+      );
+
+      notifier.submitQuizAnswer({'a'});
+
+      final solved = notifier.checkSolution();
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isFalse);
+      expect(state.status, LevelFlowStatus.playing);
+      expect(state.currentSession!.status, SessionStatus.inProgress);
+      expect(state.currentSession!.attemptsRemaining, 2);
+    },
+  );
 }

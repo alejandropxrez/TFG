@@ -31,6 +31,30 @@ void main() {
     );
   }
 
+  ChallengeSpec buildMultipleChoiceSpec({
+    List<ChallengeConstraint> constraints = const [],
+  }) {
+    return ChallengeSpec(
+      id: 'quiz_multiple',
+      title: 'Multiple choice',
+      instruction: 'Select all correct answers',
+      theoryRef: null,
+      constraints: constraints,
+      content: QuizChallengeContent(
+        quizSpec: QuizSpec(
+          question: 'Which statements are true?',
+          options: [
+            QuizOption(id: 'a', text: 'A'),
+            QuizOption(id: 'b', text: 'B'),
+            QuizOption(id: 'c', text: 'C'),
+          ],
+          correctOptionIds: {'a', 'b'},
+          allowMultiple: true,
+        ),
+      ),
+    );
+  }
+
   test(
     'ChallengeSession.start creates QuizRuntimeState for quiz challenge',
     () {
@@ -162,6 +186,89 @@ void main() {
       final checked = const CheckQuizAnswerUseCase()(session);
 
       expect(identical(checked, session), isTrue);
+      expect(checked.status, SessionStatus.inProgress);
+    },
+  );
+
+  test(
+    'SubmitQuizAnswerUseCase accepts multiple answers when quiz allows multiple',
+    () {
+      final session = ChallengeSession.start(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: buildMultipleChoiceSpec(),
+      );
+
+      final updated = const SubmitQuizAnswerUseCase()(
+        session: session,
+        action: const SubmitQuizAnswerAction(selectedOptionIds: {'a', 'b'}),
+      );
+
+      final quizState = updated.runtimeState as QuizRuntimeState;
+
+      expect(quizState.selectedOptionIds, {'a', 'b'});
+      expect(quizState.submitted, isTrue);
+    },
+  );
+
+  test(
+    'CheckQuizAnswerUseCase completes multiple choice when exact set matches',
+    () {
+      final session = ChallengeSession.start(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: buildMultipleChoiceSpec(),
+      );
+
+      final answered = const SubmitQuizAnswerUseCase()(
+        session: session,
+        action: const SubmitQuizAnswerAction(selectedOptionIds: {'a', 'b'}),
+      );
+
+      final checked = const CheckQuizAnswerUseCase()(answered);
+
+      expect(checked.status, SessionStatus.completed);
+    },
+  );
+
+  test(
+    'CheckQuizAnswerUseCase keeps multiple choice in progress when answer is partial',
+    () {
+      final session = ChallengeSession.start(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: buildMultipleChoiceSpec(),
+      );
+
+      final answered = const SubmitQuizAnswerUseCase()(
+        session: session,
+        action: const SubmitQuizAnswerAction(selectedOptionIds: {'a'}),
+      );
+
+      final checked = const CheckQuizAnswerUseCase()(answered);
+
+      expect(checked.status, SessionStatus.inProgress);
+    },
+  );
+
+  test(
+    'CheckQuizAnswerUseCase keeps multiple choice in progress when answer has extra option',
+    () {
+      final session = ChallengeSession.start(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: buildMultipleChoiceSpec(),
+      );
+
+      final answered = const SubmitQuizAnswerUseCase()(
+        session: session,
+        action: const SubmitQuizAnswerAction(
+          selectedOptionIds: {'a', 'b', 'c'},
+        ),
+      );
+
+      final checked = const CheckQuizAnswerUseCase()(answered);
+
       expect(checked.status, SessionStatus.inProgress);
     },
   );

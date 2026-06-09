@@ -22,6 +22,10 @@ class ChallengeMapper {
         challengeId,
         challengeModel,
       ),
+      ChallengeKindModel.multipleChoice => _mapMultipleChoiceChallenge(
+        challengeId,
+        challengeModel,
+      ),
     };
   }
 
@@ -97,6 +101,14 @@ class ChallengeMapper {
       );
     }
 
+    final optionIds = quiz.options.map((option) => option.id).toSet();
+
+    if (!optionIds.containsAll(quiz.correctOptionIds)) {
+      throw FormatException(
+        'SINGLE_CHOICE correctOptionIds must reference existing options.',
+      );
+    }
+
     return ChallengeSpec(
       id: challengeId,
       title: challengeModel.metadata.title,
@@ -111,6 +123,55 @@ class ChallengeMapper {
               .toList(growable: false),
           correctOptionIds: quiz.correctOptionIds.toSet(),
           allowMultiple: false,
+        ),
+      ),
+    );
+  }
+
+  static ChallengeSpec _mapMultipleChoiceChallenge(
+    String challengeId,
+    ChallengeModel challengeModel,
+  ) {
+    final quiz = challengeModel.quiz;
+
+    if (quiz == null) {
+      throw FormatException('MULTIPLE_CHOICE challenge requires quiz.');
+    }
+
+    if (!quiz.allowMultiple) {
+      throw FormatException(
+        'MULTIPLE_CHOICE challenge requires allowMultiple=true.',
+      );
+    }
+
+    if (quiz.correctOptionIds.isEmpty) {
+      throw FormatException(
+        'MULTIPLE_CHOICE challenge requires at least one correct option.',
+      );
+    }
+
+    final optionIds = quiz.options.map((option) => option.id).toSet();
+
+    if (!optionIds.containsAll(quiz.correctOptionIds)) {
+      throw FormatException(
+        'MULTIPLE_CHOICE correctOptionIds must reference existing options.',
+      );
+    }
+
+    return ChallengeSpec(
+      id: challengeId,
+      title: challengeModel.metadata.title,
+      instruction: challengeModel.metadata.instruction,
+      theoryRef: challengeModel.metadata.theoryRef,
+      constraints: _mapConstraints(challengeModel),
+      content: QuizChallengeContent(
+        quizSpec: QuizSpec(
+          question: quiz.question,
+          options: quiz.options
+              .map((option) => QuizOption(id: option.id, text: option.text))
+              .toList(growable: false),
+          correctOptionIds: quiz.correctOptionIds.toSet(),
+          allowMultiple: true,
         ),
       ),
     );
