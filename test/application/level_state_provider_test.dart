@@ -1,12 +1,15 @@
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
 import 'package:algoquest/data/models/level_syllabus_model.dart' as model;
+import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
+import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:algoquest/domain/usecases/check_challenge_use_case.dart';
 import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
+import 'package:algoquest/domain/usecases/submit_identify_target_use_case.dart';
 import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -237,6 +240,47 @@ void main() {
     );
   }
 
+  ChallengeSpec buildIdentifyNodeSpec({
+    List<ChallengeConstraint> constraints = const [],
+  }) {
+    return ChallengeSpec(
+      id: 'identify_heap_wrong_node',
+      title: 'Nodo incorrecto',
+      instruction: 'Toca el nodo que rompe la propiedad de max-heap',
+      theoryRef: 'heap_property',
+      constraints: constraints,
+      content: IdentifyTargetChallengeContent(
+        identifySpec: IdentifyTargetSpec(
+          prompt: '¿Qué nodo rompe la propiedad de max-heap?',
+          targetType: IdentifyTargetType.node,
+          correctTargetIds: {'n2'},
+        ),
+        visualStructure: StructureChallengeContent(
+          engineConfig: ChallengeEngineConfig(
+            structureType: StructureType.heap,
+            validationStrategy: AlwaysFalseValidationStrategy(),
+            layoutStrategy: LayoutStrategyType.pyramid,
+            interactionMode: InteractionModeType.swap,
+            connectionType: ConnectionType.explicit,
+          ),
+          initialState: const ChallengeInitialStateSpec(
+            nodes: [
+              ChallengeNodeSpec(id: 'n1', value: 10),
+              ChallengeNodeSpec(id: 'n2', value: 15),
+              ChallengeNodeSpec(id: 'n3', value: 7),
+            ],
+            edges: [
+              ChallengeEdgeSpec(source: 'n1', target: 'n2'),
+              ChallengeEdgeSpec(source: 'n1', target: 'n3'),
+            ],
+            slots: [],
+            inventory: [],
+          ),
+        ),
+      ),
+    );
+  }
+
   setUp(() {
     contentRepository = FakeContentRepository();
     userRepository = FakeUserRepository();
@@ -274,6 +318,7 @@ void main() {
       consumeAttempt: const ConsumeAttemptUseCase(),
       checkChallenge: const CheckChallengeUseCase(),
       submitQuizAnswer: const SubmitQuizAnswerUseCase(),
+      submitIdentifyTarget: const SubmitIdentifyTargetUseCase(),
     );
 
     container = ProviderContainer(
@@ -879,6 +924,199 @@ void main() {
       expect(state.status, LevelFlowStatus.playing);
       expect(state.currentSession!.status, SessionStatus.inProgress);
       expect(state.currentSession!.attemptsRemaining, 2);
+    },
+  );
+
+  test('startCurrentChallenge creates identify target runtime state', () async {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    contentRepository.syllabuses['level_identify'] = LevelSyllabus(
+      id: 'level_identify',
+      title: 'Identify Level',
+      topic: LevelTopic.heaps,
+      challenges: const ['identify_heap_wrong_node'],
+      rewards: const LevelRewards(xp: 50, stars: 1),
+    );
+
+    contentRepository.specs['identify_heap_wrong_node'] = buildIdentifyNodeSpec(
+      constraints: const [
+        MaxAttemptsConstraint(3),
+        LivesConsumedOnFailConstraint(1),
+      ],
+    );
+
+    await notifier.loadLevel('level_identify');
+
+    await notifier.startCurrentChallenge(
+      userId: 'user_1',
+      sessionId: 'session_identify_1',
+    );
+
+    final state = container.read(levelStateProvider);
+
+    expect(state.status, LevelFlowStatus.playing);
+    expect(state.currentChallengeSpec!.id, 'identify_heap_wrong_node');
+    expect(
+      state.currentSession!.runtimeState,
+      isA<IdentifyTargetRuntimeState>(),
+    );
+    expect(state.currentSession!.attemptsRemaining, 3);
+  });
+
+  test('submitIdentifyTarget stores selected target', () async {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    contentRepository.syllabuses['level_identify'] = LevelSyllabus(
+      id: 'level_identify',
+      title: 'Identify Level',
+      topic: LevelTopic.heaps,
+      challenges: const ['identify_heap_wrong_node'],
+      rewards: const LevelRewards(xp: 50, stars: 1),
+    );
+
+    contentRepository.specs['identify_heap_wrong_node'] = buildIdentifyNodeSpec(
+      constraints: const [
+        MaxAttemptsConstraint(3),
+        LivesConsumedOnFailConstraint(1),
+      ],
+    );
+
+    await notifier.loadLevel('level_identify');
+
+    await notifier.startCurrentChallenge(
+      userId: 'user_1',
+      sessionId: 'session_identify_1',
+    );
+
+    notifier.submitIdentifyTarget({'n2'});
+
+    final state = container.read(levelStateProvider);
+    final runtimeState =
+        state.currentSession!.runtimeState as IdentifyTargetRuntimeState;
+
+    expect(runtimeState.selectedTargetIds, {'n2'});
+    expect(runtimeState.submitted, isTrue);
+    expect(state.status, LevelFlowStatus.playing);
+  });
+
+  test(
+    'checkSolution marks identify target challenge as solved when target is correct',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_identify'] = LevelSyllabus(
+        id: 'level_identify',
+        title: 'Identify Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['identify_heap_wrong_node'],
+        rewards: const LevelRewards(xp: 50, stars: 1),
+      );
+
+      contentRepository.specs['identify_heap_wrong_node'] =
+          buildIdentifyNodeSpec(
+            constraints: const [
+              MaxAttemptsConstraint(3),
+              LivesConsumedOnFailConstraint(1),
+            ],
+          );
+
+      await notifier.loadLevel('level_identify');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_identify_1',
+      );
+
+      notifier.submitIdentifyTarget({'n2'});
+
+      final solved = notifier.checkSolution();
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isTrue);
+      expect(state.status, LevelFlowStatus.challengeSolved);
+      expect(state.currentSession!.status, SessionStatus.completed);
+      expect(state.currentSession!.attemptsRemaining, 3);
+    },
+  );
+
+  test(
+    'checkSolution consumes attempt when identify target is wrong',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_identify'] = LevelSyllabus(
+        id: 'level_identify',
+        title: 'Identify Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['identify_heap_wrong_node'],
+        rewards: const LevelRewards(xp: 50, stars: 1),
+      );
+
+      contentRepository.specs['identify_heap_wrong_node'] =
+          buildIdentifyNodeSpec(
+            constraints: const [
+              MaxAttemptsConstraint(3),
+              LivesConsumedOnFailConstraint(1),
+            ],
+          );
+
+      await notifier.loadLevel('level_identify');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_identify_1',
+      );
+
+      notifier.submitIdentifyTarget({'n3'});
+
+      final solved = notifier.checkSolution();
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isFalse);
+      expect(state.status, LevelFlowStatus.playing);
+      expect(state.currentSession!.status, SessionStatus.inProgress);
+      expect(state.currentSession!.attemptsRemaining, 2);
+    },
+  );
+
+  test(
+    'checkSolution marks identify target challenge as failed when wrong target consumes last attempt',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_identify'] = LevelSyllabus(
+        id: 'level_identify',
+        title: 'Identify Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['identify_heap_wrong_node'],
+        rewards: const LevelRewards(xp: 50, stars: 1),
+      );
+
+      contentRepository.specs['identify_heap_wrong_node'] =
+          buildIdentifyNodeSpec(
+            constraints: const [
+              MaxAttemptsConstraint(1),
+              LivesConsumedOnFailConstraint(1),
+            ],
+          );
+
+      await notifier.loadLevel('level_identify');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_identify_1',
+      );
+
+      notifier.submitIdentifyTarget({'n3'});
+
+      final solved = notifier.checkSolution();
+      final state = container.read(levelStateProvider);
+
+      expect(solved, isFalse);
+      expect(state.status, LevelFlowStatus.challengeFailed);
+      expect(state.currentSession!.status, SessionStatus.failed);
+      expect(state.currentSession!.attemptsRemaining, 0);
+      expect(state.errorMessage, isNotNull);
     },
   );
 }

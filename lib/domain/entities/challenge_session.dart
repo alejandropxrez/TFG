@@ -71,6 +71,7 @@ class ChallengeSession {
           ),
         ),
       QuizChallengeContent() => const QuizRuntimeState(),
+      IdentifyTargetChallengeContent() => const IdentifyTargetRuntimeState(),
     };
   }
 

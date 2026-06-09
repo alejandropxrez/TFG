@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:algoquest/data/mappers/challenge_mapper.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -712,6 +713,333 @@ void main() {
 
     expect(
       () => ChallengeMapper.toDomain('invalid_multiple_choice', model),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('parses IDENTIFY_NODE challenge correctly', () {
+    final jsonString = '''
+  {
+    "kind": "IDENTIFY_NODE",
+    "metadata": {
+      "title": "Nodo incorrecto",
+      "instruction": "Toca el nodo que rompe la propiedad de max-heap",
+      "theoryRef": "heap_property"
+    },
+    "constraints": [
+      { "type": "MAX_ATTEMPTS", "maxAttempts": 3 },
+      { "type": "LIVES_CONSUMED_ON_FAIL", "lives": 1 }
+    ],
+    "identifyTarget": {
+      "prompt": "¿Qué nodo rompe la propiedad de max-heap?",
+      "targetType": "NODE",
+      "correctTargetIds": ["n2"],
+      "allowMultiple": false
+    },
+    "engineConfig": {
+      "structureType": "HEAP",
+      "validationStrategy": "MAX_HEAP",
+      "layoutStrategy": "PYRAMID",
+      "interactionMode": "SWAP",
+      "connectionType": "EXPLICIT",
+      "constraints": []
+    },
+    "initialState": {
+      "nodes": [
+        { "id": "n1", "value": 10 },
+        { "id": "n2", "value": 15 },
+        { "id": "n3", "value": 7 }
+      ],
+      "edges": [
+        { "source": "n1", "target": "n2" },
+        { "source": "n1", "target": "n3" }
+      ],
+      "slots": [],
+      "inventory": []
+    }
+  }
+  ''';
+
+    final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
+    final challenge = ChallengeModel.fromJson(jsonMap);
+
+    expect(challenge.kind, ChallengeKindModel.identifyNode);
+
+    expect(challenge.metadata.title, 'Nodo incorrecto');
+    expect(
+      challenge.metadata.instruction,
+      'Toca el nodo que rompe la propiedad de max-heap',
+    );
+    expect(challenge.metadata.theoryRef, 'heap_property');
+
+    expect(challenge.constraints.length, 2);
+
+    final identifyTarget = challenge.identifyTarget!;
+    expect(identifyTarget.prompt, '¿Qué nodo rompe la propiedad de max-heap?');
+    expect(identifyTarget.targetType, IdentifyTargetTypeModel.node);
+    expect(identifyTarget.correctTargetIds, ['n2']);
+    expect(identifyTarget.allowMultiple, isFalse);
+
+    final engineConfig = challenge.engineConfig!;
+    expect(engineConfig.structureType, StructureType.heap);
+    expect(engineConfig.validationStrategy, ValidationStrategyType.maxHeap);
+    expect(engineConfig.layoutStrategy, LayoutStrategyType.pyramid);
+    expect(engineConfig.interactionMode, InteractionModeType.swap);
+    expect(engineConfig.connectionType, ConnectionType.explicit);
+
+    final initialState = challenge.initialState!;
+    expect(initialState.nodes.length, 3);
+    expect(initialState.nodes[1].id, 'n2');
+    expect(initialState.nodes[1].value, 15);
+    expect(initialState.edges.length, 2);
+  });
+
+  test(
+    'maps IDENTIFY_NODE challenge model to IdentifyTargetChallengeContent',
+    () {
+      final model = ChallengeModel.fromJson({
+        'kind': 'IDENTIFY_NODE',
+        'metadata': {
+          'title': 'Nodo incorrecto',
+          'instruction': 'Toca el nodo que rompe la propiedad de max-heap',
+          'theoryRef': 'heap_property',
+        },
+        'constraints': [
+          {'type': 'MAX_ATTEMPTS', 'maxAttempts': 3},
+          {'type': 'LIVES_CONSUMED_ON_FAIL', 'lives': 1},
+        ],
+        'identifyTarget': {
+          'prompt': '¿Qué nodo rompe la propiedad de max-heap?',
+          'targetType': 'NODE',
+          'correctTargetIds': ['n2'],
+          'allowMultiple': false,
+        },
+        'engineConfig': {
+          'structureType': 'HEAP',
+          'validationStrategy': 'MAX_HEAP',
+          'layoutStrategy': 'PYRAMID',
+          'interactionMode': 'SWAP',
+          'connectionType': 'EXPLICIT',
+          'constraints': [],
+        },
+        'initialState': {
+          'nodes': [
+            {'id': 'n1', 'value': 10},
+            {'id': 'n2', 'value': 15},
+            {'id': 'n3', 'value': 7},
+          ],
+          'edges': [
+            {'source': 'n1', 'target': 'n2'},
+            {'source': 'n1', 'target': 'n3'},
+          ],
+          'slots': [],
+          'inventory': [],
+        },
+      });
+
+      final spec = ChallengeMapper.toDomain('identify_heap_wrong_node', model);
+
+      expect(spec.id, 'identify_heap_wrong_node');
+      expect(spec.title, 'Nodo incorrecto');
+      expect(
+        spec.instruction,
+        'Toca el nodo que rompe la propiedad de max-heap',
+      );
+      expect(spec.theoryRef, 'heap_property');
+
+      expect(spec.maxAttempts, 3);
+      expect(spec.livesConsumedOnFail, 1);
+
+      expect(spec.content, isA<IdentifyTargetChallengeContent>());
+
+      final content = spec.content as IdentifyTargetChallengeContent;
+
+      expect(
+        content.identifySpec.prompt,
+        '¿Qué nodo rompe la propiedad de max-heap?',
+      );
+      expect(content.identifySpec.targetType, IdentifyTargetType.node);
+      expect(content.identifySpec.correctTargetIds, {'n2'});
+      expect(content.identifySpec.allowMultiple, isFalse);
+
+      expect(
+        content.visualStructure.engineConfig.structureType,
+        StructureType.heap,
+      );
+      expect(content.visualStructure.initialState.nodes.length, 3);
+      expect(content.visualStructure.initialState.nodes[1].id, 'n2');
+      expect(content.visualStructure.initialState.nodes[1].value, 15);
+    },
+  );
+
+  test('throws when IDENTIFY_NODE has no identifyTarget', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'IDENTIFY_NODE',
+      'metadata': {
+        'title': 'Invalid identify node',
+        'instruction': 'Tap the wrong node',
+      },
+      'engineConfig': {
+        'structureType': 'HEAP',
+        'validationStrategy': 'MAX_HEAP',
+        'layoutStrategy': 'PYRAMID',
+        'interactionMode': 'SWAP',
+        'connectionType': 'EXPLICIT',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [
+          {'id': 'n1', 'value': 10},
+        ],
+        'edges': [],
+        'slots': [],
+        'inventory': [],
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('invalid_identify_node', model),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('throws when IDENTIFY_NODE targetType is not NODE', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'IDENTIFY_NODE',
+      'metadata': {
+        'title': 'Invalid identify node',
+        'instruction': 'Tap the wrong node',
+      },
+      'identifyTarget': {
+        'prompt': 'Which edge is wrong?',
+        'targetType': 'EDGE',
+        'correctTargetIds': ['n1->n2'],
+        'allowMultiple': false,
+      },
+      'engineConfig': {
+        'structureType': 'HEAP',
+        'validationStrategy': 'MAX_HEAP',
+        'layoutStrategy': 'PYRAMID',
+        'interactionMode': 'SWAP',
+        'connectionType': 'EXPLICIT',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [
+          {'id': 'n1', 'value': 10},
+          {'id': 'n2', 'value': 15},
+        ],
+        'edges': [
+          {'source': 'n1', 'target': 'n2'},
+        ],
+        'slots': [],
+        'inventory': [],
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('invalid_identify_node', model),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test(
+    'throws when IDENTIFY_NODE correct target does not reference existing node',
+    () {
+      final model = ChallengeModel.fromJson({
+        'kind': 'IDENTIFY_NODE',
+        'metadata': {
+          'title': 'Invalid identify node',
+          'instruction': 'Tap the wrong node',
+        },
+        'identifyTarget': {
+          'prompt': 'Which node is wrong?',
+          'targetType': 'NODE',
+          'correctTargetIds': ['missing'],
+          'allowMultiple': false,
+        },
+        'engineConfig': {
+          'structureType': 'HEAP',
+          'validationStrategy': 'MAX_HEAP',
+          'layoutStrategy': 'PYRAMID',
+          'interactionMode': 'SWAP',
+          'connectionType': 'EXPLICIT',
+          'constraints': [],
+        },
+        'initialState': {
+          'nodes': [
+            {'id': 'n1', 'value': 10},
+            {'id': 'n2', 'value': 15},
+          ],
+          'edges': [
+            {'source': 'n1', 'target': 'n2'},
+          ],
+          'slots': [],
+          'inventory': [],
+        },
+      });
+
+      expect(
+        () => ChallengeMapper.toDomain('invalid_identify_node', model),
+        throwsA(isA<FormatException>()),
+      );
+    },
+  );
+
+  test('throws when IDENTIFY_NODE has no engineConfig', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'IDENTIFY_NODE',
+      'metadata': {
+        'title': 'Invalid identify node',
+        'instruction': 'Tap the wrong node',
+      },
+      'identifyTarget': {
+        'prompt': 'Which node is wrong?',
+        'targetType': 'NODE',
+        'correctTargetIds': ['n1'],
+        'allowMultiple': false,
+      },
+      'initialState': {
+        'nodes': [
+          {'id': 'n1', 'value': 10},
+        ],
+        'edges': [],
+        'slots': [],
+        'inventory': [],
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('invalid_identify_node', model),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('throws when IDENTIFY_NODE has no initialState', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'IDENTIFY_NODE',
+      'metadata': {
+        'title': 'Invalid identify node',
+        'instruction': 'Tap the wrong node',
+      },
+      'identifyTarget': {
+        'prompt': 'Which node is wrong?',
+        'targetType': 'NODE',
+        'correctTargetIds': ['n1'],
+        'allowMultiple': false,
+      },
+      'engineConfig': {
+        'structureType': 'HEAP',
+        'validationStrategy': 'MAX_HEAP',
+        'layoutStrategy': 'PYRAMID',
+        'interactionMode': 'SWAP',
+        'connectionType': 'EXPLICIT',
+        'constraints': [],
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('invalid_identify_node', model),
       throwsA(isA<FormatException>()),
     );
   });

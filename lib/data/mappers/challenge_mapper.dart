@@ -1,5 +1,6 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
+import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
@@ -23,6 +24,10 @@ class ChallengeMapper {
         challengeModel,
       ),
       ChallengeKindModel.multipleChoice => _mapMultipleChoiceChallenge(
+        challengeId,
+        challengeModel,
+      ),
+      ChallengeKindModel.identifyNode => _mapIdentifyNodeChallenge(
         challengeId,
         challengeModel,
       ),
@@ -50,31 +55,9 @@ class ChallengeMapper {
       instruction: challengeModel.metadata.instruction,
       theoryRef: challengeModel.metadata.theoryRef,
       constraints: _mapConstraints(challengeModel),
-      content: StructureChallengeContent(
-        engineConfig: ChallengeEngineConfig(
-          structureType: engineConfig.structureType,
-          validationStrategy: _mapValidationStrategy(
-            engineConfig.validationStrategy,
-          ),
-          layoutStrategy: engineConfig.layoutStrategy,
-          interactionMode: engineConfig.interactionMode,
-          connectionType: engineConfig.connectionType,
-        ),
-        initialState: ChallengeInitialStateSpec(
-          nodes: initialState.nodes
-              .map((node) => ChallengeNodeSpec(id: node.id, value: node.value))
-              .toList(growable: false),
-          edges: initialState.edges
-              .map(
-                (edge) =>
-                    ChallengeEdgeSpec(source: edge.source, target: edge.target),
-              )
-              .toList(growable: false),
-          slots: initialState.slots
-              .map((slot) => ChallengeSlotSpec(id: slot.id, index: slot.index))
-              .toList(growable: false),
-          inventory: initialState.inventory,
-        ),
+      content: _mapStructureContent(
+        engineConfig: engineConfig,
+        initialState: initialState,
       ),
     );
   }
@@ -177,6 +160,67 @@ class ChallengeMapper {
     );
   }
 
+  static ChallengeSpec _mapIdentifyNodeChallenge(
+    String challengeId,
+    ChallengeModel challengeModel,
+  ) {
+    final identifyTarget = challengeModel.identifyTarget;
+    final engineConfig = challengeModel.engineConfig;
+    final initialState = challengeModel.initialState;
+
+    if (identifyTarget == null) {
+      throw FormatException('IDENTIFY_NODE challenge requires identifyTarget.');
+    }
+
+    if (identifyTarget.targetType != IdentifyTargetTypeModel.node) {
+      throw FormatException('IDENTIFY_NODE requires targetType=NODE.');
+    }
+
+    if (engineConfig == null) {
+      throw FormatException('IDENTIFY_NODE challenge requires engineConfig.');
+    }
+
+    if (initialState == null) {
+      throw FormatException('IDENTIFY_NODE challenge requires initialState.');
+    }
+
+    if (identifyTarget.correctTargetIds.isEmpty) {
+      throw FormatException(
+        'IDENTIFY_NODE challenge requires at least one correct target.',
+      );
+    }
+
+    final nodeIds = initialState.nodes.map((node) => node.id).toSet();
+
+    if (!nodeIds.containsAll(identifyTarget.correctTargetIds)) {
+      throw FormatException(
+        'IDENTIFY_NODE correctTargetIds must reference existing nodes.',
+      );
+    }
+
+    final visualStructure = _mapStructureContent(
+      engineConfig: engineConfig,
+      initialState: initialState,
+    );
+
+    return ChallengeSpec(
+      id: challengeId,
+      title: challengeModel.metadata.title,
+      instruction: challengeModel.metadata.instruction,
+      theoryRef: challengeModel.metadata.theoryRef,
+      constraints: _mapConstraints(challengeModel),
+      content: IdentifyTargetChallengeContent(
+        identifySpec: IdentifyTargetSpec(
+          prompt: identifyTarget.prompt,
+          targetType: IdentifyTargetType.node,
+          correctTargetIds: identifyTarget.correctTargetIds.toSet(),
+          allowMultiple: identifyTarget.allowMultiple,
+        ),
+        visualStructure: visualStructure,
+      ),
+    );
+  }
+
   static List<ChallengeConstraint> _mapConstraints(
     ChallengeModel challengeModel,
   ) {
@@ -218,5 +262,37 @@ class ChallengeMapper {
       case ValidationStrategyType.linkedList:
         return LinkedListValidationStrategy();
     }
+  }
+
+  static StructureChallengeContent _mapStructureContent({
+    required ChallengeEngineConfigModel engineConfig,
+    required ChallengeInitialStateModel initialState,
+  }) {
+    return StructureChallengeContent(
+      engineConfig: ChallengeEngineConfig(
+        structureType: engineConfig.structureType,
+        validationStrategy: _mapValidationStrategy(
+          engineConfig.validationStrategy,
+        ),
+        layoutStrategy: engineConfig.layoutStrategy,
+        interactionMode: engineConfig.interactionMode,
+        connectionType: engineConfig.connectionType,
+      ),
+      initialState: ChallengeInitialStateSpec(
+        nodes: initialState.nodes
+            .map((node) => ChallengeNodeSpec(id: node.id, value: node.value))
+            .toList(growable: false),
+        edges: initialState.edges
+            .map(
+              (edge) =>
+                  ChallengeEdgeSpec(source: edge.source, target: edge.target),
+            )
+            .toList(growable: false),
+        slots: initialState.slots
+            .map((slot) => ChallengeSlotSpec(id: slot.id, index: slot.index))
+            .toList(growable: false),
+        inventory: initialState.inventory,
+      ),
+    );
   }
 }

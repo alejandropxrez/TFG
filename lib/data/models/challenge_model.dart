@@ -22,6 +22,7 @@ abstract class ChallengeModel with _$ChallengeModel {
     @Default([]) List<ChallengeConstraintModel> constraints,
 
     QuizModel? quiz,
+    IdentifyTargetModel? identifyTarget,
   }) = _ChallengeModel;
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) =>
@@ -290,7 +291,12 @@ abstract class ChallengeSlotModel with _$ChallengeSlotModel {
       _$ChallengeSlotModelFromJson(json);
 }
 
-enum ChallengeKindModel { structure, singleChoice, multipleChoice }
+enum ChallengeKindModel {
+  structure,
+  singleChoice,
+  multipleChoice,
+  identifyNode,
+}
 
 ChallengeKindModel _challengeKindFromJson(String? value) {
   switch (value?.trim().toUpperCase()) {
@@ -302,6 +308,8 @@ ChallengeKindModel _challengeKindFromJson(String? value) {
       return ChallengeKindModel.singleChoice;
     case 'MULTIPLE_CHOICE':
       return ChallengeKindModel.multipleChoice;
+    case 'IDENTIFY_NODE':
+      return ChallengeKindModel.identifyNode;
     default:
       throw FormatException('Unknown challenge kind: $value');
   }
@@ -315,6 +323,8 @@ String _challengeKindToJson(ChallengeKindModel kind) {
       return 'SINGLE_CHOICE';
     case ChallengeKindModel.multipleChoice:
       return 'MULTIPLE_CHOICE';
+    case ChallengeKindModel.identifyNode:
+      return 'IDENTIFY_NODE';
   }
 }
 
@@ -338,4 +348,46 @@ abstract class QuizOptionModel with _$QuizOptionModel {
 
   factory QuizOptionModel.fromJson(Map<String, dynamic> json) =>
       _$QuizOptionModelFromJson(json);
+}
+
+enum IdentifyTargetTypeModel { node, edge }
+
+IdentifyTargetTypeModel _identifyTargetTypeFromJson(String value) {
+  switch (value.trim().toUpperCase()) {
+    case 'NODE':
+      return IdentifyTargetTypeModel.node;
+    case 'EDGE':
+      return IdentifyTargetTypeModel.edge;
+    default:
+      throw FormatException('Unknown identify target type: $value');
+  }
+}
+
+String _identifyTargetTypeToJson(IdentifyTargetTypeModel type) {
+  switch (type) {
+    case IdentifyTargetTypeModel.node:
+      return 'NODE';
+    case IdentifyTargetTypeModel.edge:
+      return 'EDGE';
+  }
+}
+
+@freezed
+abstract class IdentifyTargetModel with _$IdentifyTargetModel {
+  const factory IdentifyTargetModel({
+    required String prompt,
+
+    @JsonKey(
+      fromJson: _identifyTargetTypeFromJson,
+      toJson: _identifyTargetTypeToJson,
+    )
+    required IdentifyTargetTypeModel targetType,
+
+    required List<String> correctTargetIds,
+
+    @Default(false) bool allowMultiple,
+  }) = _IdentifyTargetModel;
+
+  factory IdentifyTargetModel.fromJson(Map<String, dynamic> json) =>
+      _$IdentifyTargetModelFromJson(json);
 }

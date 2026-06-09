@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/core/composition/use_cases.dart';
+import 'package:algoquest/domain/entities/identify_target_action.dart';
 import 'package:algoquest/domain/entities/quiz_action.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
@@ -359,6 +360,22 @@ class LevelStateNotifier extends Notifier<LevelState> {
     final updatedSession = _useCases.submitQuizAnswer(
       session: session,
       action: SubmitQuizAnswerAction(selectedOptionIds: selectedOptionIds),
+    );
+
+    state = state.copyWith(
+      currentSession: updatedSession,
+      status: LevelFlowStatus.playing,
+      clearError: true,
+    );
+  }
+
+  void submitIdentifyTarget(Set<String> selectedTargetIds) {
+    final session = state.currentSession;
+    if (session == null) return;
+
+    final updatedSession = _useCases.submitIdentifyTarget(
+      session: session,
+      action: SubmitIdentifyTargetAction(selectedTargetIds: selectedTargetIds),
     );
 
     state = state.copyWith(

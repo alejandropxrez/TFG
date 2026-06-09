@@ -48,3 +48,23 @@ class QuizRuntimeState extends ChallengeRuntimeState {
     );
   }
 }
+
+class IdentifyTargetRuntimeState extends ChallengeRuntimeState {
+  final Set<String> selectedTargetIds;
+  final bool submitted;
+
+  const IdentifyTargetRuntimeState({
+    this.selectedTargetIds = const {},
+    this.submitted = false,
+  });
+
+  IdentifyTargetRuntimeState copyWith({
+    Set<String>? selectedTargetIds,
+    bool? submitted,
+  }) {
+    return IdentifyTargetRuntimeState(
+      selectedTargetIds: selectedTargetIds ?? this.selectedTargetIds,
+      submitted: submitted ?? this.submitted,
+    );
+  }
+}
