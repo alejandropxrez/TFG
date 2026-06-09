@@ -15,6 +15,7 @@ enum ValidationStrategyType {
   connectedGraph,
   linkedList,
   orderedSequence,
+  expectedSlotValues,
 }
 
 enum ConnectionType { implicit, explicit, none }

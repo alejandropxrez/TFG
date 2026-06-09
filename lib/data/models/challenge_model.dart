@@ -23,6 +23,8 @@ abstract class ChallengeModel with _$ChallengeModel {
 
     QuizModel? quiz,
     IdentifyTargetModel? identifyTarget,
+
+    ChallengeSolutionModel? solution,
   }) = _ChallengeModel;
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) =>
@@ -144,6 +146,8 @@ ValidationStrategyType _validationFromJson(String value) {
       return ValidationStrategyType.linkedList;
     case 'ORDERED_SEQUENCE':
       return ValidationStrategyType.orderedSequence;
+    case 'EXPECTED_SLOT_VALUES':
+      return ValidationStrategyType.expectedSlotValues;
     default:
       throw FormatException('Unknown validation strategy: $value');
   }
@@ -163,6 +167,8 @@ String _validationToJson(ValidationStrategyType value) {
       return 'LINKED_LIST';
     case ValidationStrategyType.orderedSequence:
       return 'ORDERED_SEQUENCE';
+    case ValidationStrategyType.expectedSlotValues:
+      return 'EXPECTED_SLOT_VALUES';
   }
 }
 
@@ -394,4 +400,14 @@ abstract class IdentifyTargetModel with _$IdentifyTargetModel {
 
   factory IdentifyTargetModel.fromJson(Map<String, dynamic> json) =>
       _$IdentifyTargetModelFromJson(json);
+}
+
+@freezed
+abstract class ChallengeSolutionModel with _$ChallengeSolutionModel {
+  const factory ChallengeSolutionModel({
+    @Default(<String, int>{}) Map<String, int> expectedSlotValues,
+  }) = _ChallengeSolutionModel;
+
+  factory ChallengeSolutionModel.fromJson(Map<String, dynamic> json) =>
+      _$ChallengeSolutionModelFromJson(json);
 }

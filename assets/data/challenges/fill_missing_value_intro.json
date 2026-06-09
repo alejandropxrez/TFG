@@ -1,8 +1,9 @@
 {
+	"kind": "STRUCTURE",
 	"metadata": {
-		"title": "Ordena la secuencia",
-		"instruction": "Arrastra los valores a los huecos en orden ascendente",
-		"theoryRef": "ordered_sequence_intro"
+		"title": "Completa el valor",
+		"instruction": "Arrastra el valor correcto al hueco",
+		"theoryRef": "fill_missing_value"
 	},
 	"constraints": [
 		{ "type": "MAX_ATTEMPTS", "maxAttempts": 3 },
@@ -10,7 +11,7 @@
 	],
 	"engineConfig": {
 		"structureType": "LINKED_LIST",
-		"validationStrategy": "ORDERED_SEQUENCE",
+		"validationStrategy": "EXPECTED_SLOT_VALUES",
 		"layoutStrategy": "LINEAR",
 		"interactionMode": "DRAG",
 		"connectionType": "NONE",
@@ -19,11 +20,12 @@
 	"initialState": {
 		"nodes": [],
 		"edges": [],
-		"slots": [
-			{ "id": "s1", "index": 0 },
-			{ "id": "s2", "index": 1 },
-			{ "id": "s3", "index": 2 }
-		],
-		"inventory": [3, 1, 2]
+		"slots": [{ "id": "s1", "index": 0 }],
+		"inventory": [2, 4]
+	},
+	"solution": {
+		"expectedSlotValues": {
+			"s1": 2
+		}
 	}
 }

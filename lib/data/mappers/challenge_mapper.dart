@@ -1,14 +1,15 @@
-import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
+import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/strategies/bst_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/connected_graph_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/expected_slot_values_validation_strategy.dart';
+import 'package:algoquest/domain/strategies/linked_list_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/min_heap_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/ordered_sequence_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
-import 'package:algoquest/domain/strategies/connected_graph_validation_strategy.dart';
-import 'package:algoquest/domain/strategies/linked_list_validation_strategy.dart';
 
 class ChallengeMapper {
   static ChallengeSpec toDomain(
@@ -59,6 +60,7 @@ class ChallengeMapper {
       content: _mapStructureContent(
         engineConfig: engineConfig,
         initialState: initialState,
+        solution: challengeModel.solution,
       ),
     );
   }
@@ -248,43 +250,62 @@ class ChallengeMapper {
     );
   }
 
-  static ValidationStrategy _mapValidationStrategy(
-    ValidationStrategyType type,
-  ) {
-    switch (type) {
+  static ValidationStrategy _mapValidationStrategy({
+    required ChallengeEngineConfigModel engineConfig,
+    ChallengeSolutionModel? solution,
+  }) {
+    switch (engineConfig.validationStrategy) {
       case ValidationStrategyType.maxHeap:
         return MaxHeapValidationStrategy();
+
       case ValidationStrategyType.minHeap:
         return MinHeapValidationStrategy();
+
       case ValidationStrategyType.bst:
         return BstValidationStrategy();
+
       case ValidationStrategyType.connectedGraph:
         return ConnectedGraphValidationStrategy();
+
       case ValidationStrategyType.linkedList:
         return LinkedListValidationStrategy();
+
       case ValidationStrategyType.orderedSequence:
         return OrderedSequenceValidationStrategy();
+
+      case ValidationStrategyType.expectedSlotValues:
+        final expectedSlotValues = solution?.expectedSlotValues ?? const {};
+
+        if (expectedSlotValues.isEmpty) {
+          throw FormatException(
+            'EXPECTED_SLOT_VALUES requires solution.expectedSlotValues.',
+          );
+        }
+
+        return ExpectedSlotValuesValidationStrategy(
+          expectedValuesBySlotId: expectedSlotValues,
+        );
     }
   }
 
   static StructureChallengeContent _mapStructureContent({
     required ChallengeEngineConfigModel engineConfig,
     required ChallengeInitialStateModel initialState,
+    ChallengeSolutionModel? solution,
   }) {
     return StructureChallengeContent(
       engineConfig: ChallengeEngineConfig(
         structureType: engineConfig.structureType,
         validationStrategy: _mapValidationStrategy(
-          engineConfig.validationStrategy,
+          engineConfig: engineConfig,
+          solution: solution,
         ),
         layoutStrategy: engineConfig.layoutStrategy,
         interactionMode: engineConfig.interactionMode,
         connectionType: engineConfig.connectionType,
       ),
       initialState: ChallengeInitialStateSpec(
-        nodes: initialState.nodes
-            .map((node) => ChallengeNodeSpec(id: node.id, value: node.value))
-            .toList(growable: false),
+        nodes: _mapInitialNodes(initialState),
         edges: initialState.edges
             .map(
               (edge) =>
@@ -297,5 +318,20 @@ class ChallengeMapper {
         inventory: initialState.inventory,
       ),
     );
+  }
+
+  static List<ChallengeNodeSpec> _mapInitialNodes(
+    ChallengeInitialStateModel initialState,
+  ) {
+    if (initialState.nodes.isNotEmpty) {
+      return initialState.nodes
+          .map((node) => ChallengeNodeSpec(id: node.id, value: node.value))
+          .toList(growable: false);
+    }
+
+    return [
+      for (var i = 0; i < initialState.inventory.length; i++)
+        ChallengeNodeSpec(id: 'inv_$i', value: initialState.inventory[i]),
+    ];
   }
 }

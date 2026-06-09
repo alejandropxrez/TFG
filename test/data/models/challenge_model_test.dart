@@ -5,6 +5,7 @@ import 'package:algoquest/data/models/challenge_model.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
+import 'package:algoquest/domain/strategies/expected_slot_values_validation_strategy.dart';
 import 'package:algoquest/domain/strategies/ordered_sequence_validation_strategy.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -1123,6 +1124,112 @@ void main() {
     expect(
       content.engineConfig.validationStrategy,
       isA<OrderedSequenceValidationStrategy>(),
+    );
+  });
+
+  test('parses challenge solution expected slot values', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'STRUCTURE',
+      'metadata': {
+        'title': 'Completa el valor',
+        'instruction': 'Arrastra el valor correcto',
+      },
+      'engineConfig': {
+        'structureType': 'LINKED_LIST',
+        'validationStrategy': 'EXPECTED_SLOT_VALUES',
+        'layoutStrategy': 'LINEAR',
+        'interactionMode': 'DRAG',
+        'connectionType': 'NONE',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [],
+        'edges': [],
+        'slots': [
+          {'id': 's1', 'index': 0},
+        ],
+        'inventory': [2, 4],
+      },
+      'solution': {
+        'expectedSlotValues': {'s1': 2},
+      },
+    });
+
+    expect(model.solution, isNotNull);
+    expect(model.solution!.expectedSlotValues, {'s1': 2});
+  });
+
+  test('maps EXPECTED_SLOT_VALUES validation strategy from solution', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'STRUCTURE',
+      'metadata': {
+        'title': 'Completa el valor',
+        'instruction': 'Arrastra el valor correcto',
+      },
+      'engineConfig': {
+        'structureType': 'LINKED_LIST',
+        'validationStrategy': 'EXPECTED_SLOT_VALUES',
+        'layoutStrategy': 'LINEAR',
+        'interactionMode': 'DRAG',
+        'connectionType': 'NONE',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [],
+        'edges': [],
+        'slots': [
+          {'id': 's1', 'index': 0},
+        ],
+        'inventory': [2, 4],
+      },
+      'solution': {
+        'expectedSlotValues': {'s1': 2},
+      },
+    });
+
+    final spec = ChallengeMapper.toDomain('fill_missing_value_intro', model);
+    final content = spec.content as StructureChallengeContent;
+
+    expect(
+      content.engineConfig.validationStrategy,
+      isA<ExpectedSlotValuesValidationStrategy>(),
+    );
+
+    expect(content.initialState.nodes.length, 2);
+    expect(content.initialState.nodes[0].id, 'inv_0');
+    expect(content.initialState.nodes[0].value, 2);
+    expect(content.initialState.nodes[1].id, 'inv_1');
+    expect(content.initialState.nodes[1].value, 4);
+  });
+
+  test('throws when EXPECTED_SLOT_VALUES has no solution', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'STRUCTURE',
+      'metadata': {
+        'title': 'Completa el valor',
+        'instruction': 'Arrastra el valor correcto',
+      },
+      'engineConfig': {
+        'structureType': 'LINKED_LIST',
+        'validationStrategy': 'EXPECTED_SLOT_VALUES',
+        'layoutStrategy': 'LINEAR',
+        'interactionMode': 'DRAG',
+        'connectionType': 'NONE',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [],
+        'edges': [],
+        'slots': [
+          {'id': 's1', 'index': 0},
+        ],
+        'inventory': [2, 4],
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('fill_missing_value_intro', model),
+      throwsA(isA<FormatException>()),
     );
   });
 }
