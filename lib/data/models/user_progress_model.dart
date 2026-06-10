@@ -3,7 +3,8 @@ class UserProgressModel {
   final int level;
   final double experiencePoints;
   final int livesRemaining;
-  final List<String> unlockedLevels;
+  final Set<String> unlockedLevels;
+  final Set<String> completedLevels;
   final String? currentLevelId;
 
   const UserProgressModel({
@@ -12,6 +13,7 @@ class UserProgressModel {
     required this.experiencePoints,
     required this.livesRemaining,
     required this.unlockedLevels,
+    required this.completedLevels,
     this.currentLevelId,
   });
 }

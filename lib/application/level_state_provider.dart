@@ -224,15 +224,11 @@ class LevelStateNotifier extends Notifier<LevelState> {
 
         final nextLevelId = await _findNextLevelId(syllabus.id);
 
-        final newlyUnlockedLevels = <String>{
-          if (nextLevelId != null) nextLevelId,
-        };
-
-        final updatedProgress = _useCases.manageProgress.applyRewards(
+        final updatedProgress = _useCases.manageProgress.completeLevel(
           current: baseProgress,
-          xpGained: syllabus.rewards.xp,
-          newlyUnlockedLevels: newlyUnlockedLevels,
-          newCurrentLevelId: nextLevelId ?? syllabus.id,
+          completedLevelId: syllabus.id,
+          xpReward: syllabus.rewards.xp,
+          nextLevelId: nextLevelId,
           livesGained: syllabus.rewards.lives,
         );
 

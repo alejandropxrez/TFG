@@ -16,6 +16,10 @@ class UserProgressTable extends Table {
   TextColumn get unlockedLevels => text().map(const StringListConverter())();
 
   TextColumn get currentLevelId => text().nullable()();
+
+  TextColumn get completedLevels => text()
+      .map(const StringListConverter())
+      .withDefault(const Constant('[]'))();
 }
 
 class StringListConverter extends TypeConverter<List<String>, String> {

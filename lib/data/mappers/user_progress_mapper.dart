@@ -9,6 +9,7 @@ class UserProgressMapper {
       experiencePoints: model.experiencePoints,
       livesRemaining: model.livesRemaining,
       unlockedLevels: Set<String>.from(model.unlockedLevels),
+      completedLevels: Set<String>.from(model.completedLevels),
       currentLevelId: model.currentLevelId,
     );
   }
@@ -19,7 +20,8 @@ class UserProgressMapper {
       level: entity.level,
       experiencePoints: entity.experiencePoints,
       livesRemaining: entity.livesRemaining,
-      unlockedLevels: entity.unlockedLevels.toList(),
+      unlockedLevels: entity.unlockedLevels.toSet(),
+      completedLevels: entity.completedLevels.toSet(),
       currentLevelId: entity.currentLevelId,
     );
   }
