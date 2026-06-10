@@ -1,4 +1,5 @@
 import 'package:algoquest/data/models/challenge_model.dart';
+import 'package:algoquest/domain/entities/categorize_spec.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
@@ -34,6 +35,10 @@ class ChallengeMapper {
         challengeModel,
       ),
       ChallengeKindModel.identifyEdge => _mapIdentifyEdgeChallenge(
+        challengeId,
+        challengeModel,
+      ),
+      ChallengeKindModel.categorize => _mapCategorizeChallenge(
         challengeId,
         challengeModel,
       ),
@@ -287,6 +292,76 @@ class ChallengeMapper {
           allowMultiple: identifyTarget.allowMultiple,
         ),
         visualStructure: visualStructure,
+      ),
+    );
+  }
+
+  static ChallengeSpec _mapCategorizeChallenge(
+    String challengeId,
+    ChallengeModel challengeModel,
+  ) {
+    final categorize = challengeModel.categorize;
+
+    if (categorize == null) {
+      throw FormatException('CATEGORIZE challenge requires categorize.');
+    }
+
+    if (categorize.categories.isEmpty) {
+      throw FormatException(
+        'CATEGORIZE challenge requires at least one category.',
+      );
+    }
+
+    if (categorize.items.isEmpty) {
+      throw FormatException('CATEGORIZE challenge requires at least one item.');
+    }
+
+    if (categorize.correctCategoryByItemId.isEmpty) {
+      throw FormatException(
+        'CATEGORIZE challenge requires correctCategoryByItemId.',
+      );
+    }
+
+    final categoryIds = categorize.categories
+        .map((category) => category.id)
+        .toSet();
+
+    final itemIds = categorize.items.map((item) => item.id).toSet();
+
+    if (!itemIds.containsAll(categorize.correctCategoryByItemId.keys)) {
+      throw FormatException(
+        'CATEGORIZE correctCategoryByItemId must reference existing items.',
+      );
+    }
+
+    if (!categoryIds.containsAll(categorize.correctCategoryByItemId.values)) {
+      throw FormatException(
+        'CATEGORIZE correctCategoryByItemId must reference existing categories.',
+      );
+    }
+
+    return ChallengeSpec(
+      id: challengeId,
+      title: challengeModel.metadata.title,
+      instruction: challengeModel.metadata.instruction,
+      theoryRef: challengeModel.metadata.theoryRef,
+      constraints: _mapConstraints(challengeModel),
+      content: CategorizeChallengeContent(
+        categorizeSpec: CategorizeSpec(
+          prompt: categorize.prompt,
+          categories: categorize.categories
+              .map(
+                (category) =>
+                    CategorizeCategory(id: category.id, label: category.label),
+              )
+              .toList(growable: false),
+          items: categorize.items
+              .map((item) => CategorizeItem(id: item.id, text: item.text))
+              .toList(growable: false),
+          correctCategoryByItemId: Map<String, String>.from(
+            categorize.correctCategoryByItemId,
+          ),
+        ),
       ),
     );
   }

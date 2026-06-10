@@ -19,6 +19,7 @@ import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
+import 'package:algoquest/domain/usecases/submit_categorization_use_case.dart';
 import 'package:algoquest/domain/usecases/submit_identify_target_use_case.dart';
 import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
@@ -63,6 +64,7 @@ class AppComposition {
     final checkChallenge = const CheckChallengeUseCase();
     final submitQuizAnswer = const SubmitQuizAnswerUseCase();
     final submitIdentifyTarget = const SubmitIdentifyTargetUseCase();
+    final submitCategorization = const SubmitCategorizationUseCase();
 
     final useCases = UseCases(
       getLevelSyllabus: getLevelSyllabus,
@@ -79,6 +81,7 @@ class AppComposition {
       checkChallenge: checkChallenge,
       submitQuizAnswer: submitQuizAnswer,
       submitIdentifyTarget: submitIdentifyTarget,
+      submitCategorization: submitCategorization,
     );
 
     return AppComposition._(

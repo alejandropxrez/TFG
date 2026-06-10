@@ -132,9 +132,6 @@ class LevelStateNotifier extends Notifier<LevelState> {
       action: action,
     );
 
-    final beforeRuntime = session.runtimeState;
-    final afterRuntime = updatedSession.runtimeState;
-
     state = state.copyWith(
       currentSession: updatedSession,
       status: LevelFlowStatus.playing,
@@ -381,6 +378,26 @@ class LevelStateNotifier extends Notifier<LevelState> {
     final updatedSession = _useCases.submitIdentifyTarget(
       session: session,
       action: SubmitIdentifyTargetAction(selectedTargetIds: selectedTargetIds),
+    );
+
+    state = state.copyWith(
+      currentSession: updatedSession,
+      status: LevelFlowStatus.playing,
+      clearError: true,
+    );
+  }
+
+  void submitCategorization({
+    required String itemId,
+    required String categoryId,
+  }) {
+    final session = state.currentSession;
+    if (session == null) return;
+
+    final updatedSession = _useCases.submitCategorization(
+      session: session,
+      itemId: itemId,
+      categoryId: categoryId,
     );
 
     state = state.copyWith(

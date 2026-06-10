@@ -22,6 +22,7 @@ abstract class ChallengeModel with _$ChallengeModel {
     @Default([]) List<ChallengeConstraintModel> constraints,
 
     QuizModel? quiz,
+    CategorizeModel? categorize,
     IdentifyTargetModel? identifyTarget,
 
     ChallengeSolutionModel? solution,
@@ -307,6 +308,7 @@ enum ChallengeKindModel {
   multipleChoice,
   identifyNode,
   identifyEdge,
+  categorize,
 }
 
 ChallengeKindModel _challengeKindFromJson(String? value) {
@@ -323,6 +325,8 @@ ChallengeKindModel _challengeKindFromJson(String? value) {
       return ChallengeKindModel.identifyNode;
     case 'IDENTIFY_EDGE':
       return ChallengeKindModel.identifyEdge;
+    case 'CATEGORIZE':
+      return ChallengeKindModel.categorize;
     default:
       throw FormatException('Unknown challenge kind: $value');
   }
@@ -340,6 +344,8 @@ String _challengeKindToJson(ChallengeKindModel kind) {
       return 'IDENTIFY_NODE';
     case ChallengeKindModel.identifyEdge:
       return 'IDENTIFY_EDGE';
+    case ChallengeKindModel.categorize:
+      return 'CATEGORIZE';
   }
 }
 
@@ -415,4 +421,39 @@ abstract class ChallengeSolutionModel with _$ChallengeSolutionModel {
 
   factory ChallengeSolutionModel.fromJson(Map<String, dynamic> json) =>
       _$ChallengeSolutionModelFromJson(json);
+}
+
+@freezed
+abstract class CategorizeModel with _$CategorizeModel {
+  const factory CategorizeModel({
+    required String prompt,
+    required List<CategorizeCategoryModel> categories,
+    required List<CategorizeItemModel> items,
+    required Map<String, String> correctCategoryByItemId,
+  }) = _CategorizeModel;
+
+  factory CategorizeModel.fromJson(Map<String, dynamic> json) =>
+      _$CategorizeModelFromJson(json);
+}
+
+@freezed
+abstract class CategorizeCategoryModel with _$CategorizeCategoryModel {
+  const factory CategorizeCategoryModel({
+    required String id,
+    required String label,
+  }) = _CategorizeCategoryModel;
+
+  factory CategorizeCategoryModel.fromJson(Map<String, dynamic> json) =>
+      _$CategorizeCategoryModelFromJson(json);
+}
+
+@freezed
+abstract class CategorizeItemModel with _$CategorizeItemModel {
+  const factory CategorizeItemModel({
+    required String id,
+    required String text,
+  }) = _CategorizeItemModel;
+
+  factory CategorizeItemModel.fromJson(Map<String, dynamic> json) =>
+      _$CategorizeItemModelFromJson(json);
 }

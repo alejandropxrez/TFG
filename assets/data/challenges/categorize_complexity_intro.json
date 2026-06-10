@@ -1,0 +1,55 @@
+{
+	"kind": "CATEGORIZE",
+	"metadata": {
+		"title": "Clasifica la complejidad",
+		"instruction": "Asigna cada operación a su complejidad temporal",
+		"theoryRef": "complexity_basics"
+	},
+	"constraints": [
+		{
+			"type": "MAX_ATTEMPTS",
+			"maxAttempts": 3
+		},
+		{
+			"type": "LIVES_CONSUMED_ON_FAIL",
+			"lives": 1
+		}
+	],
+	"categorize": {
+		"prompt": "Clasifica cada operación según su complejidad temporal.",
+		"categories": [
+			{
+				"id": "o1",
+				"label": "O(1)"
+			},
+			{
+				"id": "on",
+				"label": "O(n)"
+			}
+		],
+		"items": [
+			{
+				"id": "array_access",
+				"text": "Acceder a un array por índice"
+			},
+			{
+				"id": "stack_push",
+				"text": "Insertar un elemento en una pila"
+			},
+			{
+				"id": "linear_search",
+				"text": "Buscar secuencialmente en una lista"
+			},
+			{
+				"id": "print_all_items",
+				"text": "Recorrer e imprimir todos los elementos"
+			}
+		],
+		"correctCategoryByItemId": {
+			"array_access": "o1",
+			"stack_push": "o1",
+			"linear_search": "on",
+			"print_all_items": "on"
+		}
+	}
+}

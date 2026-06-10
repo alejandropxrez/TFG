@@ -6,6 +6,7 @@ import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/game/strategies/interaction/identify_interaction_strategy.dart';
+import 'package:algoquest/presentation/widgets/categorize_challenge_view.dart';
 import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
 import 'package:algoquest/presentation/widgets/feedback_dialog.dart';
 import 'package:algoquest/presentation/widgets/game_hud.dart';
@@ -223,6 +224,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
           notifier.submitQuizAnswer(nextSelected);
         },
+      );
+    }
+
+    if (content is CategorizeChallengeContent &&
+        runtimeState is CategorizeRuntimeState) {
+      return CategorizeChallengeView(
+        categorizeSpec: content.categorizeSpec,
+        selectedCategoryByItemId: runtimeState.selectedCategoryByItemId,
+        onCategorySelected:
+            ({required String itemId, required String categoryId}) {
+              notifier.submitCategorization(
+                itemId: itemId,
+                categoryId: categoryId,
+              );
+            },
       );
     }
 

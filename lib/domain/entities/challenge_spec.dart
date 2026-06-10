@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/entities/categorize_spec.dart';
 import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
@@ -185,4 +186,10 @@ class IdentifyTargetChallengeContent extends ChallengeContent {
     required this.identifySpec,
     required this.visualStructure,
   });
+}
+
+class CategorizeChallengeContent extends ChallengeContent {
+  final CategorizeSpec categorizeSpec;
+
+  const CategorizeChallengeContent({required this.categorizeSpec});
 }

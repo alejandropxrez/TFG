@@ -79,6 +79,8 @@ class ChallengeSession {
         IdentifyTargetRuntimeState(
           visualState: _structureStateFromContent(visualStructure),
         ),
+
+      CategorizeChallengeContent() => const CategorizeRuntimeState(),
     };
   }
 

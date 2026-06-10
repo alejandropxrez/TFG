@@ -72,3 +72,18 @@ class IdentifyTargetRuntimeState extends ChallengeRuntimeState {
     );
   }
 }
+
+class CategorizeRuntimeState extends ChallengeRuntimeState {
+  final Map<String, String> selectedCategoryByItemId;
+
+  const CategorizeRuntimeState({this.selectedCategoryByItemId = const {}});
+
+  CategorizeRuntimeState copyWith({
+    Map<String, String>? selectedCategoryByItemId,
+  }) {
+    return CategorizeRuntimeState(
+      selectedCategoryByItemId:
+          selectedCategoryByItemId ?? this.selectedCategoryByItemId,
+    );
+  }
+}

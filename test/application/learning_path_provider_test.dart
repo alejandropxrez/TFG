@@ -18,6 +18,7 @@ import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
 import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
 import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
+import 'package:algoquest/domain/usecases/submit_categorization_use_case.dart';
 import 'package:algoquest/domain/usecases/submit_identify_target_use_case.dart';
 import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
 import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
@@ -132,6 +133,7 @@ void main() {
       checkChallenge: const CheckChallengeUseCase(),
       submitQuizAnswer: const SubmitQuizAnswerUseCase(),
       submitIdentifyTarget: const SubmitIdentifyTargetUseCase(),
+      submitCategorization: const SubmitCategorizationUseCase(),
     );
 
     container = ProviderContainer(
