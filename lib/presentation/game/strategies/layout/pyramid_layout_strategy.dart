@@ -69,16 +69,64 @@ class PyramidLayoutStrategy implements LayoutStrategy {
   }
 
   Map<String, List<String>> _buildChildrenMap(StructureState state) {
+    if (state.edges.isNotEmpty) {
+      final children = <String, List<String>>{};
+
+      for (final edge in state.edges) {
+        if (!state.nodes.containsKey(edge.source)) continue;
+        if (!state.nodes.containsKey(edge.target)) continue;
+
+        children.putIfAbsent(edge.source, () => []).add(edge.target);
+      }
+
+      return children;
+    }
+
+    return switch (state) {
+      HeapState() || BstState() => _buildImplicitBinaryTreeChildren(state),
+      _ => const <String, List<String>>{},
+    };
+  }
+
+  Map<String, List<String>> _buildImplicitBinaryTreeChildren(
+    StructureState state,
+  ) {
+    final nodeIds = state.nodes.keys.toList(growable: false);
     final children = <String, List<String>>{};
 
-    for (final edge in state.edges) {
-      if (!state.nodes.containsKey(edge.source)) continue;
-      if (!state.nodes.containsKey(edge.target)) continue;
+    for (var i = 0; i < nodeIds.length; i++) {
+      final leftIndex = 2 * i + 1;
+      final rightIndex = 2 * i + 2;
 
-      children.putIfAbsent(edge.source, () => []).add(edge.target);
+      if (leftIndex < nodeIds.length) {
+        children.putIfAbsent(nodeIds[i], () => []).add(nodeIds[leftIndex]);
+      }
+
+      if (rightIndex < nodeIds.length) {
+        children.putIfAbsent(nodeIds[i], () => []).add(nodeIds[rightIndex]);
+      }
     }
 
     return children;
+  }
+
+  String? _findRootId(StructureState state) {
+    if (state.edges.isEmpty) {
+      return switch (state) {
+        HeapState() ||
+        BstState() => state.nodes.keys.isEmpty ? null : state.nodes.keys.first,
+        _ => null,
+      };
+    }
+
+    final allNodeIds = state.nodes.keys.toSet();
+    final childIds = state.edges.map((edge) => edge.target).toSet();
+
+    final roots = allNodeIds.difference(childIds);
+
+    if (roots.length != 1) return null;
+
+    return roots.first;
   }
 
   int? _calculateMaxDepth(String rootId, Map<String, List<String>> children) {
@@ -118,17 +166,6 @@ class PyramidLayoutStrategy implements LayoutStrategy {
     }
 
     return maxDepth;
-  }
-
-  String? _findRootId(StructureState state) {
-    final allNodeIds = state.nodes.keys.toSet();
-    final childIds = state.edges.map((edge) => edge.target).toSet();
-
-    final roots = allNodeIds.difference(childIds);
-
-    if (roots.length != 1) return null;
-
-    return roots.first;
   }
 
   Map<String, Vector2> _fallbackLinearPositions(

@@ -9,15 +9,11 @@ class LayoutStrategyFactory {
   const LayoutStrategyFactory();
 
   LayoutStrategy create(LayoutStrategyType type) {
-    switch (type) {
-      case LayoutStrategyType.pyramid:
-        return const PyramidLayoutStrategy();
-      case LayoutStrategyType.linear:
-        return const LinearLayoutStrategy();
-      case LayoutStrategyType.circular:
-        return const CircularLayoutStrategy();
-      case LayoutStrategyType.free:
-        return const FreeLayoutStrategy();
-    }
+    return switch (type) {
+      LayoutStrategyType.pyramid => const PyramidLayoutStrategy(),
+      LayoutStrategyType.linear => const LinearLayoutStrategy(),
+      LayoutStrategyType.circular => const CircularLayoutStrategy(),
+      LayoutStrategyType.free => const FreeLayoutStrategy(),
+    };
   }
 }

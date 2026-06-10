@@ -6,8 +6,33 @@ class ImplicitConnectionStrategy implements ConnectionStrategy {
 
   @override
   List<EdgeState> buildConnections(StructureState state) {
-    // Temporary implementation.
-    // Later this can generate edges from structural rules instead of state.edges.
-    return state.edges;
+    return switch (state) {
+      HeapState() => _buildBinaryTreeConnections(state),
+      BstState() => _buildBinaryTreeConnections(state),
+      LinkedListState() => _buildLinkedListConnections(state),
+      GraphState() => state.edges,
+    };
+  }
+
+  List<EdgeState> _buildBinaryTreeConnections(StructureState state) {
+    final nodeIds = state.nodes.keys.toList(growable: false);
+
+    return [
+      for (var i = 0; i < nodeIds.length; i++) ...[
+        if ((2 * i + 1) < nodeIds.length)
+          EdgeState(source: nodeIds[i], target: nodeIds[2 * i + 1]),
+        if ((2 * i + 2) < nodeIds.length)
+          EdgeState(source: nodeIds[i], target: nodeIds[2 * i + 2]),
+      ],
+    ];
+  }
+
+  List<EdgeState> _buildLinkedListConnections(StructureState state) {
+    final nodeIds = state.nodes.keys.toList(growable: false);
+
+    return [
+      for (var i = 0; i < nodeIds.length - 1; i++)
+        EdgeState(source: nodeIds[i], target: nodeIds[i + 1]),
+    ];
   }
 }
