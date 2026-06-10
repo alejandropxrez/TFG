@@ -4,7 +4,6 @@
 	"topic": "HEAPS",
 	"subtitle": "Repara heaps usando intercambios",
 	"challenges": [
-		"implicit_heap_tree_test",
 		"categorize_complexity_intro",
 		"identify_edge",
 		"fill_missing_value_intro",
