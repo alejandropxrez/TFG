@@ -44,6 +44,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
         syllabus: syllabus,
         sessionManager: sessionManager,
         status: LevelFlowStatus.idle,
+        theoryIntroSeen: false,
         clearError: true,
         clearChallenge: true,
       );
@@ -401,5 +402,9 @@ class LevelStateNotifier extends Notifier<LevelState> {
       status: LevelFlowStatus.playing,
       clearError: true,
     );
+  }
+
+  void markTheoryIntroSeen() {
+    state = state.copyWith(theoryIntroSeen: true, clearError: true);
   }
 }

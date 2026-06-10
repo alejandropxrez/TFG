@@ -10,6 +10,7 @@ import 'package:algoquest/presentation/widgets/categorize_challenge_view.dart';
 import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
 import 'package:algoquest/presentation/widgets/feedback_dialog.dart';
 import 'package:algoquest/presentation/widgets/game_hud.dart';
+import 'package:algoquest/presentation/widgets/level_intro_view.dart';
 import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -129,6 +130,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     final currentChallengeNumber = state.currentChallengeNumber;
 
+    final shouldShowLevelIntro =
+        state.syllabus != null &&
+        !state.theoryIntroSeen &&
+        state.currentSession == null &&
+        state.currentChallengeSpec == null;
+
     return Scaffold(
       appBar: AppBar(title: const Text('AlgoQuest')),
       body: Column(
@@ -150,11 +157,23 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   ),
           ),
           Expanded(
-            child: _buildChallengeBody(
-              state: state,
-              notifier: notifier,
-              game: game,
-            ),
+            child: shouldShowLevelIntro
+                ? LevelIntroView(
+                    syllabus: state.syllabus!,
+                    onStartPractice: () {
+                      notifier.markTheoryIntroSeen();
+                      notifier.startCurrentChallenge(
+                        userId: userId,
+                        sessionId:
+                            'session_${DateTime.now().millisecondsSinceEpoch}',
+                      );
+                    },
+                  )
+                : _buildChallengeBody(
+                    state: state,
+                    notifier: notifier,
+                    game: game,
+                  ),
           ),
           DebugGameControls(
             status: state.status.name,

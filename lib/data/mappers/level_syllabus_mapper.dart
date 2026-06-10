@@ -14,6 +14,13 @@ class LevelSyllabusMapper {
         stars: modelData.rewards.stars,
         lives: modelData.rewards.lives,
       ),
+      theory: modelData.theory == null
+          ? null
+          : domain.LevelTheory(
+              title: modelData.theory!.title,
+              content: modelData.theory!.content,
+              keyPoints: modelData.theory!.keyPoints,
+            ),
     );
   }
 

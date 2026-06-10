@@ -1121,4 +1121,42 @@ void main() {
       expect(state.errorMessage, isNotNull);
     },
   );
+
+  test('initial state has theory intro not seen', () {
+    const state = LevelState.initial();
+
+    expect(state.theoryIntroSeen, isFalse);
+  });
+
+  test('copyWith updates theoryIntroSeen', () {
+    const state = LevelState.initial();
+
+    final updated = state.copyWith(theoryIntroSeen: true);
+
+    expect(updated.theoryIntroSeen, isTrue);
+  });
+
+  test('markTheoryIntroSeen sets theoryIntroSeen to true', () {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    notifier.markTheoryIntroSeen();
+
+    final state = container.read(levelStateProvider);
+
+    expect(state.theoryIntroSeen, isTrue);
+  });
+
+  test('loadLevel resets theoryIntroSeen to false', () async {
+    final notifier = container.read(levelStateProvider.notifier);
+
+    notifier.markTheoryIntroSeen();
+    expect(container.read(levelStateProvider).theoryIntroSeen, isTrue);
+
+    await notifier.loadLevel('level_heap_intro');
+
+    final state = container.read(levelStateProvider);
+
+    expect(state.theoryIntroSeen, isFalse);
+    expect(state.syllabus, isNotNull);
+  });
 }

@@ -23,11 +23,14 @@ class LevelState {
   final LevelFlowStatus status;
   final String? errorMessage;
 
+  final bool theoryIntroSeen;
+
   const LevelState({
     required this.syllabus,
     required this.sessionManager,
     required this.currentChallengeSpec,
     required this.currentSession,
+    required this.theoryIntroSeen,
     required this.status,
     required this.errorMessage,
   });
@@ -37,6 +40,7 @@ class LevelState {
       sessionManager = null,
       currentChallengeSpec = null,
       currentSession = null,
+      theoryIntroSeen = false,
       status = LevelFlowStatus.idle,
       errorMessage = null;
 
@@ -61,6 +65,7 @@ class LevelState {
     SessionManager? sessionManager,
     ChallengeSpec? currentChallengeSpec,
     ChallengeSession? currentSession,
+    bool? theoryIntroSeen,
     LevelFlowStatus? status,
     String? errorMessage,
     bool clearError = false,
@@ -75,6 +80,7 @@ class LevelState {
       currentSession: clearChallenge
           ? null
           : currentSession ?? this.currentSession,
+      theoryIntroSeen: theoryIntroSeen ?? this.theoryIntroSeen,
       status: status ?? this.status,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );

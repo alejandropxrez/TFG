@@ -14,6 +14,7 @@ class LevelSyllabus {
   final LevelTopic topic;
   final List<String> challenges;
   final LevelRewards rewards;
+  final LevelTheory? theory;
 
   const LevelSyllabus({
     required this.id,
@@ -21,5 +22,18 @@ class LevelSyllabus {
     required this.topic,
     required this.challenges,
     required this.rewards,
+    this.theory,
+  });
+}
+
+class LevelTheory {
+  final String title;
+  final String content;
+  final List<String> keyPoints;
+
+  const LevelTheory({
+    required this.title,
+    required this.content,
+    this.keyPoints = const [],
   });
 }

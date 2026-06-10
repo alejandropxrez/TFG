@@ -19,6 +19,9 @@ abstract class LevelSyllabusModel with _$LevelSyllabusModel {
     @JsonKey(fromJson: _topicFromJson, toJson: _topicToJson)
     required LevelTopic topic,
 
+    /// Optional theory shown before starting the practice challenges.
+    LevelTheoryModel? theory,
+
     /// Ordered list of challenge IDs.
     required List<String> challenges,
 
@@ -28,6 +31,18 @@ abstract class LevelSyllabusModel with _$LevelSyllabusModel {
 
   factory LevelSyllabusModel.fromJson(Map<String, dynamic> json) =>
       _$LevelSyllabusModelFromJson(json);
+}
+
+@freezed
+abstract class LevelTheoryModel with _$LevelTheoryModel {
+  const factory LevelTheoryModel({
+    required String title,
+    required String content,
+    @Default(<String>[]) List<String> keyPoints,
+  }) = _LevelTheoryModel;
+
+  factory LevelTheoryModel.fromJson(Map<String, dynamic> json) =>
+      _$LevelTheoryModelFromJson(json);
 }
 
 @freezed

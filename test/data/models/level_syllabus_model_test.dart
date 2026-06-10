@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:algoquest/data/models/level_syllabus_model.dart';
 
@@ -68,5 +69,49 @@ void main() {
       expect(rewards.xp, 50);
       expect(rewards.stars, 2);
     });
+  });
+
+  test('parses level theory from json', () {
+    final model = LevelSyllabusModel.fromJson({
+      'id': 'level_heap_intro',
+      'title': 'Introducción a Heaps',
+      'topic': 'HEAPS',
+      'theory': {
+        'title': '¿Qué es un Max-Heap?',
+        'content': 'Un Max-Heap mantiene el valor máximo en la raíz.',
+        'keyPoints': [
+          'La raíz contiene el valor máximo.',
+          'Cada padre debe ser mayor o igual que sus hijos.',
+        ],
+      },
+      'challenges': ['quiz_heap_property'],
+      'rewards': {'xp': 100, 'stars': 3, 'lives': 1},
+    });
+
+    expect(model.theory, isNotNull);
+    expect(model.theory!.title, '¿Qué es un Max-Heap?');
+    expect(model.theory!.content, contains('valor máximo'));
+    expect(model.theory!.keyPoints, hasLength(2));
+  });
+
+  test('maps level theory to domain', () {
+    final model = LevelSyllabusModel.fromJson({
+      'id': 'level_heap_intro',
+      'title': 'Introducción a Heaps',
+      'topic': 'HEAPS',
+      'theory': {
+        'title': '¿Qué es un Max-Heap?',
+        'content': 'Un Max-Heap mantiene el valor máximo en la raíz.',
+        'keyPoints': ['La raíz contiene el valor máximo.'],
+      },
+      'challenges': ['quiz_heap_property'],
+      'rewards': {'xp': 100, 'stars': 3, 'lives': 1},
+    });
+
+    final domain = LevelSyllabusMapper.toDomain(model);
+
+    expect(domain.theory, isNotNull);
+    expect(domain.theory!.title, '¿Qué es un Max-Heap?');
+    expect(domain.theory!.keyPoints, ['La raíz contiene el valor máximo.']);
   });
 }
