@@ -1232,4 +1232,189 @@ void main() {
       throwsA(isA<FormatException>()),
     );
   });
+
+  test('parses IDENTIFY_EDGE challenge correctly', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'IDENTIFY_EDGE',
+      'metadata': {
+        'title': 'Identifica la arista incorrecta',
+        'instruction': 'Toca la arista incorrecta',
+        'theoryRef': 'edge_violation',
+      },
+      'identifyTarget': {
+        'prompt': '¿Qué arista es incorrecta?',
+        'targetType': 'EDGE',
+        'correctTargetIds': ['n1->n3'],
+        'allowMultiple': false,
+      },
+      'engineConfig': {
+        'structureType': 'GRAPH',
+        'validationStrategy': 'CONNECTED_GRAPH',
+        'layoutStrategy': 'LINEAR',
+        'interactionMode': 'LINK',
+        'connectionType': 'EXPLICIT',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [
+          {'id': 'n1', 'value': 1},
+          {'id': 'n2', 'value': 2},
+          {'id': 'n3', 'value': 3},
+        ],
+        'edges': [
+          {'source': 'n1', 'target': 'n2'},
+          {'source': 'n1', 'target': 'n3'},
+        ],
+        'slots': [],
+        'inventory': [],
+      },
+    });
+
+    expect(model.kind, ChallengeKindModel.identifyEdge);
+    expect(model.identifyTarget, isNotNull);
+    expect(model.identifyTarget!.targetType, IdentifyTargetTypeModel.edge);
+    expect(model.identifyTarget!.correctTargetIds, ['n1->n3']);
+  });
+
+  test(
+    'maps IDENTIFY_EDGE challenge model to IdentifyTargetChallengeContent',
+    () {
+      final model = ChallengeModel.fromJson({
+        'kind': 'IDENTIFY_EDGE',
+        'metadata': {
+          'title': 'Identifica la arista incorrecta',
+          'instruction': 'Toca la arista incorrecta',
+          'theoryRef': 'edge_violation',
+        },
+        'identifyTarget': {
+          'prompt': '¿Qué arista es incorrecta?',
+          'targetType': 'EDGE',
+          'correctTargetIds': ['n1->n3'],
+          'allowMultiple': false,
+        },
+        'engineConfig': {
+          'structureType': 'GRAPH',
+          'validationStrategy': 'CONNECTED_GRAPH',
+          'layoutStrategy': 'LINEAR',
+          'interactionMode': 'LINK',
+          'connectionType': 'EXPLICIT',
+          'constraints': [],
+        },
+        'initialState': {
+          'nodes': [
+            {'id': 'n1', 'value': 1},
+            {'id': 'n2', 'value': 2},
+            {'id': 'n3', 'value': 3},
+          ],
+          'edges': [
+            {'source': 'n1', 'target': 'n2'},
+            {'source': 'n1', 'target': 'n3'},
+          ],
+          'slots': [],
+          'inventory': [],
+        },
+      });
+
+      final spec = ChallengeMapper.toDomain('identify_edge_1', model);
+
+      expect(spec.id, 'identify_edge_1');
+      expect(spec.title, 'Identifica la arista incorrecta');
+
+      final content = spec.content;
+      expect(content, isA<IdentifyTargetChallengeContent>());
+
+      final identifyContent = content as IdentifyTargetChallengeContent;
+
+      expect(identifyContent.identifySpec.targetType, IdentifyTargetType.edge);
+      expect(identifyContent.identifySpec.correctTargetIds, {'n1->n3'});
+      expect(identifyContent.identifySpec.allowMultiple, isFalse);
+
+      expect(identifyContent.visualStructure.initialState.edges.length, 2);
+    },
+  );
+
+  test('throws when IDENTIFY_EDGE targetType is not EDGE', () {
+    final model = ChallengeModel.fromJson({
+      'kind': 'IDENTIFY_EDGE',
+      'metadata': {
+        'title': 'Identifica la arista incorrecta',
+        'instruction': 'Toca la arista incorrecta',
+      },
+      'identifyTarget': {
+        'prompt': '¿Qué arista es incorrecta?',
+        'targetType': 'NODE',
+        'correctTargetIds': ['n1'],
+        'allowMultiple': false,
+      },
+      'engineConfig': {
+        'structureType': 'GRAPH',
+        'validationStrategy': 'CONNECTED_GRAPH',
+        'layoutStrategy': 'LINEAR',
+        'interactionMode': 'LINK',
+        'connectionType': 'EXPLICIT',
+        'constraints': [],
+      },
+      'initialState': {
+        'nodes': [
+          {'id': 'n1', 'value': 1},
+          {'id': 'n2', 'value': 2},
+        ],
+        'edges': [
+          {'source': 'n1', 'target': 'n2'},
+        ],
+        'slots': [],
+        'inventory': [],
+      },
+    });
+
+    expect(
+      () => ChallengeMapper.toDomain('identify_edge_1', model),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test(
+    'throws when IDENTIFY_EDGE correctTargetIds reference missing edges',
+    () {
+      final model = ChallengeModel.fromJson({
+        'kind': 'IDENTIFY_EDGE',
+        'metadata': {
+          'title': 'Identifica la arista incorrecta',
+          'instruction': 'Toca la arista incorrecta',
+        },
+        'identifyTarget': {
+          'prompt': '¿Qué arista es incorrecta?',
+          'targetType': 'EDGE',
+          'correctTargetIds': ['n2->n3'],
+          'allowMultiple': false,
+        },
+        'engineConfig': {
+          'structureType': 'GRAPH',
+          'validationStrategy': 'CONNECTED_GRAPH',
+          'layoutStrategy': 'LINEAR',
+          'interactionMode': 'LINK',
+          'connectionType': 'EXPLICIT',
+          'constraints': [],
+        },
+        'initialState': {
+          'nodes': [
+            {'id': 'n1', 'value': 1},
+            {'id': 'n2', 'value': 2},
+            {'id': 'n3', 'value': 3},
+          ],
+          'edges': [
+            {'source': 'n1', 'target': 'n2'},
+            {'source': 'n1', 'target': 'n3'},
+          ],
+          'slots': [],
+          'inventory': [],
+        },
+      });
+
+      expect(
+        () => ChallengeMapper.toDomain('identify_edge_1', model),
+        throwsA(isA<FormatException>()),
+      );
+    },
+  );
 }

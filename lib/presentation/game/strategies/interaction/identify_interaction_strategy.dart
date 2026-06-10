@@ -32,11 +32,25 @@ class IdentifyInteractionStrategy implements InteractionStrategy {
   }
 
   @override
-  GameAction? handleEdgeTap(String sourceNodeId, String targetNodeId) => null;
+  GameAction? handleEdgeTap(String sourceNodeId, String targetNodeId) {
+    final edgeId = _edgeId(sourceNodeId, targetNodeId);
+
+    final nextSelection = allowMultiple
+        ? (selectedTargetIds.contains(edgeId)
+              ? ({...selectedTargetIds}..remove(edgeId))
+              : {...selectedTargetIds, edgeId})
+        : {edgeId};
+
+    onSelectionChanged(nextSelection);
+
+    return null;
+  }
 
   @override
   GameAction? handleInventoryTap(int value) => null;
 
   @override
   void clearSelection() {}
+
+  String _edgeId(String source, String target) => '$source->$target';
 }

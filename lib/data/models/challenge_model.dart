@@ -306,6 +306,7 @@ enum ChallengeKindModel {
   singleChoice,
   multipleChoice,
   identifyNode,
+  identifyEdge,
 }
 
 ChallengeKindModel _challengeKindFromJson(String? value) {
@@ -320,6 +321,8 @@ ChallengeKindModel _challengeKindFromJson(String? value) {
       return ChallengeKindModel.multipleChoice;
     case 'IDENTIFY_NODE':
       return ChallengeKindModel.identifyNode;
+    case 'IDENTIFY_EDGE':
+      return ChallengeKindModel.identifyEdge;
     default:
       throw FormatException('Unknown challenge kind: $value');
   }
@@ -335,6 +338,8 @@ String _challengeKindToJson(ChallengeKindModel kind) {
       return 'MULTIPLE_CHOICE';
     case ChallengeKindModel.identifyNode:
       return 'IDENTIFY_NODE';
+    case ChallengeKindModel.identifyEdge:
+      return 'IDENTIFY_EDGE';
   }
 }
 

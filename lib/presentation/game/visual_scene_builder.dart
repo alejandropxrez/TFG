@@ -136,12 +136,19 @@ class VisualSceneBuilder {
       final end = slotNodePositions[edge.target] ?? positions[edge.target];
 
       if (start != null && end != null) {
+        final shouldCurveEdge = _shouldCurveEdge(
+          sourceNodeId: edge.source,
+          targetNodeId: edge.target,
+          positions: positions,
+        );
+
         components.add(
           EdgeComponent(
             start: start,
             end: end,
             sourceNodeId: edge.source,
             targetNodeId: edge.target,
+            isCurved: shouldCurveEdge,
             onTapEdge: handleEdgeTap,
           ),
         );
@@ -248,5 +255,57 @@ class VisualSceneBuilder {
     final startX = canvasSize.x / 2.0 - ((total - 1) * spacing) / 2.0;
 
     return Vector2(startX + index * spacing, canvasSize.y - 96.0);
+  }
+
+  bool _shouldCurveEdge({
+    required String sourceNodeId,
+    required String targetNodeId,
+    required Map<String, Vector2> positions,
+  }) {
+    final start = positions[sourceNodeId];
+    final end = positions[targetNodeId];
+
+    if (start == null || end == null) {
+      return false;
+    }
+
+    for (final entry in positions.entries) {
+      final nodeId = entry.key;
+
+      if (nodeId == sourceNodeId || nodeId == targetNodeId) {
+        continue;
+      }
+
+      final distance = _distanceFromPointToSegment(
+        point: entry.value,
+        start: start,
+        end: end,
+      );
+
+      if (distance < 24) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  double _distanceFromPointToSegment({
+    required Vector2 point,
+    required Vector2 start,
+    required Vector2 end,
+  }) {
+    final segment = end - start;
+    final lengthSquared = segment.length2;
+
+    if (lengthSquared == 0) {
+      return point.distanceTo(start);
+    }
+
+    final pointVector = point - start;
+    final t = (pointVector.dot(segment) / lengthSquared).clamp(0.0, 1.0);
+    final projection = start + segment * t;
+
+    return point.distanceTo(projection);
   }
 }

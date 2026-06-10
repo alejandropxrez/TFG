@@ -33,6 +33,10 @@ class ChallengeMapper {
         challengeId,
         challengeModel,
       ),
+      ChallengeKindModel.identifyEdge => _mapIdentifyEdgeChallenge(
+        challengeId,
+        challengeModel,
+      ),
     };
   }
 
@@ -224,6 +228,69 @@ class ChallengeMapper {
     );
   }
 
+  static ChallengeSpec _mapIdentifyEdgeChallenge(
+    String challengeId,
+    ChallengeModel challengeModel,
+  ) {
+    final identifyTarget = challengeModel.identifyTarget;
+    final engineConfig = challengeModel.engineConfig;
+    final initialState = challengeModel.initialState;
+
+    if (identifyTarget == null) {
+      throw FormatException('IDENTIFY_EDGE challenge requires identifyTarget.');
+    }
+
+    if (identifyTarget.targetType != IdentifyTargetTypeModel.edge) {
+      throw FormatException('IDENTIFY_EDGE requires targetType=EDGE.');
+    }
+
+    if (engineConfig == null) {
+      throw FormatException('IDENTIFY_EDGE challenge requires engineConfig.');
+    }
+
+    if (initialState == null) {
+      throw FormatException('IDENTIFY_EDGE challenge requires initialState.');
+    }
+
+    if (identifyTarget.correctTargetIds.isEmpty) {
+      throw FormatException(
+        'IDENTIFY_EDGE challenge requires at least one correct target.',
+      );
+    }
+
+    final edgeIds = initialState.edges
+        .map((edge) => _edgeId(edge.source, edge.target))
+        .toSet();
+
+    if (!edgeIds.containsAll(identifyTarget.correctTargetIds)) {
+      throw FormatException(
+        'IDENTIFY_EDGE correctTargetIds must reference existing edges.',
+      );
+    }
+
+    final visualStructure = _mapStructureContent(
+      engineConfig: engineConfig,
+      initialState: initialState,
+    );
+
+    return ChallengeSpec(
+      id: challengeId,
+      title: challengeModel.metadata.title,
+      instruction: challengeModel.metadata.instruction,
+      theoryRef: challengeModel.metadata.theoryRef,
+      constraints: _mapConstraints(challengeModel),
+      content: IdentifyTargetChallengeContent(
+        identifySpec: IdentifyTargetSpec(
+          prompt: identifyTarget.prompt,
+          targetType: IdentifyTargetType.edge,
+          correctTargetIds: identifyTarget.correctTargetIds.toSet(),
+          allowMultiple: identifyTarget.allowMultiple,
+        ),
+        visualStructure: visualStructure,
+      ),
+    );
+  }
+
   static List<ChallengeConstraint> _mapConstraints(
     ChallengeModel challengeModel,
   ) {
@@ -334,4 +401,6 @@ class ChallengeMapper {
         ChallengeNodeSpec(id: 'inv_$i', value: initialState.inventory[i]),
     ];
   }
+
+  static String _edgeId(String source, String target) => '$source->$target';
 }

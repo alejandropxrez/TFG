@@ -1,0 +1,39 @@
+{
+	"kind": "IDENTIFY_EDGE",
+	"metadata": {
+		"title": "Identifica la arista incorrecta",
+		"instruction": "Toca la arista que rompe la relación esperada",
+		"theoryRef": "edge_violation"
+	},
+	"constraints": [
+		{ "type": "MAX_ATTEMPTS", "maxAttempts": 3 },
+		{ "type": "LIVES_CONSUMED_ON_FAIL", "lives": 1 }
+	],
+	"identifyTarget": {
+		"prompt": "¿Qué arista es incorrecta?",
+		"targetType": "EDGE",
+		"correctTargetIds": ["n1->n3"],
+		"allowMultiple": false
+	},
+	"engineConfig": {
+		"structureType": "GRAPH",
+		"validationStrategy": "CONNECTED_GRAPH",
+		"layoutStrategy": "LINEAR",
+		"interactionMode": "LINK",
+		"connectionType": "EXPLICIT",
+		"constraints": []
+	},
+	"initialState": {
+		"nodes": [
+			{ "id": "n1", "value": 1 },
+			{ "id": "n2", "value": 2 },
+			{ "id": "n3", "value": 3 }
+		],
+		"edges": [
+			{ "source": "n1", "target": "n2" },
+			{ "source": "n1", "target": "n3" }
+		],
+		"slots": [],
+		"inventory": []
+	}
+}
