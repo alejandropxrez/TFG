@@ -1,5 +1,4 @@
 import 'package:algoquest/domain/entities/challenge_session.dart';
-import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 
 class ConsumeAttemptUseCase {
@@ -9,27 +8,14 @@ class ConsumeAttemptUseCase {
     final attemptsRemaining = session.attemptsRemaining;
 
     if (attemptsRemaining == null) {
-      return session.copyWith(
-        status: SessionStatus.inProgress,
-        updatedAt: DateTime.now(),
-      );
+      return session;
     }
 
-    final livesConsumed = session.spec.livesConsumedOnFail;
-
-    if (livesConsumed <= 0) {
-      return session.copyWith(
-        status: SessionStatus.inProgress,
-        updatedAt: DateTime.now(),
-      );
-    }
-
-    final nextAttempts = attemptsRemaining - livesConsumed;
-    final safeAttempts = nextAttempts < 0 ? 0 : nextAttempts;
+    final nextAttempts = attemptsRemaining <= 0 ? 0 : attemptsRemaining - 1;
 
     return session.copyWith(
-      attemptsRemaining: safeAttempts,
-      status: safeAttempts == 0
+      attemptsRemaining: nextAttempts,
+      status: nextAttempts <= 0
           ? SessionStatus.failed
           : SessionStatus.inProgress,
       updatedAt: DateTime.now(),

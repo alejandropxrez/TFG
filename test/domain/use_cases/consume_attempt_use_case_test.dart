@@ -48,11 +48,12 @@ void main() {
 
     final updated = useCase(session);
 
+    expect(updated, same(session));
     expect(updated.attemptsRemaining, isNull);
     expect(updated.status, SessionStatus.inProgress);
   });
 
-  test('decrements attempts by default lives consumed on fail', () {
+  test('decrements attempts by one when max attempts are present', () {
     final session = ChallengeSession.start(
       sessionId: 'session_1',
       userId: 'user_1',
@@ -67,7 +68,7 @@ void main() {
     expect(updated.status, SessionStatus.inProgress);
   });
 
-  test('uses LivesConsumedOnFailConstraint when present', () {
+  test('ignores LivesConsumedOnFailConstraint when decrementing attempts', () {
     final session = ChallengeSession.start(
       sessionId: 'session_1',
       userId: 'user_1',
@@ -83,11 +84,11 @@ void main() {
 
     final updated = useCase(session);
 
-    expect(updated.attemptsRemaining, 3);
+    expect(updated.attemptsRemaining, 4);
     expect(updated.status, SessionStatus.inProgress);
   });
 
-  test('does not decrement attempts when lives consumed on fail is zero', () {
+  test('decrements attempts even when lives consumed on fail is zero', () {
     final session = ChallengeSession.start(
       sessionId: 'session_1',
       userId: 'user_1',
@@ -103,11 +104,11 @@ void main() {
 
     final updated = useCase(session);
 
-    expect(updated.attemptsRemaining, 3);
+    expect(updated.attemptsRemaining, 2);
     expect(updated.status, SessionStatus.inProgress);
   });
 
-  test('marks session as failed when attempts reach zero', () {
+  test('marks session as failed when last attempt is consumed', () {
     final session = ChallengeSession.start(
       sessionId: 'session_1',
       userId: 'user_1',
@@ -141,9 +142,13 @@ void main() {
 
     const useCase = ConsumeAttemptUseCase();
 
-    final updated = useCase(session);
+    final firstUpdate = useCase(session);
+    final secondUpdate = useCase(firstUpdate);
 
-    expect(updated.attemptsRemaining, 0);
-    expect(updated.status, SessionStatus.failed);
+    expect(firstUpdate.attemptsRemaining, 0);
+    expect(firstUpdate.status, SessionStatus.failed);
+
+    expect(secondUpdate.attemptsRemaining, 0);
+    expect(secondUpdate.status, SessionStatus.failed);
   });
 }

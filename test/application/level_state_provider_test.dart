@@ -736,7 +736,7 @@ void main() {
   );
 
   test(
-    'checkSolution does not consume attempts when livesConsumedOnFail is zero',
+    'checkSolution consumes one attempt even when livesConsumedOnFail is zero',
     () async {
       final notifier = container.read(levelStateProvider.notifier);
 
@@ -769,7 +769,7 @@ void main() {
 
       expect(solved, isFalse);
       expect(state.status, LevelFlowStatus.playing);
-      expect(state.currentSession!.attemptsRemaining, 3);
+      expect(state.currentSession!.attemptsRemaining, 2);
       expect(state.currentSession!.status, SessionStatus.inProgress);
     },
   );
