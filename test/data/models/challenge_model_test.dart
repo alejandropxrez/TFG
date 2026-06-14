@@ -24,7 +24,6 @@ void main() {
           "validationStrategy": "MAX_HEAP",
           "layoutStrategy": "PYRAMID",
           "interactionMode": "SWAP",
-          "connectionType": "EXPLICIT",
           "constraints": [
             { "type": "MAX_MOVES", "maxMoves": 5 },
             { "type": "LOCKED_NODES", "nodeIds": ["n1", "n3"] }
@@ -109,7 +108,6 @@ void main() {
           "validationStrategy": "BST",
           "layoutStrategy": "LINEAR",
           "interactionMode": "SET_VALUE",
-          "connectionType": "EXPLICIT",
           "constraints": []
         },
         "initialState": {
@@ -160,7 +158,6 @@ void main() {
           "validationStrategy": "MAX_HEAP",
           "layoutStrategy": "PYRAMID",
           "interactionMode": "SWAP",
-          "connectionType": "EXPLICIT",
           "constraints": [
             { "type": "UNKNOWN_CONSTRAINT", "foo": 1 }
           ]
@@ -191,7 +188,6 @@ void main() {
           "validationStrategy": "MAX_HEAP",
           "layoutStrategy": "PYRAMID",
           "interactionMode": "SWAP",
-          "connectionType": "EXPLICIT",
           "constraints": []
         },
         "initialState": {
@@ -223,7 +219,6 @@ void main() {
           "validationStrategy": "MAX_HEAP",
           "layoutStrategy": "PYRAMID",
           "interactionMode": "UNKNOWN_MODE",
-          "connectionType": "EXPLICIT",
           "constraints": []
         },
         "initialState": {
@@ -244,70 +239,6 @@ void main() {
     });
   });
 
-  test('parses connection type correctly', () {
-    final jsonString = '''
-  {
-    "metadata": {
-      "title": "No edges visual",
-      "instruction": "Solve it"
-    },
-    "engineConfig": {
-      "structureType": "GRAPH",
-      "validationStrategy": "BST",
-      "layoutStrategy": "LINEAR",
-      "interactionMode": "LINK",
-      "connectionType": "NONE",
-      "constraints": []
-    },
-    "initialState": {
-      "nodes": [
-        { "id": "n1", "value": 1 },
-        { "id": "n2", "value": 2 }
-      ],
-      "edges": [
-        { "source": "n1", "target": "n2" }
-      ],
-      "slots": [],
-      "inventory": []
-    }
-  }
-  ''';
-
-    final Map<String, dynamic> jsonMap = json.decode(jsonString);
-    final challenge = ChallengeModel.fromJson(jsonMap);
-
-    expect(challenge.engineConfig!.connectionType, ConnectionType.none);
-  });
-
-  test('defaults connection type to explicit when omitted', () {
-    final jsonString = '''
-  {
-    "metadata": {
-      "title": "Default edges",
-      "instruction": "Solve it"
-    },
-    "engineConfig": {
-      "structureType": "HEAP",
-      "validationStrategy": "MAX_HEAP",
-      "layoutStrategy": "PYRAMID",
-      "interactionMode": "SWAP",
-      "constraints": []
-    },
-    "initialState": {
-      "nodes": [],
-      "edges": [],
-      "slots": [],
-      "inventory": []
-    }
-  }
-  ''';
-
-    final Map<String, dynamic> jsonMap = json.decode(jsonString);
-    final challenge = ChallengeModel.fromJson(jsonMap);
-
-    expect(challenge.engineConfig!.connectionType, ConnectionType.explicit);
-  });
-
   test('parses CIRCULAR layout strategy correctly', () {
     final jsonString = '''
   {
@@ -320,7 +251,6 @@ void main() {
       "validationStrategy": "BST",
       "layoutStrategy": "CIRCULAR",
       "interactionMode": "LINK",
-      "connectionType": "EXPLICIT",
       "constraints": []
     },
     "initialState": {
@@ -353,7 +283,6 @@ void main() {
       "validationStrategy": "BST",
       "layoutStrategy": "FREE",
       "interactionMode": "LINK",
-      "connectionType": "EXPLICIT",
       "constraints": []
     },
     "initialState": {
@@ -418,7 +347,6 @@ void main() {
       "validationStrategy": "MAX_HEAP",
       "layoutStrategy": "PYRAMID",
       "interactionMode": "SWAP",
-      "connectionType": "EXPLICIT",
       "constraints": []
     },
     "initialState": {
@@ -743,7 +671,6 @@ void main() {
       "validationStrategy": "MAX_HEAP",
       "layoutStrategy": "PYRAMID",
       "interactionMode": "SWAP",
-      "connectionType": "EXPLICIT",
       "constraints": []
     },
     "initialState": {
@@ -787,7 +714,6 @@ void main() {
     expect(engineConfig.validationStrategy, ValidationStrategyType.maxHeap);
     expect(engineConfig.layoutStrategy, LayoutStrategyType.pyramid);
     expect(engineConfig.interactionMode, InteractionModeType.swap);
-    expect(engineConfig.connectionType, ConnectionType.explicit);
 
     final initialState = challenge.initialState!;
     expect(initialState.nodes.length, 3);
@@ -821,7 +747,6 @@ void main() {
           'validationStrategy': 'MAX_HEAP',
           'layoutStrategy': 'PYRAMID',
           'interactionMode': 'SWAP',
-          'connectionType': 'EXPLICIT',
           'constraints': [],
         },
         'initialState': {
@@ -886,7 +811,6 @@ void main() {
         'validationStrategy': 'MAX_HEAP',
         'layoutStrategy': 'PYRAMID',
         'interactionMode': 'SWAP',
-        'connectionType': 'EXPLICIT',
         'constraints': [],
       },
       'initialState': {
@@ -923,7 +847,6 @@ void main() {
         'validationStrategy': 'MAX_HEAP',
         'layoutStrategy': 'PYRAMID',
         'interactionMode': 'SWAP',
-        'connectionType': 'EXPLICIT',
         'constraints': [],
       },
       'initialState': {
@@ -965,7 +888,6 @@ void main() {
           'validationStrategy': 'MAX_HEAP',
           'layoutStrategy': 'PYRAMID',
           'interactionMode': 'SWAP',
-          'connectionType': 'EXPLICIT',
           'constraints': [],
         },
         'initialState': {
@@ -1035,7 +957,6 @@ void main() {
         'validationStrategy': 'MAX_HEAP',
         'layoutStrategy': 'PYRAMID',
         'interactionMode': 'SWAP',
-        'connectionType': 'EXPLICIT',
         'constraints': [],
       },
     });
@@ -1058,7 +979,6 @@ void main() {
       "validationStrategy": "ORDERED_SEQUENCE",
       "layoutStrategy": "LINEAR",
       "interactionMode": "DRAG",
-      "connectionType": "NONE",
       "constraints": []
     },
     "initialState": {
@@ -1098,7 +1018,6 @@ void main() {
         'validationStrategy': 'ORDERED_SEQUENCE',
         'layoutStrategy': 'LINEAR',
         'interactionMode': 'DRAG',
-        'connectionType': 'NONE',
         'constraints': [],
       },
       'initialState': {
@@ -1139,7 +1058,6 @@ void main() {
         'validationStrategy': 'EXPECTED_SLOT_VALUES',
         'layoutStrategy': 'LINEAR',
         'interactionMode': 'DRAG',
-        'connectionType': 'NONE',
         'constraints': [],
       },
       'initialState': {
@@ -1171,7 +1089,6 @@ void main() {
         'validationStrategy': 'EXPECTED_SLOT_VALUES',
         'layoutStrategy': 'LINEAR',
         'interactionMode': 'DRAG',
-        'connectionType': 'NONE',
         'constraints': [],
       },
       'initialState': {
@@ -1214,7 +1131,6 @@ void main() {
         'validationStrategy': 'EXPECTED_SLOT_VALUES',
         'layoutStrategy': 'LINEAR',
         'interactionMode': 'DRAG',
-        'connectionType': 'NONE',
         'constraints': [],
       },
       'initialState': {
@@ -1252,7 +1168,6 @@ void main() {
         'validationStrategy': 'CONNECTED_GRAPH',
         'layoutStrategy': 'LINEAR',
         'interactionMode': 'LINK',
-        'connectionType': 'EXPLICIT',
         'constraints': [],
       },
       'initialState': {
@@ -1297,7 +1212,6 @@ void main() {
           'validationStrategy': 'CONNECTED_GRAPH',
           'layoutStrategy': 'LINEAR',
           'interactionMode': 'LINK',
-          'connectionType': 'EXPLICIT',
           'constraints': [],
         },
         'initialState': {
@@ -1351,7 +1265,6 @@ void main() {
         'validationStrategy': 'CONNECTED_GRAPH',
         'layoutStrategy': 'LINEAR',
         'interactionMode': 'LINK',
-        'connectionType': 'EXPLICIT',
         'constraints': [],
       },
       'initialState': {
@@ -1393,7 +1306,6 @@ void main() {
           'validationStrategy': 'CONNECTED_GRAPH',
           'layoutStrategy': 'LINEAR',
           'interactionMode': 'LINK',
-          'connectionType': 'EXPLICIT',
           'constraints': [],
         },
         'initialState': {

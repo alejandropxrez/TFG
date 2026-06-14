@@ -444,7 +444,6 @@ class ChallengeMapper {
         ),
         layoutStrategy: engineConfig.layoutStrategy,
         interactionMode: engineConfig.interactionMode,
-        connectionType: engineConfig.connectionType,
       ),
       initialState: ChallengeInitialStateSpec(
         nodes: _mapInitialNodes(initialState),

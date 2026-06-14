@@ -43,7 +43,6 @@ void main() {
           validationStrategy: MaxHeapValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: InteractionModeType.swap,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [],

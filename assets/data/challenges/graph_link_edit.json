@@ -9,7 +9,6 @@
 		"validationStrategy": "BST",
 		"layoutStrategy": "CIRCULAR",
 		"interactionMode": "LINK",
-		"connectionType": "EXPLICIT",
 		"constraints": [
 			{
 				"type": "MAX_MOVES",

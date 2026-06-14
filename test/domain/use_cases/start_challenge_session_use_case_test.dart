@@ -48,7 +48,6 @@ void main() {
             validationStrategy: BstValidationStrategy(),
             layoutStrategy: LayoutStrategyType.linear,
             interactionMode: InteractionModeType.drag,
-            connectionType: ConnectionType.explicit,
           ),
           initialState: const ChallengeInitialStateSpec(
             nodes: [

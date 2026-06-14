@@ -1,7 +1,6 @@
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/presentation/game/components/inventory_item_component.dart';
 import 'package:algoquest/presentation/game/components/slot_component.dart';
-import 'package:algoquest/presentation/game/strategies/connection/connection_strategy_factory.dart';
 import 'package:algoquest/presentation/game/strategies/interaction/interaction_strategy.dart';
 import 'package:flame/components.dart';
 
@@ -20,14 +19,10 @@ class VisualScene {
 
 class VisualSceneBuilder {
   final LayoutStrategyFactory _layoutStrategyFactory;
-  final ConnectionStrategyFactory _connectionStrategyFactory;
 
   const VisualSceneBuilder({
     LayoutStrategyFactory layoutStrategyFactory = const LayoutStrategyFactory(),
-    ConnectionStrategyFactory connectionStrategyFactory =
-        const ConnectionStrategyFactory(),
-  }) : _layoutStrategyFactory = layoutStrategyFactory,
-       _connectionStrategyFactory = connectionStrategyFactory;
+  }) : _layoutStrategyFactory = layoutStrategyFactory;
 
   VisualScene build({
     required StructureChallengeContent structureContent,
@@ -125,11 +120,7 @@ class VisualSceneBuilder {
       slotNodePositions[filledNodeId] = slotPosition;
     }
 
-    final connectionStrategy = _connectionStrategyFactory.create(
-      structureContent.engineConfig.connectionType,
-    );
-
-    final edgesToRender = connectionStrategy.buildConnections(state);
+    final edgesToRender = state.edges;
 
     for (final edge in edgesToRender) {
       final start = slotNodePositions[edge.source] ?? positions[edge.source];

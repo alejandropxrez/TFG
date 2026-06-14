@@ -32,7 +32,6 @@ void main() {
           structureType: StructureType.heap,
           validationStrategy: MaxHeapValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
-          connectionType: ConnectionType.explicit,
           interactionMode: interactionMode,
         ),
         initialState: const ChallengeInitialStateSpec(
@@ -64,7 +63,6 @@ void main() {
           validationStrategy: MaxHeapValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: interactionMode,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [
@@ -94,7 +92,6 @@ void main() {
           validationStrategy: MaxHeapValidationStrategy(),
           layoutStrategy: LayoutStrategyType.linear,
           interactionMode: InteractionModeType.link,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [
@@ -271,7 +268,6 @@ void main() {
           validationStrategy: MaxHeapValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: InteractionModeType.setValue,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],
@@ -330,7 +326,6 @@ void main() {
           validationStrategy: MaxHeapValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: InteractionModeType.setValue,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],

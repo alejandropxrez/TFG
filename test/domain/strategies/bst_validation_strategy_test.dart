@@ -22,7 +22,6 @@ void main() {
           validationStrategy: BstValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: InteractionModeType.swap,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: ChallengeInitialStateSpec(
           nodes: nodes,

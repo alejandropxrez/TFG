@@ -69,42 +69,13 @@ class PyramidLayoutStrategy implements LayoutStrategy {
   }
 
   Map<String, List<String>> _buildChildrenMap(StructureState state) {
-    if (state.edges.isNotEmpty) {
-      final children = <String, List<String>>{};
-
-      for (final edge in state.edges) {
-        if (!state.nodes.containsKey(edge.source)) continue;
-        if (!state.nodes.containsKey(edge.target)) continue;
-
-        children.putIfAbsent(edge.source, () => []).add(edge.target);
-      }
-
-      return children;
-    }
-
-    return switch (state) {
-      HeapState() || BstState() => _buildImplicitBinaryTreeChildren(state),
-      _ => const <String, List<String>>{},
-    };
-  }
-
-  Map<String, List<String>> _buildImplicitBinaryTreeChildren(
-    StructureState state,
-  ) {
-    final nodeIds = state.nodes.keys.toList(growable: false);
     final children = <String, List<String>>{};
 
-    for (var i = 0; i < nodeIds.length; i++) {
-      final leftIndex = 2 * i + 1;
-      final rightIndex = 2 * i + 2;
+    for (final edge in state.edges) {
+      if (!state.nodes.containsKey(edge.source)) continue;
+      if (!state.nodes.containsKey(edge.target)) continue;
 
-      if (leftIndex < nodeIds.length) {
-        children.putIfAbsent(nodeIds[i], () => []).add(nodeIds[leftIndex]);
-      }
-
-      if (rightIndex < nodeIds.length) {
-        children.putIfAbsent(nodeIds[i], () => []).add(nodeIds[rightIndex]);
-      }
+      children.putIfAbsent(edge.source, () => []).add(edge.target);
     }
 
     return children;
@@ -112,15 +83,15 @@ class PyramidLayoutStrategy implements LayoutStrategy {
 
   String? _findRootId(StructureState state) {
     if (state.edges.isEmpty) {
-      return switch (state) {
-        HeapState() ||
-        BstState() => state.nodes.keys.isEmpty ? null : state.nodes.keys.first,
-        _ => null,
-      };
+      return null;
     }
 
     final allNodeIds = state.nodes.keys.toSet();
-    final childIds = state.edges.map((edge) => edge.target).toSet();
+    final childIds = state.edges
+        .where((edge) => state.nodes.containsKey(edge.source))
+        .where((edge) => state.nodes.containsKey(edge.target))
+        .map((edge) => edge.target)
+        .toSet();
 
     final roots = allNodeIds.difference(childIds);
 

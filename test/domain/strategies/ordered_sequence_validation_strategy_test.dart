@@ -26,7 +26,6 @@ void main() {
           validationStrategy: strategy,
           layoutStrategy: LayoutStrategyType.linear,
           interactionMode: InteractionModeType.drag,
-          connectionType: ConnectionType.none,
         ),
         initialState: ChallengeInitialStateSpec(
           nodes: nodes

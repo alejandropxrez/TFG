@@ -19,8 +19,6 @@ enum ValidationStrategyType {
   expectedSlotValues,
 }
 
-enum ConnectionType { implicit, explicit, none }
-
 sealed class ChallengeConstraint {
   const ChallengeConstraint();
 }
@@ -74,14 +72,12 @@ class ChallengeEngineConfig {
   final ValidationStrategy validationStrategy;
   final LayoutStrategyType layoutStrategy;
   final InteractionModeType interactionMode;
-  final ConnectionType connectionType;
 
   const ChallengeEngineConfig({
     required this.structureType,
     required this.validationStrategy,
     required this.layoutStrategy,
     required this.interactionMode,
-    required this.connectionType,
   });
 }
 

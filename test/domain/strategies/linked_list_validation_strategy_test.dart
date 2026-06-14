@@ -21,7 +21,6 @@ void main() {
           validationStrategy: LinkedListValidationStrategy(),
           layoutStrategy: LayoutStrategyType.linear,
           interactionMode: InteractionModeType.link,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: ChallengeInitialStateSpec(
           nodes: nodes,

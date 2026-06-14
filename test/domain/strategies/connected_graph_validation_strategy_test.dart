@@ -21,7 +21,6 @@ void main() {
           validationStrategy: ConnectedGraphValidationStrategy(),
           layoutStrategy: LayoutStrategyType.circular,
           interactionMode: InteractionModeType.link,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: ChallengeInitialStateSpec(
           nodes: nodes,

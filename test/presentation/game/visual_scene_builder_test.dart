@@ -30,7 +30,6 @@ void main() {
           validationStrategy: AlwaysTrueValidationStrategy(),
           layoutStrategy: LayoutStrategyType.linear,
           interactionMode: InteractionModeType.setValue,
-          connectionType: ConnectionType.none,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [ChallengeNodeSpec(id: 'n1', value: 10)],

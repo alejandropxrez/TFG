@@ -13,7 +13,6 @@
 		"validationStrategy": "ORDERED_SEQUENCE",
 		"layoutStrategy": "LINEAR",
 		"interactionMode": "DRAG",
-		"connectionType": "NONE",
 		"constraints": []
 	},
 	"initialState": {

@@ -9,7 +9,6 @@
 		"validationStrategy": "MAX_HEAP",
 		"layoutStrategy": "FREE",
 		"interactionMode": "SET_VALUE",
-		"connectionType": "NONE",
 		"constraints": [
 			{
 				"type": "MAX_MOVES",

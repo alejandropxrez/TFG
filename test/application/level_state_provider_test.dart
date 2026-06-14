@@ -176,7 +176,6 @@ void main() {
           validationStrategy: AlwaysTrueValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: InteractionModeType.swap,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [
@@ -207,7 +206,6 @@ void main() {
           validationStrategy: validationStrategy,
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: InteractionModeType.swap,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [
@@ -273,7 +271,6 @@ void main() {
             validationStrategy: AlwaysFalseValidationStrategy(),
             layoutStrategy: LayoutStrategyType.pyramid,
             interactionMode: InteractionModeType.swap,
-            connectionType: ConnectionType.explicit,
           ),
           initialState: const ChallengeInitialStateSpec(
             nodes: [

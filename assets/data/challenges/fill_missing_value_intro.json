@@ -14,7 +14,6 @@
 		"validationStrategy": "EXPECTED_SLOT_VALUES",
 		"layoutStrategy": "LINEAR",
 		"interactionMode": "DRAG",
-		"connectionType": "NONE",
 		"constraints": []
 	},
 	"initialState": {

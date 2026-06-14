@@ -20,7 +20,6 @@
 		"validationStrategy": "CONNECTED_GRAPH",
 		"layoutStrategy": "LINEAR",
 		"interactionMode": "LINK",
-		"connectionType": "EXPLICIT",
 		"constraints": []
 	},
 	"initialState": {

@@ -27,7 +27,6 @@ void main() {
           validationStrategy: AlwaysTrueValidationStrategy(),
           layoutStrategy: LayoutStrategyType.pyramid,
           interactionMode: InteractionModeType.swap,
-          connectionType: ConnectionType.explicit,
         ),
         initialState: const ChallengeInitialStateSpec(
           nodes: [
