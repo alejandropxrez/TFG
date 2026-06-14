@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 
-import '../../../../domain/entities/structure_state.dart';
+import 'package:algoquest/domain/entities/structure_state.dart';
 import 'layout_strategy.dart';
 
 class LinearLayoutStrategy implements LayoutStrategy {
