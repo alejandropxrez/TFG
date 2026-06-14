@@ -7,4 +7,7 @@ abstract class ContentRepository {
 
   /// Fetches the definition of a specific challenge by its ID.
   Future<ChallengeSpec> getChallenge(String challengeId);
+
+  /// Fetches the next level id from the current one.
+  Future<String?> getNextLevelId(String currentLevelId);
 }

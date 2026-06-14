@@ -3,13 +3,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:algoquest/data/datasources/local/content_local_data_source.dart';
 import 'package:algoquest/data/models/challenge_model.dart';
 import 'package:algoquest/data/models/level_syllabus_model.dart';
+import 'package:algoquest/data/models/syllabus_model.dart';
 import 'package:algoquest/data/repositories/content_repository_impl.dart';
 
 class FakeContentLocalDataSource implements ContentLocalDataSource {
+  final SyllabusModel syllabus;
   final Map<String, LevelSyllabusModel> levels;
   final Map<String, ChallengeModel> challenges;
 
-  FakeContentLocalDataSource({required this.levels, required this.challenges});
+  FakeContentLocalDataSource({
+    required this.syllabus,
+    required this.levels,
+    required this.challenges,
+  });
+
+  @override
+  Future<SyllabusModel> getSyllabus() async {
+    return syllabus;
+  }
 
   @override
   Future<LevelSyllabusModel> getLevelSyllabus(String levelId) async {
@@ -29,6 +40,7 @@ class FakeContentLocalDataSource implements ContentLocalDataSource {
 void main() {
   test('ContentRepositoryImpl maps LevelSyllabusModel to domain', () async {
     final ds = FakeContentLocalDataSource(
+      syllabus: _testSyllabus(),
       levels: {
         'level_1': LevelSyllabusModel(
           id: 'level_1',
@@ -47,4 +59,74 @@ void main() {
     expect(level.id, 'level_1');
     expect(level.title, 'Heaps Intro');
   });
+
+  test(
+    'ContentRepositoryImpl returns next level id from syllabus order',
+    () async {
+      final ds = FakeContentLocalDataSource(
+        syllabus: _testSyllabus(),
+        levels: const {},
+        challenges: const {},
+      );
+
+      final repo = ContentRepositoryImpl(ds);
+
+      final nextLevelId = await repo.getNextLevelId('level_1');
+
+      expect(nextLevelId, 'level_2');
+    },
+  );
+
+  test(
+    'ContentRepositoryImpl returns null when current level is last',
+    () async {
+      final ds = FakeContentLocalDataSource(
+        syllabus: _testSyllabus(),
+        levels: const {},
+        challenges: const {},
+      );
+
+      final repo = ContentRepositoryImpl(ds);
+
+      final nextLevelId = await repo.getNextLevelId('level_3');
+
+      expect(nextLevelId, isNull);
+    },
+  );
+
+  test('ContentRepositoryImpl throws when current level is missing', () async {
+    final ds = FakeContentLocalDataSource(
+      syllabus: _testSyllabus(),
+      levels: const {},
+      challenges: const {},
+    );
+
+    final repo = ContentRepositoryImpl(ds);
+
+    expect(
+      () => repo.getNextLevelId('missing_level'),
+      throwsA(isA<StateError>()),
+    );
+  });
+}
+
+SyllabusModel _testSyllabus() {
+  return const SyllabusModel(
+    title: 'AlgoQuest',
+    phases: [
+      SyllabusPhaseModel(
+        id: 'phase_1',
+        title: 'Phase 1',
+        levels: [
+          SyllabusLevelRefModel(id: 'level_1'),
+          SyllabusLevelRefModel(id: 'level_2'),
+        ],
+      ),
+      SyllabusPhaseModel(
+        id: 'phase_2',
+        title: 'Phase 2',
+        levels: [SyllabusLevelRefModel(id: 'level_3')],
+      ),
+    ],
+  );
 }

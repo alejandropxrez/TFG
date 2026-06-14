@@ -7,6 +7,7 @@ import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:algoquest/domain/use_cases/check_challenge_use_case.dart';
 import 'package:algoquest/domain/use_cases/consume_attempt_use_case.dart';
+import 'package:algoquest/domain/use_cases/get_next_level_id_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/redo_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/submit_categorization_use_case.dart';
@@ -55,6 +56,7 @@ class AlwaysFalseValidationStrategy implements ValidationStrategy {
 class FakeContentRepository implements ContentRepository {
   final Map<String, LevelSyllabus> syllabuses = {};
   final Map<String, ChallengeSpec> specs = {};
+  final Map<String, String?> nextLevelIds = {};
 
   @override
   Future<LevelSyllabus> getLevelSyllabus(String levelId) async {
@@ -76,6 +78,15 @@ class FakeContentRepository implements ContentRepository {
     }
 
     return spec;
+  }
+
+  @override
+  Future<String?> getNextLevelId(String currentLevelId) async {
+    if (!nextLevelIds.containsKey(currentLevelId)) {
+      throw StateError('Missing next level mapping for $currentLevelId');
+    }
+
+    return nextLevelIds[currentLevelId];
   }
 }
 
@@ -286,6 +297,16 @@ void main() {
     contentRepository = FakeContentRepository();
     userRepository = FakeUserRepository();
 
+    contentRepository.nextLevelIds.addAll({
+      'level_heap_intro': 'single_challenge_level',
+      'single_challenge_level': 'next_level',
+      'next_level': null,
+      'level_attempts': null,
+      'level_tutorial': null,
+      'level_multiple_quiz': null,
+      'level_identify': null,
+    });
+
     contentRepository.syllabuses['level_heap_intro'] = buildSyllabus(
       id: 'level_heap_intro',
     );
@@ -321,6 +342,7 @@ void main() {
       submitQuizAnswer: const SubmitQuizAnswerUseCase(),
       submitIdentifyTarget: const SubmitIdentifyTargetUseCase(),
       submitCategorization: const SubmitCategorizationUseCase(),
+      getNextLevelId: GetNextLevelIdUseCase(contentRepository),
     );
 
     container = ProviderContainer(

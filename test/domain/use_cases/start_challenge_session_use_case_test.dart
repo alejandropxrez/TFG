@@ -23,6 +23,11 @@ class FakeContentRepository implements ContentRepository {
   Future<LevelSyllabus> getLevelSyllabus(String levelId) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<String?> getNextLevelId(String currentLevelId) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

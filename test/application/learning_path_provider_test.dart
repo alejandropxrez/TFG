@@ -12,6 +12,7 @@ import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
 import 'package:algoquest/domain/use_cases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
+import 'package:algoquest/domain/use_cases/get_next_level_id_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
@@ -33,6 +34,11 @@ class FakeContentRepository implements ContentRepository {
 
   @override
   Future<ChallengeSpec> getChallenge(String challengeId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String?> getNextLevelId(String currentLevelId) {
     throw UnimplementedError();
   }
 }
@@ -134,6 +140,7 @@ void main() {
       submitQuizAnswer: const SubmitQuizAnswerUseCase(),
       submitIdentifyTarget: const SubmitIdentifyTargetUseCase(),
       submitCategorization: const SubmitCategorizationUseCase(),
+      getNextLevelId: GetNextLevelIdUseCase(contentRepository),
     );
 
     container = ProviderContainer(

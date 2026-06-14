@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:algoquest/application/app_providers.dart';
 import 'package:algoquest/core/composition/use_cases.dart';
-import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/identify_target_action.dart';
 import 'package:algoquest/domain/entities/quiz_action.dart';
-import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -223,7 +219,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
               currentLevelId: syllabus.id,
             );
 
-        final nextLevelId = await _findNextLevelId(syllabus.id);
+        final nextLevelId = await _useCases.getNextLevelId(syllabus.id);
 
         final updatedProgress = _useCases.manageProgress.completeLevel(
           current: baseProgress,
@@ -272,42 +268,6 @@ class LevelStateNotifier extends Notifier<LevelState> {
       challengeId: nextChallengeId,
       sessionId: nextSessionId,
     );
-  }
-
-  Future<String?> _findNextLevelId(String currentLevelId) async {
-    final loadSyllabusJson = ref.read(syllabusJsonLoaderProvider);
-    final jsonString = await loadSyllabusJson();
-
-    final decoded = json.decode(jsonString) as Map<String, dynamic>;
-    final phasesJson = decoded['phases'] as List<dynamic>;
-
-    final levelIds = <String>[];
-
-    for (final phaseJson in phasesJson) {
-      final phaseMap = phaseJson as Map<String, dynamic>;
-      final levelsJson = phaseMap['levels'] as List<dynamic>;
-
-      for (final levelJson in levelsJson) {
-        final levelMap = levelJson as Map<String, dynamic>;
-        levelIds.add(levelMap['id'] as String);
-      }
-    }
-
-    final currentIndex = levelIds.indexOf(currentLevelId);
-
-    if (currentIndex == -1) {
-      throw StateError(
-        'Current level "$currentLevelId" was not found in syllabus.json.',
-      );
-    }
-
-    final nextIndex = currentIndex + 1;
-
-    if (nextIndex >= levelIds.length) {
-      return null;
-    }
-
-    return levelIds[nextIndex];
   }
 
   void resetLevelFlow() {

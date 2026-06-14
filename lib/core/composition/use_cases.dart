@@ -3,6 +3,7 @@ import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
 import 'package:algoquest/domain/use_cases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
+import 'package:algoquest/domain/use_cases/get_next_level_id_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
@@ -32,6 +33,7 @@ class UseCases {
   final SubmitQuizAnswerUseCase submitQuizAnswer;
   final SubmitIdentifyTargetUseCase submitIdentifyTarget;
   final SubmitCategorizationUseCase submitCategorization;
+  final GetNextLevelIdUseCase getNextLevelId;
 
   const UseCases({
     required this.getLevelSyllabus,
@@ -49,5 +51,6 @@ class UseCases {
     required this.submitQuizAnswer,
     required this.submitIdentifyTarget,
     required this.submitCategorization,
+    required this.getNextLevelId,
   });
 }
