@@ -1,10 +1,10 @@
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
-import 'package:algoquest/domain/usecases/check_categorization_use_case.dart';
-import 'package:algoquest/domain/usecases/check_identify_target_use_case.dart';
-import 'package:algoquest/domain/usecases/check_quiz_answer_use_case.dart';
-import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_categorization_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_identify_target_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_quiz_answer_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
 
 class CheckChallengeUseCase {
   final CheckSolutionUseCase _checkSolution;

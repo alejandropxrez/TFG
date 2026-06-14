@@ -1,4 +1,4 @@
-import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/challenge_session.dart';

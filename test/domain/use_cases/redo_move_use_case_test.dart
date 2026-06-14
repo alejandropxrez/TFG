@@ -3,9 +3,9 @@ import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
-import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
-import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
-import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/redo_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/undo_move_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class AlwaysTrueValidationStrategy implements ValidationStrategy {

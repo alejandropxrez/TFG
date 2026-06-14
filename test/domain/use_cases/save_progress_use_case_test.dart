@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/repositories/user_repository.dart';
-import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
+import 'package:algoquest/domain/use_cases/save_progress_use_case.dart';
 
 class FakeUserRepository implements UserRepository {
   UserProgress? lastSaved;

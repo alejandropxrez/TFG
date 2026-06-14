@@ -4,8 +4,8 @@ import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/quiz_action.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
-import 'package:algoquest/domain/usecases/check_quiz_answer_use_case.dart';
-import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_quiz_answer_use_case.dart';
+import 'package:algoquest/domain/use_cases/submit_quiz_answer_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

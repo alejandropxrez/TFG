@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
-import 'package:algoquest/domain/usecases/get_level_syllabus_use_case.dart';
+import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
 
 class FakeContentRepository implements ContentRepository {
   LevelSyllabus? level;

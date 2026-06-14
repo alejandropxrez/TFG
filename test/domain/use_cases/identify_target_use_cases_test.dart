@@ -6,8 +6,8 @@ import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
-import 'package:algoquest/domain/usecases/check_identify_target_use_case.dart';
-import 'package:algoquest/domain/usecases/submit_identify_target_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_identify_target_use_case.dart';
+import 'package:algoquest/domain/use_cases/submit_identify_target_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

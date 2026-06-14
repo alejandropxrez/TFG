@@ -3,7 +3,7 @@ import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/strategies/validation_strategy.dart';
-import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
+import 'package:algoquest/domain/use_cases/consume_attempt_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class AlwaysFalseValidationStrategy implements ValidationStrategy {

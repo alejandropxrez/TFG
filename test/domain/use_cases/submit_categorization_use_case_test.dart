@@ -4,7 +4,7 @@ import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
-import 'package:algoquest/domain/usecases/submit_categorization_use_case.dart';
+import 'package:algoquest/domain/use_cases/submit_categorization_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

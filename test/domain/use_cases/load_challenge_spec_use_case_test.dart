@@ -1,5 +1,5 @@
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
-import 'package:algoquest/domain/usecases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/challenge_spec.dart';

@@ -1,7 +1,7 @@
 import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
-import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
-import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/undo_move_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/challenge_session.dart';

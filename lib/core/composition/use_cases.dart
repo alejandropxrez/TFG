@@ -1,18 +1,18 @@
-import 'package:algoquest/domain/usecases/check_challenge_use_case.dart';
-import 'package:algoquest/domain/usecases/check_solution_use_case.dart';
-import 'package:algoquest/domain/usecases/consume_attempt_use_case.dart';
-import 'package:algoquest/domain/usecases/execute_move_use_case.dart';
-import 'package:algoquest/domain/usecases/get_level_syllabus_use_case.dart';
-import 'package:algoquest/domain/usecases/load_challenge_spec_use_case.dart';
-import 'package:algoquest/domain/usecases/load_user_progress_use_case.dart';
-import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
-import 'package:algoquest/domain/usecases/redo_move_use_case.dart';
-import 'package:algoquest/domain/usecases/save_progress_use_case.dart';
-import 'package:algoquest/domain/usecases/start_challenge_session_use_case.dart';
-import 'package:algoquest/domain/usecases/submit_categorization_use_case.dart';
-import 'package:algoquest/domain/usecases/submit_identify_target_use_case.dart';
-import 'package:algoquest/domain/usecases/submit_quiz_answer_use_case.dart';
-import 'package:algoquest/domain/usecases/undo_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_challenge_use_case.dart';
+import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
+import 'package:algoquest/domain/use_cases/consume_attempt_use_case.dart';
+import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
+import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
+import 'package:algoquest/domain/use_cases/redo_move_use_case.dart';
+import 'package:algoquest/domain/use_cases/save_progress_use_case.dart';
+import 'package:algoquest/domain/use_cases/start_challenge_session_use_case.dart';
+import 'package:algoquest/domain/use_cases/submit_categorization_use_case.dart';
+import 'package:algoquest/domain/use_cases/submit_identify_target_use_case.dart';
+import 'package:algoquest/domain/use_cases/submit_quiz_answer_use_case.dart';
+import 'package:algoquest/domain/use_cases/undo_move_use_case.dart';
 
 class UseCases {
   final GetLevelSyllabusUseCase getLevelSyllabus;

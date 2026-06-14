@@ -1,5 +1,5 @@
 import 'package:algoquest/domain/entities/user_progress.dart';
-import 'package:algoquest/domain/usecases/manage_progress_use_case.dart';
+import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
