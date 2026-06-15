@@ -1,5 +1,5 @@
-import 'package:algoquest/application/app_providers.dart';
-import 'package:algoquest/core/composition/use_cases.dart';
+import 'package:algoquest/presentation/application_state/app_providers.dart';
+import 'package:algoquest/data/core/composition/use_cases.dart';
 import 'package:algoquest/domain/entities/identify_target_action.dart';
 import 'package:algoquest/domain/entities/quiz_action.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:algoquest/application/app_providers.dart';
-import 'package:algoquest/application/learning_path_state.dart';
+import 'package:algoquest/presentation/application_state/app_providers.dart';
+import 'package:algoquest/presentation/application_state/learning_path_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final learningPathProvider =

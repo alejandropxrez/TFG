@@ -1,4 +1,4 @@
-import 'package:algoquest/application/app_providers.dart';
+import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
 import 'package:algoquest/data/models/level_syllabus_model.dart' as model;
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
@@ -17,10 +17,10 @@ import 'package:algoquest/domain/use_cases/undo_move_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:algoquest/application/level_state.dart';
-import 'package:algoquest/application/level_state_provider.dart';
+import 'package:algoquest/presentation/application_state/level_state.dart';
+import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 
-import 'package:algoquest/core/composition/use_cases.dart';
+import 'package:algoquest/data/core/composition/use_cases.dart';
 
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';

@@ -1,5 +1,5 @@
-import 'package:algoquest/application/learning_path_provider.dart';
-import 'package:algoquest/application/learning_path_state.dart';
+import 'package:algoquest/presentation/application_state/learning_path_provider.dart';
+import 'package:algoquest/presentation/application_state/learning_path_state.dart';
 import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:algoquest/presentation/widgets/level_card.dart';
 import 'package:flutter/material.dart';

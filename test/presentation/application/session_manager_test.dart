@@ -1,4 +1,4 @@
-import 'package:algoquest/application/session_manager.dart';
+import 'package:algoquest/presentation/application_state/session_manager.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:flutter_test/flutter_test.dart';
 

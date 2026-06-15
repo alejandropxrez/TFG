@@ -1,7 +1,7 @@
-import 'package:algoquest/application/app_providers.dart';
-import 'package:algoquest/application/learning_path_provider.dart';
-import 'package:algoquest/application/learning_path_state.dart';
-import 'package:algoquest/core/composition/use_cases.dart';
+import 'package:algoquest/presentation/application_state/app_providers.dart';
+import 'package:algoquest/presentation/application_state/learning_path_provider.dart';
+import 'package:algoquest/presentation/application_state/learning_path_state.dart';
+import 'package:algoquest/data/core/composition/use_cases.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';

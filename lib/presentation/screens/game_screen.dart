@@ -1,6 +1,6 @@
-import 'package:algoquest/application/app_providers.dart';
-import 'package:algoquest/application/level_state.dart';
-import 'package:algoquest/application/level_state_provider.dart';
+import 'package:algoquest/presentation/application_state/app_providers.dart';
+import 'package:algoquest/presentation/application_state/level_state.dart';
+import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
