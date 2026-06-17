@@ -45,9 +45,9 @@ void main() {
       ),
     );
 
-    expect(find.text("Let's go!"), findsOneWidget);
+    expect(find.text("¡Vamos!"), findsOneWidget);
 
-    await tester.tap(find.text("Let's go!"));
+    await tester.tap(find.text("¡Vamos!"));
     await tester.pump();
 
     expect(pressed, isTrue);
@@ -67,10 +67,10 @@ void main() {
       ),
     );
 
-    expect(find.text('Locked'), findsOneWidget);
+    expect(find.text('Bloqueado'), findsOneWidget);
 
-    await tester.tap(find.text('Locked'));
-    await tester.pump();
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button.onPressed, isNull);
 
     expect(pressed, isFalse);
   });
@@ -87,9 +87,9 @@ void main() {
       ),
     );
 
-    expect(find.text('Replay'), findsOneWidget);
+    expect(find.text('Volver a jugar'), findsOneWidget);
 
-    await tester.tap(find.text('Replay'));
+    await tester.tap(find.text('Volver a jugar'));
     await tester.pump();
 
     expect(pressed, isTrue);

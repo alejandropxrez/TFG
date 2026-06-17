@@ -1,20 +1,22 @@
-import 'package:algoquest/presentation/application_state/app_providers.dart';
-import 'package:algoquest/presentation/application_state/level_state.dart';
-import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
+import 'package:algoquest/presentation/application_state/app_providers.dart';
+import 'package:algoquest/presentation/application_state/level_state.dart';
+import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/game/strategies/interaction/identify_interaction_strategy.dart';
+import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:algoquest/presentation/widgets/categorize_challenge_view.dart';
 import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
 import 'package:algoquest/presentation/widgets/feedback_dialog.dart';
 import 'package:algoquest/presentation/widgets/game_hud.dart';
-import 'package:algoquest/presentation/widgets/level_intro_view.dart';
+import 'package:algoquest/presentation/widgets/level_intro/level_intro_view.dart';
 import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   final String levelId;
@@ -36,105 +38,61 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ..onActionRequested = (GameAction action) {
         ref.read(levelStateProvider.notifier).executeAction(action);
       };
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(levelStateProvider.notifier).loadLevel(widget.levelId);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant GameScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.levelId != widget.levelId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(levelStateProvider.notifier).loadLevel(widget.levelId);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     ref.listen<LevelState>(levelStateProvider, (previous, next) {
-      final spec = next.currentChallengeSpec;
-      final session = next.currentSession;
-
-      if (spec == null || session == null) {
-        game.clearScene();
-        return;
-      }
-
-      final content = spec.content;
-      final runtimeState = session.runtimeState;
-
-      final previousSpecId = previous?.currentChallengeSpec?.id;
-      final nextSpecId = spec.id;
-      final previousRuntimeState = previous?.currentSession?.runtimeState;
-
-      switch ((content, runtimeState)) {
-        case (
-          final StructureChallengeContent structureContent,
-          StructureRuntimeState(:final structure),
-        ):
-          final previousStructure =
-              previousRuntimeState is StructureRuntimeState
-              ? previousRuntimeState.structure
-              : null;
-
-          final shouldUpdateScene =
-              previousSpecId != nextSpecId || previousStructure != structure;
-
-          if (!shouldUpdateScene) return;
-
-          game.updateScene(
-            structureContent: structureContent,
-            state: structure,
-          );
-        case (
-          IdentifyTargetChallengeContent(
-            :final identifySpec,
-            :final visualStructure,
-          ),
-          IdentifyTargetRuntimeState(
-            :final visualState,
-            :final selectedTargetIds,
-          ),
-        ):
-          final previousVisualState =
-              previousRuntimeState is IdentifyTargetRuntimeState
-              ? previousRuntimeState.visualState
-              : null;
-
-          final previousSelectedTargetIds =
-              previousRuntimeState is IdentifyTargetRuntimeState
-              ? previousRuntimeState.selectedTargetIds
-              : const <String>{};
-
-          final shouldUpdateScene =
-              previousSpecId != nextSpecId ||
-              previousVisualState != visualState ||
-              previousSelectedTargetIds != selectedTargetIds;
-
-          if (!shouldUpdateScene) return;
-
-          game.updateScene(
-            structureContent: visualStructure,
-            state: visualState,
-            interactionStrategy: IdentifyInteractionStrategy(
-              selectedTargetIds: selectedTargetIds,
-              allowMultiple: identifySpec.allowMultiple,
-              onSelectionChanged: (nextSelection) {
-                ref
-                    .read(levelStateProvider.notifier)
-                    .submitIdentifyTarget(nextSelection);
-              },
-            ),
-          );
-
-        case (QuizChallengeContent(), QuizRuntimeState()):
-          game.clearScene();
-
-        default:
-          game.clearScene();
-      }
+      _syncGameScene(previous: previous, next: next);
+      _startChallengeAutomaticallyIfNeeded(next);
     });
 
     final state = ref.watch(levelStateProvider);
     final notifier = ref.read(levelStateProvider.notifier);
     final userId = ref.watch(currentUserIdProvider);
 
-    final currentChallengeNumber = state.currentChallengeNumber;
+    final syllabus = state.syllabus;
+    final theory = syllabus?.theory;
 
     final shouldShowLevelIntro =
-        state.syllabus != null &&
+        syllabus != null &&
+        theory != null &&
         !state.theoryIntroSeen &&
         state.currentSession == null &&
         state.currentChallengeSpec == null;
+
+    if (shouldShowLevelIntro) {
+      return LevelIntroView(
+        syllabus: syllabus,
+        onBack: () {
+          context.goNamed(AppRouter.learningPathName);
+        },
+        onStartPractice: () {
+          notifier.markTheoryIntroSeen();
+          notifier.startCurrentChallenge(
+            userId: userId,
+            sessionId: _newSessionId(),
+          );
+        },
+      );
+    }
+
+    final currentChallengeNumber = state.currentChallengeNumber;
 
     return Scaffold(
       appBar: AppBar(title: const Text('AlgoQuest')),
@@ -157,23 +115,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   ),
           ),
           Expanded(
-            child: shouldShowLevelIntro
-                ? LevelIntroView(
-                    syllabus: state.syllabus!,
-                    onStartPractice: () {
-                      notifier.markTheoryIntroSeen();
-                      notifier.startCurrentChallenge(
-                        userId: userId,
-                        sessionId:
-                            'session_${DateTime.now().millisecondsSinceEpoch}',
-                      );
-                    },
-                  )
-                : _buildChallengeBody(
-                    state: state,
-                    notifier: notifier,
-                    game: game,
-                  ),
+            child: _buildChallengeBody(
+              state: state,
+              notifier: notifier,
+              game: game,
+            ),
           ),
           DebugGameControls(
             status: state.status.name,
@@ -189,7 +135,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             onLoadLevel: () => notifier.loadLevel(widget.levelId),
             onStartChallenge: () => notifier.startCurrentChallenge(
               userId: userId,
-              sessionId: 'session_1',
+              sessionId: _newSessionId(),
             ),
             onSwapDebug: () => notifier.executeAction(
               const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
@@ -203,7 +149,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             ),
             onCompleteChallenge: () => notifier.completeCurrentChallenge(
               userId: userId,
-              nextSessionId: 'session_${DateTime.now().millisecondsSinceEpoch}',
+              nextSessionId: _newSessionId(),
             ),
             onReset: notifier.resetLevelFlow,
             attemptsRemaining: state.currentSession?.attemptsRemaining,
@@ -211,6 +157,110 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ],
       ),
     );
+  }
+
+  void _syncGameScene({
+    required LevelState? previous,
+    required LevelState next,
+  }) {
+    final spec = next.currentChallengeSpec;
+    final session = next.currentSession;
+
+    if (spec == null || session == null) {
+      game.clearScene();
+      return;
+    }
+
+    final content = spec.content;
+    final runtimeState = session.runtimeState;
+
+    final previousSpecId = previous?.currentChallengeSpec?.id;
+    final nextSpecId = spec.id;
+    final previousRuntimeState = previous?.currentSession?.runtimeState;
+
+    switch ((content, runtimeState)) {
+      case (
+        final StructureChallengeContent structureContent,
+        StructureRuntimeState(:final structure),
+      ):
+        final previousStructure = previousRuntimeState is StructureRuntimeState
+            ? previousRuntimeState.structure
+            : null;
+
+        final shouldUpdateScene =
+            previousSpecId != nextSpecId || previousStructure != structure;
+
+        if (!shouldUpdateScene) return;
+
+        game.updateScene(structureContent: structureContent, state: structure);
+
+      case (
+        IdentifyTargetChallengeContent(
+          :final identifySpec,
+          :final visualStructure,
+        ),
+        IdentifyTargetRuntimeState(
+          :final visualState,
+          :final selectedTargetIds,
+        ),
+      ):
+        final previousVisualState =
+            previousRuntimeState is IdentifyTargetRuntimeState
+            ? previousRuntimeState.visualState
+            : null;
+
+        final previousSelectedTargetIds =
+            previousRuntimeState is IdentifyTargetRuntimeState
+            ? previousRuntimeState.selectedTargetIds
+            : const <String>{};
+
+        final shouldUpdateScene =
+            previousSpecId != nextSpecId ||
+            previousVisualState != visualState ||
+            previousSelectedTargetIds != selectedTargetIds;
+
+        if (!shouldUpdateScene) return;
+
+        game.updateScene(
+          structureContent: visualStructure,
+          state: visualState,
+          interactionStrategy: IdentifyInteractionStrategy(
+            selectedTargetIds: selectedTargetIds,
+            allowMultiple: identifySpec.allowMultiple,
+            onSelectionChanged: (nextSelection) {
+              ref
+                  .read(levelStateProvider.notifier)
+                  .submitIdentifyTarget(nextSelection);
+            },
+          ),
+        );
+
+      case (QuizChallengeContent(), QuizRuntimeState()):
+        game.clearScene();
+
+      default:
+        game.clearScene();
+    }
+  }
+
+  void _startChallengeAutomaticallyIfNeeded(LevelState state) {
+    final syllabus = state.syllabus;
+    final hasTheory = syllabus?.theory != null;
+
+    final shouldAutoStartChallenge =
+        syllabus != null &&
+        !hasTheory &&
+        state.currentChallengeId != null &&
+        state.currentSession == null &&
+        state.currentChallengeSpec == null;
+
+    if (!shouldAutoStartChallenge) return;
+
+    final userId = ref.read(currentUserIdProvider);
+
+    ref
+        .read(levelStateProvider.notifier)
+        .startCurrentChallenge(userId: userId, sessionId: _newSessionId());
   }
 
   Widget _buildChallengeBody({
@@ -283,8 +333,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
                 notifier.completeCurrentChallenge(
                   userId: userId,
-                  nextSessionId:
-                      'session_${DateTime.now().millisecondsSinceEpoch}',
+                  nextSessionId: _newSessionId(),
                 );
               }
             : null,
@@ -314,5 +363,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     return runtimeState is StructureRuntimeState &&
         runtimeState.redoStack.isNotEmpty;
+  }
+
+  String _newSessionId() {
+    return 'session_${DateTime.now().millisecondsSinceEpoch}';
   }
 }

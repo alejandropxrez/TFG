@@ -258,10 +258,10 @@ class _LevelActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = locked
-        ? 'Locked'
+        ? 'Bloqueado'
         : completed
-        ? 'Replay'
-        : "Let's go!";
+        ? 'Volver a jugar'
+        : "¡Vamos!";
 
     final color = locked
         ? const Color(0xFF777A86)
