@@ -17,6 +17,7 @@ class LevelSyllabusMapper {
       theory: modelData.theory == null
           ? null
           : domain.LevelTheory(
+              id: modelData.theory!.id,
               title: modelData.theory!.title,
               content: modelData.theory!.content,
               keyPoints: modelData.theory!.keyPoints,

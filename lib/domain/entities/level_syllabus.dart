@@ -27,11 +27,13 @@ class LevelSyllabus {
 }
 
 class LevelTheory {
+  final String id;
   final String title;
   final String content;
   final List<String> keyPoints;
 
   const LevelTheory({
+    required this.id,
     required this.title,
     required this.content,
     this.keyPoints = const [],

@@ -4,6 +4,7 @@
 	"topic": "HEAPS",
 	"subtitle": "Repara heaps usando intercambios",
 	"theory": {
+		"id": "heap_intro",
 		"title": "¿Qué es un Max-Heap?",
 		"content": "Un Max-Heap es un árbol binario casi completo donde cada nodo padre tiene un valor mayor o igual que el de sus hijos. Esto permite que el elemento de mayor prioridad esté siempre en la raíz.",
 		"keyPoints": [

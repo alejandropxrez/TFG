@@ -4,6 +4,7 @@
 	"topic": "LISTS",
 	"subtitle": "Domina las operaciones con listas",
 	"theory": {
+		"id": "ordered_sequence_intro",
 		"title": "¿Qué es una Lista?",
 		"content": "Una lista es una estructura de datos lineal que almacena una colección de elementos en un orden específico. Cada elemento puede accederse mediante su índice.",
 		"keyPoints": [

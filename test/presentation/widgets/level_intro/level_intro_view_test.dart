@@ -41,6 +41,7 @@ void main() {
   }
 
   const theory = LevelTheory(
+    id: "test",
     title: '¿Qué es una Lista?',
     content:
         'Una lista es una estructura de datos lineal que almacena una colección de elementos en un orden específico.',

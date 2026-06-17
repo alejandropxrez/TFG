@@ -36,6 +36,7 @@ abstract class LevelSyllabusModel with _$LevelSyllabusModel {
 @freezed
 abstract class LevelTheoryModel with _$LevelTheoryModel {
   const factory LevelTheoryModel({
+    required String id,
     required String title,
     required String content,
     @Default(<String>[]) List<String> keyPoints,

@@ -3,7 +3,7 @@
 	"metadata": {
 		"title": "Clasifica la complejidad",
 		"instruction": "Asigna cada operación a su complejidad temporal",
-		"theoryRef": "complexity_basics"
+		"theoryRef": "heap_intro"
 	},
 	"constraints": [
 		{

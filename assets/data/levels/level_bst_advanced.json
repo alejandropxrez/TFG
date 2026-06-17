@@ -4,6 +4,7 @@
 	"topic": "BST",
 	"subtitle": "Búsqueda eficiente en estructuras binarias",
 	"theory": {
+		"id": "bst_advanced",
 		"title": "Búsqueda en BST",
 		"content": "La búsqueda en un Árbol de Búsqueda Binaria es muy eficiente. Comenzamos desde la raíz y comparamos el valor buscado con cada nodo, moviéndonos a la izquierda o derecha según sea necesario.",
 		"keyPoints": [

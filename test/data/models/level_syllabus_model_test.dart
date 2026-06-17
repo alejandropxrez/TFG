@@ -100,6 +100,7 @@ void main() {
       'title': 'Introducción a Heaps',
       'topic': 'HEAPS',
       'theory': {
+        'id': 'test',
         'title': '¿Qué es un Max-Heap?',
         'content': 'Un Max-Heap mantiene el valor máximo en la raíz.',
         'keyPoints': ['La raíz contiene el valor máximo.'],

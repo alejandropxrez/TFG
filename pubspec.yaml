@@ -20,6 +20,7 @@ dependencies:
     path: ^1.9.1
     window_manager: ^0.5.1
     flutter_launcher_icons: ^0.14.4
+    confetti: ^0.8.0
 
 dev_dependencies:
     flutter_test:

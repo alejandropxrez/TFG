@@ -4,6 +4,7 @@
 	"topic": "MIXED",
 	"subtitle": "Domina múltiples estructuras de datos",
 	"theory": {
+		"id": "mixed_intro",
 		"title": "Combinación de Estructuras",
 		"content": "A menudo los algoritmos complejos combinan múltiples estructuras de datos. Entender cómo funcionan juntas es clave para optimizar soluciones.",
 		"keyPoints": [

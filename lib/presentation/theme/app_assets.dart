@@ -5,7 +5,6 @@ class AppAssets {
 
   static const String fileIcon = 'assets/images/icon.png';
   static const String star = 'assets/images/star.png';
-  static const String grayStar = 'assets/images/gray_start.png';
 
   static const String chest = 'assets/images/chest.png';
   static const String cave = 'assets/images/cave.png';
@@ -17,7 +16,6 @@ class AppAssets {
       'assets/images/happy_dinosaur_star.png';
 
   static const String heart = 'assets/images/heart.png';
-  static const String grayHeart = 'assets/images/gray_heart.png';
 
   static const String map = 'assets/images/map.png';
   static const String statistics = 'assets/images/statistics.png';
@@ -33,5 +31,10 @@ class AppAssets {
   static const String comment = 'assets/images/comment.png';
 
   static const String padlock = 'assets/images/padlock.png';
-  static const String movesRemaning = 'assets/images/moves_remaining';
+  static const String movesRemaining = 'assets/images/moves_remaining.png';
+  static const String retry = 'assets/images/retry.png';
+  static const String eyes = 'assets/images/eyes.png';
+  static const String lightBulb = 'assets/images/light_bulb.png';
+  static const String graduationCap = 'assets/images/graduation_cap.png';
+  static const String binaryTree = 'assets/images/binary_tree.png';
 }

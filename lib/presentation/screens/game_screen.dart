@@ -8,6 +8,7 @@ import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/game/strategies/interaction/identify_interaction_strategy.dart';
 import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:algoquest/presentation/widgets/categorize_challenge_view.dart';
+import 'package:algoquest/presentation/widgets/challenge_result_dialog.dart';
 import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
 import 'package:algoquest/presentation/widgets/feedback_dialog.dart';
 import 'package:algoquest/presentation/widgets/game_hud.dart';
@@ -319,26 +320,72 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     required LevelStateNotifier notifier,
     required LevelState state,
   }) {
-    final theoryRef = state.currentChallengeSpec?.theoryRef;
+    final spec = state.currentChallengeSpec;
+
+    if (spec == null) return;
+
     final solved = notifier.checkSolution();
+
+    final nextState = ref.read(levelStateProvider);
+
+    final attemptsRemaining =
+        nextState.currentSession?.attemptsRemaining ??
+        state.currentSession?.attemptsRemaining;
+
+    final theoryMessage = _resolveTheoryMessage(state: nextState, spec: spec);
 
     showDialog<void>(
       context: context,
-      builder: (_) => FeedbackDialog(
-        solved: solved,
-        theoryRef: theoryRef,
-        onContinue: solved
-            ? () {
-                final userId = ref.read(currentUserIdProvider);
+      barrierDismissible: false,
+      builder: (_) {
+        return ChallengeResultDialog.fromChallengeSpec(
+          spec: spec,
+          solved: solved,
+          theoryMessage: theoryMessage,
+          attemptsRemaining: attemptsRemaining,
+          onContinue: () {
+            Navigator.of(context).pop();
 
-                notifier.completeCurrentChallenge(
-                  userId: userId,
-                  nextSessionId: _newSessionId(),
-                );
-              }
-            : null,
-      ),
+            final userId = ref.read(currentUserIdProvider);
+
+            notifier.completeCurrentChallenge(
+              userId: userId,
+              nextSessionId: _newSessionId(),
+            );
+          },
+          onTryAgain: () {
+            Navigator.of(context).pop();
+          },
+          onShowAnswer: () {
+            Navigator.of(context).pop();
+
+            // TODO: mostrar solución cuando implementemos ese flujo.
+          },
+        );
+      },
     );
+  }
+
+  String? _resolveTheoryMessage({
+    required LevelState state,
+    required ChallengeSpec spec,
+  }) {
+    final theoryRef = spec.theoryRef;
+
+    if (theoryRef == null || theoryRef.isEmpty) {
+      return null;
+    }
+
+    final theory = state.syllabus?.theory;
+    if (theory == null) {
+      return null;
+    }
+
+    if (theory.id != theoryRef) {
+      return null;
+    }
+
+    return theory.content;
   }
 
   int _movesUsed(LevelState state) {
