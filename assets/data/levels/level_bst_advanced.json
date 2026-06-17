@@ -1,0 +1,20 @@
+{
+	"id": "level_bst_advanced",
+	"title": "Introducción a Búsqueda Avanzada",
+	"topic": "BST",
+	"subtitle": "Búsqueda eficiente en estructuras binarias",
+	"theory": {
+		"title": "Búsqueda en BST",
+		"content": "La búsqueda en un Árbol de Búsqueda Binaria es muy eficiente. Comenzamos desde la raíz y comparamos el valor buscado con cada nodo, moviéndonos a la izquierda o derecha según sea necesario.",
+		"keyPoints": [
+			"La búsqueda comienza desde la raíz.",
+			"Si el valor es menor, se busca en el subárbol izquierdo.",
+			"Si el valor es mayor, se busca en el subárbol derecho."
+		]
+	},
+	"challenges": [],
+	"rewards": {
+		"xp": 100,
+		"stars": 3
+	}
+}

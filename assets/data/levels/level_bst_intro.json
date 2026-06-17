@@ -1,0 +1,20 @@
+{
+	"id": "level_bst_intro",
+	"title": "Introducción a Árboles de Búsqueda Binaria",
+	"topic": "BST",
+	"subtitle": "Aprende la estructura de un BST",
+	"theory": {
+		"title": "¿Qué es un Árbol de Búsqueda Binaria (BST)?",
+		"content": "Un Árbol de Búsqueda Binaria es un árbol binario donde cada nodo tiene un valor, y para cada nodo, todos los valores en su subárbol izquierdo son menores, y todos los valores en su subárbol derecho son mayores.",
+		"keyPoints": [
+			"Los nodos izquierdos tienen valores menores que el padre.",
+			"Los nodos derechos tienen valores mayores que el padre.",
+			"Esta propiedad facilita la búsqueda, inserción y eliminación eficiente."
+		]
+	},
+	"challenges": [],
+	"rewards": {
+		"xp": 100,
+		"stars": 3
+	}
+}

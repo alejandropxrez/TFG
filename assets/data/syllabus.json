@@ -8,6 +8,18 @@
 			"levels": [
 				{
 					"id": "level_heap_intro"
+				},
+				{
+					"id": "level_bst_intro"
+				},
+				{
+					"id": "level_lists_intro"
+				},
+				{
+					"id": "level_bst_advanced"
+				},
+				{
+					"id": "level_mixed_intro"
 				}
 			]
 		}

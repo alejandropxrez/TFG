@@ -1,0 +1,20 @@
+{
+	"id": "level_lists_intro",
+	"title": "Introducción a Listas",
+	"topic": "LISTS",
+	"subtitle": "Domina las operaciones con listas",
+	"theory": {
+		"title": "¿Qué es una Lista?",
+		"content": "Una lista es una estructura de datos lineal que almacena una colección de elementos en un orden específico. Cada elemento puede accederse mediante su índice.",
+		"keyPoints": [
+			"Las listas mantienen el orden de inserción.",
+			"Se puede acceder a elementos por su posición o índice.",
+			"Las listas permiten inserción, eliminación y modificación de elementos."
+		]
+	},
+	"challenges": [],
+	"rewards": {
+		"xp": 100,
+		"stars": 3
+	}
+}

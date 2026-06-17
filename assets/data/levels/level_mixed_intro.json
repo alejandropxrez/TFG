@@ -1,0 +1,20 @@
+{
+	"id": "level_mixed_intro",
+	"title": "Estructuras de Datos Combinadas",
+	"topic": "MIXED",
+	"subtitle": "Domina múltiples estructuras de datos",
+	"theory": {
+		"title": "Combinación de Estructuras",
+		"content": "A menudo los algoritmos complejos combinan múltiples estructuras de datos. Entender cómo funcionan juntas es clave para optimizar soluciones.",
+		"keyPoints": [
+			"Diferentes estructuras se adaptan a diferentes problemas.",
+			"La elección correcta de estructura mejora la eficiencia.",
+			"Combinar estructuras permite soluciones más poderosas."
+		]
+	},
+	"challenges": [],
+	"rewards": {
+		"xp": 100,
+		"stars": 3
+	}
+}
