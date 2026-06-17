@@ -33,4 +33,5 @@ class AppAssets {
   static const String comment = 'assets/images/comment.png';
 
   static const String padlock = 'assets/images/padlock.png';
+  static const String movesRemaning = 'assets/images/moves_remaining';
 }
