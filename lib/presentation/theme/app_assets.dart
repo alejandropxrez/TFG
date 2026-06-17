@@ -3,7 +3,7 @@ class AppAssets {
 
   static const String background = 'assets/images/background.png';
 
-  static const String fileIcon = 'assets/images/file_icon.png';
+  static const String fileIcon = 'assets/images/icon.png';
   static const String star = 'assets/images/star.png';
   static const String grayStar = 'assets/images/gray_start.png';
 

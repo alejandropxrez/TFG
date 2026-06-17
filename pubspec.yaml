@@ -18,6 +18,8 @@ dependencies:
     drift: ^2.32.1
     path_provider: ^2.1.5
     path: ^1.9.1
+    window_manager: ^0.5.1
+    flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
     flutter_test:
@@ -34,3 +36,19 @@ flutter:
         - assets/data/levels/
         - assets/data/challenges/
         - assets/images/
+
+flutter_launcher_icons:
+    android: "launcher_icon"
+    ios: true
+    image_path: "./assets/images/icon.png"
+    min_sdk_android: 21 # android min sdk min:16, default 21
+    web:
+        generate: true
+        image_path: "./assets/images/icon.png"
+    windows:
+        generate: true
+        image_path: "./assets/images/icon.png"
+        icon_size: 256 # min:48, max:256, default: 48
+    macos:
+        generate: true
+        image_path: "./assets/images/icon.png"
