@@ -68,7 +68,7 @@ class _BinaryTreeCanvas extends StatelessWidget {
     required this.onSelectionChanged,
   });
 
-  static const double _nodeSize = 46;
+  static const double _nodeSize = 70;
 
   bool get _isSelectingNodes => targetType == IdentifyTargetType.node;
   bool get _isSelectingEdges => targetType == IdentifyTargetType.edge;
@@ -211,38 +211,62 @@ class _BinaryTreeNodeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nodeColor = selected
-        ? const Color(0xFFFFEDED)
+    final nodeFillColor = selected
+        ? const Color(0xFFFFE3DA)
         : const Color(0xFFF0E7FF);
 
-    final textColor = selected
+    final nodeBorderColor = selected
         ? const Color(0xFFFF3D3D)
+        : const Color(0xFF6B3DEB);
+
+    final textColor = selected
+        ? const Color(0xFFE51F1F)
         : const Color(0xFF101235);
 
     return GestureDetector(
       onTap: enabled ? onTap : null,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ColorFiltered(
-            colorFilter: ColorFilter.mode(nodeColor, BlendMode.modulate),
-            child: Transform.scale(
-              scale: 4,
-              child: Image.asset(AppAssets.binaryTreeNode, fit: BoxFit.contain),
-            ),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -5),
-            child: Text(
-              value,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
+      child: SizedBox(
+        width: 96,
+        height: 96,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: nodeFillColor,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: nodeBorderColor,
+                  width: selected ? 3 : 2,
+                ),
+                boxShadow: selected
+                    ? [
+                        BoxShadow(
+                          color: const Color(
+                            0xFFFF3D3D,
+                          ).withValues(alpha: 0.18),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : null,
               ),
             ),
-          ),
-        ],
+            Transform.translate(
+              offset: const Offset(0, -2),
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
