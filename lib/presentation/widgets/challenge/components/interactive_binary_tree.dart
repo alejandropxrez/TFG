@@ -1,5 +1,4 @@
 import 'package:algoquest/domain/entities/identify_target_spec.dart';
-import 'package:algoquest/presentation/theme/app_assets.dart';
 import 'package:flutter/material.dart';
 
 class InteractiveBinaryTreeNode {
