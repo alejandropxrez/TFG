@@ -96,7 +96,10 @@ class _MovesIndicator extends StatelessWidget {
           SizedBox(
             width: 18,
             height: 18,
-            child: Image.asset(AppAssets.movesRemaining, fit: BoxFit.contain),
+            child: Transform.scale(
+              scale: 3.5,
+              child: Image.asset(AppAssets.movesRemaining, fit: BoxFit.contain),
+            ),
           ),
           const SizedBox(width: 5),
           Text(
