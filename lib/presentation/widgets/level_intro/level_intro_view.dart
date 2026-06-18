@@ -1,6 +1,8 @@
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/presentation/theme/app_assets.dart';
 import 'package:algoquest/presentation/widgets/level_intro/key_concept_card.dart';
+import 'package:algoquest/presentation/widgets/shared/app_back_button.dart';
+import 'package:algoquest/presentation/widgets/shared/mascot_message_card.dart';
 import 'package:flutter/material.dart';
 
 class LevelIntroView extends StatelessWidget {
@@ -51,7 +53,10 @@ class LevelIntroView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _BackButton(onPressed: onBack),
+                        AppBackButton(
+                          onPressed: onBack,
+                          backgroundColor: const Color(0xFF6B3DEB),
+                        ),
                         const SizedBox(height: 10),
                         _IntroHero(title: theory?.title ?? syllabus.title),
                         const SizedBox(height: 10),
@@ -69,8 +74,11 @@ class LevelIntroView extends StatelessWidget {
                           _KeyConceptGrid(keyPoints: normalizedKeyPoints),
                         ],
                         const SizedBox(height: 14),
-                        _MotivationCard(
-                          numberOfChallenges: syllabus.challenges.length,
+                        MascotMessageCard(
+                          imageAssetPath: AppAssets.happyDinosaur,
+                          title: '¡Tú puedes!',
+                          message:
+                              '¡Tienes ${syllabus.challenges.length} desafíos por delante para mejorar tus habilidades!',
                         ),
                         const SizedBox(height: 18),
                         _StartButton(onPressed: onStartPractice),
@@ -187,35 +195,6 @@ class _IntroHero extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _BackButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _BackButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 42,
-      height: 42,
-      child: FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFF6B3DEB),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: const Icon(
-          Icons.arrow_back_rounded,
-          color: Colors.white,
-          size: 24,
-        ),
-      ),
     );
   }
 }
@@ -364,62 +343,6 @@ class _KeyConceptGrid extends StatelessWidget {
           iconColor: keyPoint.iconColor,
         );
       },
-    );
-  }
-}
-
-class _MotivationCard extends StatelessWidget {
-  final int numberOfChallenges;
-
-  const _MotivationCard({required this.numberOfChallenges});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0E7FF),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD9C4FF), width: 1.5),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 74,
-            height: 74,
-            child: Transform.scale(
-              scale: 2.4,
-              child: Image.asset(AppAssets.happyDinosaur, fit: BoxFit.contain),
-            ),
-          ),
-          const SizedBox(width: 34),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "¡Tú puedes!",
-                  style: TextStyle(
-                    color: Color(0xFF6B3DEB),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '¡Tienes $numberOfChallenges desafios por delante para mejorar tus habilidades!',
-                  style: const TextStyle(
-                    color: Color(0xFF292B4A),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

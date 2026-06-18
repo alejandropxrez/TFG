@@ -50,7 +50,7 @@ class _LearningPathScreenState extends ConsumerState<LearningPathScreen> {
               LearningPathStatus.loaded => _LearningPathLoadedView(
                 state: state,
                 onLevelPressed: (levelId) {
-                  context.goNamed(
+                  context.pushNamed(
                     AppRouter.levelName,
                     pathParameters: {'levelId': levelId},
                   );

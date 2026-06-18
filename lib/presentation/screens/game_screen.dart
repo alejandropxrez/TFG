@@ -7,11 +7,10 @@ import 'package:algoquest/presentation/application_state/level_state_provider.da
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/game/strategies/interaction/identify_interaction_strategy.dart';
 import 'package:algoquest/presentation/router/app_router.dart';
-import 'package:algoquest/presentation/widgets/categorize_challenge_view.dart';
-import 'package:algoquest/presentation/widgets/challenge_result_dialog.dart';
-import 'package:algoquest/presentation/widgets/debug_game_controls.dart';
-import 'package:algoquest/presentation/widgets/feedback_dialog.dart';
-import 'package:algoquest/presentation/widgets/game_hud.dart';
+import 'package:algoquest/presentation/theme/app_assets.dart';
+import 'package:algoquest/presentation/widgets/challenge/categorize_challenge_body.dart';
+import 'package:algoquest/presentation/widgets/challenge/challenge_result_dialog.dart';
+import 'package:algoquest/presentation/widgets/challenge/challenge_screen_layout.dart';
 import 'package:algoquest/presentation/widgets/level_intro/level_intro_view.dart';
 import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
 import 'package:flame/game.dart';
@@ -81,7 +80,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       return LevelIntroView(
         syllabus: syllabus,
         onBack: () {
-          context.goNamed(AppRouter.learningPathName);
+          _goBack(context);
         },
         onStartPractice: () {
           notifier.markTheoryIntroSeen();
@@ -93,70 +92,68 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       );
     }
 
-    final currentChallengeNumber = state.currentChallengeNumber;
+    final spec = state.currentChallengeSpec;
+    final session = state.currentSession;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('AlgoQuest')),
-      body: Column(
-        children: [
-          GameHud(
-            status: state.status.name,
-            challengeId: state.currentChallengeId,
-            currentChallengeNumber: currentChallengeNumber,
-            totalChallenges: state.totalChallenges,
-            movesUsed: _movesUsed(state),
-            attemptsRemaining: state.currentSession?.attemptsRemaining,
-            instruction: state.currentChallengeSpec?.instruction,
-            onCheckSolution: state.currentSession == null
-                ? null
-                : () => _showFeedbackDialog(
-                    context: context,
-                    notifier: notifier,
-                    state: state,
-                  ),
-          ),
-          Expanded(
-            child: _buildChallengeBody(
-              state: state,
-              notifier: notifier,
-              game: game,
-            ),
-          ),
-          DebugGameControls(
-            status: state.status.name,
-            challengeId: state.currentChallengeId,
-            currentChallengeNumber: currentChallengeNumber,
-            totalChallenges: state.totalChallenges,
-            movesUsed: _movesUsed(state),
-            errorMessage: state.errorMessage,
-            canStartChallenge: state.currentChallengeId != null,
-            canInteract: state.currentSession != null,
-            canUndo: _canUndo(state),
-            canRedo: _canRedo(state),
-            onLoadLevel: () => notifier.loadLevel(widget.levelId),
-            onStartChallenge: () => notifier.startCurrentChallenge(
-              userId: userId,
-              sessionId: _newSessionId(),
-            ),
-            onSwapDebug: () => notifier.executeAction(
-              const SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2'),
-            ),
-            onUndo: notifier.undoLastAction,
-            onRedo: notifier.redoLastAction,
-            onCheckSolution: () => _showFeedbackDialog(
-              context: context,
-              notifier: notifier,
-              state: state,
-            ),
-            onCompleteChallenge: () => notifier.completeCurrentChallenge(
-              userId: userId,
-              nextSessionId: _newSessionId(),
-            ),
-            onReset: notifier.resetLevelFlow,
-            attemptsRemaining: state.currentSession?.attemptsRemaining,
-          ),
-        ],
+    if (spec == null || session == null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF7F8FC),
+        body: SafeArea(child: GameWidget(game: game)),
+      );
+    }
+
+    final theoryMessage = _resolveTheoryMessage(state: state, spec: spec);
+
+    return ChallengeScreenLayout(
+      currentChallengeNumber: state.currentChallengeNumber,
+      totalChallenges: state.totalChallenges,
+      heartsRemaining: session.attemptsRemaining,
+      maxHearts: spec.maxAttempts,
+      movesRemaining: _movesRemaining(state),
+      instruction: spec.instruction,
+      questionImageAssetPath: AppAssets.wizard,
+      tipTitle: theoryMessage == null ? null : 'Tip:',
+      tipMessage: theoryMessage,
+      tipImageAssetPath: AppAssets.happyRaccoon,
+      onBack: () {
+        _goBack(context);
+      },
+      onReset: null,
+      onCheckAnswer: () {
+        _showFeedbackDialog(context: context, notifier: notifier, state: state);
+      },
+      challengeBody: _buildChallengeBody(
+        state: state,
+        notifier: notifier,
+        game: game,
       ),
+    );
+  }
+
+  int? _movesRemaining(LevelState state) {
+    final spec = state.currentChallengeSpec;
+    final runtimeState = state.currentSession?.runtimeState;
+
+    if (spec == null || runtimeState is! StructureRuntimeState) {
+      return null;
+    }
+
+    MaxMovesConstraint? maxMovesConstraint;
+
+    for (final constraint in spec.constraints) {
+      if (constraint is MaxMovesConstraint) {
+        maxMovesConstraint = constraint;
+        break;
+      }
+    }
+
+    if (maxMovesConstraint == null) {
+      return null;
+    }
+
+    return (maxMovesConstraint.maxMoves - runtimeState.movesUsed).clamp(
+      0,
+      maxMovesConstraint.maxMoves,
     );
   }
 
@@ -239,6 +236,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       case (QuizChallengeContent(), QuizRuntimeState()):
         game.clearScene();
 
+      case (CategorizeChallengeContent(), CategorizeRuntimeState()):
+        game.clearScene();
+
       default:
         game.clearScene();
     }
@@ -273,7 +273,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final session = state.currentSession;
 
     if (spec == null || session == null) {
-      return GameWidget(game: game);
+      return _GameChallengeBox(game: game);
     }
 
     final content = spec.content;
@@ -299,7 +299,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     if (content is CategorizeChallengeContent &&
         runtimeState is CategorizeRuntimeState) {
-      return CategorizeChallengeView(
+      return CategorizeChallengeBody(
         categorizeSpec: content.categorizeSpec,
         selectedCategoryByItemId: runtimeState.selectedCategoryByItemId,
         onCategorySelected:
@@ -312,7 +312,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       );
     }
 
-    return GameWidget(game: game);
+    return _GameChallengeBox(game: game);
   }
 
   void _showFeedbackDialog({
@@ -359,11 +359,22 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           onShowAnswer: () {
             Navigator.of(context).pop();
 
-            // TODO: mostrar solución cuando implementemos ese flujo.
+            // TODO: show solution when implementing this flow.
           },
         );
       },
     );
+  }
+
+  void _goBack(BuildContext context) {
+    final router = GoRouter.of(context);
+
+    if (router.canPop()) {
+      router.pop();
+      return;
+    }
+
+    router.goNamed(AppRouter.learningPathName);
   }
 
   String? _resolveTheoryMessage({
@@ -377,6 +388,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
 
     final theory = state.syllabus?.theory;
+
     if (theory == null) {
       return null;
     }
@@ -388,31 +400,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     return theory.content;
   }
 
-  int _movesUsed(LevelState state) {
-    final runtimeState = state.currentSession?.runtimeState;
-
-    if (runtimeState is StructureRuntimeState) {
-      return runtimeState.movesUsed;
-    }
-
-    return 0;
-  }
-
-  bool _canUndo(LevelState state) {
-    final runtimeState = state.currentSession?.runtimeState;
-
-    return runtimeState is StructureRuntimeState &&
-        runtimeState.history.isNotEmpty;
-  }
-
-  bool _canRedo(LevelState state) {
-    final runtimeState = state.currentSession?.runtimeState;
-
-    return runtimeState is StructureRuntimeState &&
-        runtimeState.redoStack.isNotEmpty;
-  }
-
   String _newSessionId() {
     return 'session_${DateTime.now().millisecondsSinceEpoch}';
+  }
+}
+
+class _GameChallengeBox extends StatelessWidget {
+  final AlgoQuestGame game;
+
+  const _GameChallengeBox({required this.game});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 360,
+      width: double.infinity,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: GameWidget(game: game),
+      ),
+    );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/presentation/copy/challenge_result_copy.dart';
-import 'package:algoquest/presentation/widgets/challenge_result_dialog.dart';
+import 'package:algoquest/presentation/widgets/challenge/challenge_result_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

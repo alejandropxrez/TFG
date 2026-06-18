@@ -1,6 +1,8 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/presentation/copy/challenge_result_copy.dart';
 import 'package:algoquest/presentation/theme/app_assets.dart';
+import 'package:algoquest/presentation/widgets/challenge/challenge_action_button.dart';
+import 'package:algoquest/presentation/widgets/challenge/challenge_hearts_indicator.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +19,7 @@ class ChallengeResultDialog extends StatefulWidget {
   final String? secondaryActionLabel;
   final String heartsLabel;
   final int? heartsLeft;
+  final int? maxHearts;
   final VoidCallback onPrimaryAction;
   final VoidCallback? onSecondaryAction;
   final VoidCallback? onClose;
@@ -32,10 +35,11 @@ class ChallengeResultDialog extends StatefulWidget {
     required this.primaryActionLabel,
     this.secondaryActionLabel,
     this.heartsLabel = ChallengeResultCopy.heartsLeftLabel,
+    this.heartsLeft,
+    this.maxHearts,
     required this.onPrimaryAction,
     this.onSecondaryAction,
     this.onClose,
-    this.heartsLeft,
   });
 
   factory ChallengeResultDialog.fromChallengeSpec({
@@ -66,6 +70,7 @@ class ChallengeResultDialog extends StatefulWidget {
       secondaryActionLabel: copy.secondaryActionLabel,
       heartsLabel: copy.heartsLabel,
       heartsLeft: solved ? null : attemptsRemaining,
+      maxHearts: solved ? null : spec.maxAttempts,
       onPrimaryAction: solved ? onContinue : onTryAgain,
       onSecondaryAction: solved ? null : onShowAnswer,
     );
@@ -190,14 +195,20 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
                 ),
                 if (!widget.isSuccess && widget.heartsLeft != null) ...[
                   const SizedBox(height: 14),
-                  _HeartsLeft(
-                    heartsLeft: widget.heartsLeft!,
+                  ChallengeHeartsIndicator(
                     label: widget.heartsLabel,
+                    heartsLeft: widget.heartsLeft!,
+                    maxHearts: 3,
+                    heartSize: 22,
+                    heartScale: 3,
+                    spacing: 8,
+                    labelSpacing: 8,
+                    emptyOpacity: 0.25,
                   ),
                 ],
                 const SizedBox(height: 18),
                 if (widget.isSuccess)
-                  _PrimaryButton(
+                  ChallengePrimaryActionButton(
                     label: widget.primaryActionLabel,
                     icon: Icons.arrow_forward_rounded,
                     backgroundColor: theme.primaryColor,
@@ -207,7 +218,7 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
                   Row(
                     children: [
                       Expanded(
-                        child: _OutlinedActionButton(
+                        child: ChallengeOutlinedActionButton(
                           label: widget.primaryActionLabel,
                           iconAssetPath: AppAssets.retry,
                           color: theme.primaryColor,
@@ -216,7 +227,7 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: _OutlinedActionButton(
+                        child: ChallengeOutlinedActionButton(
                           label: widget.secondaryActionLabel ?? '',
                           iconAssetPath: AppAssets.eyes,
                           color: const Color(0xFF6B3DEB),
@@ -356,186 +367,6 @@ class _HelperBox extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HeartsLeft extends StatelessWidget {
-  final String label;
-  final int heartsLeft;
-
-  const _HeartsLeft({required this.label, required this.heartsLeft});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Color(0xFF1E2442),
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(width: 8),
-        for (var i = 0; i < 3; i++) ...[
-          Transform.scale(
-            scale: 3,
-            child: _ColorFilteredHeart(filled: i < heartsLeft),
-          ),
-          if (i != 2) const SizedBox(width: 8),
-        ],
-      ],
-    );
-  }
-}
-
-class _ColorFilteredHeart extends StatelessWidget {
-  final bool filled;
-
-  const _ColorFilteredHeart({required this.filled});
-
-  @override
-  Widget build(BuildContext context) {
-    final heart = Image.asset(
-      AppAssets.heart,
-      width: 22,
-      height: 22,
-      fit: BoxFit.contain,
-    );
-
-    if (filled) return heart;
-
-    return ColorFiltered(
-      colorFilter: const ColorFilter.matrix(<double>[
-        0.2126,
-        0.7152,
-        0.0722,
-        0,
-        0,
-        0.2126,
-        0.7152,
-        0.0722,
-        0,
-        0,
-        0.2126,
-        0.7152,
-        0.0722,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-      ]),
-      child: Opacity(opacity: 0.25, child: heart),
-    );
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color backgroundColor;
-  final VoidCallback onPressed;
-
-  const _PrimaryButton({
-    required this.label,
-    required this.icon,
-    required this.backgroundColor,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 6,
-          shadowColor: backgroundColor.withValues(alpha: 0.35),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(width: 10),
-            Icon(icon, size: 22),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OutlinedActionButton extends StatelessWidget {
-  final String label;
-  final String iconAssetPath;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  const _OutlinedActionButton({
-    required this.label,
-    required this.iconAssetPath,
-    required this.color,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 52,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: color,
-          side: BorderSide(color: color, width: 1.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-        ),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(width: 6),
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: Transform.translate(
-                  offset: Offset(0, 4),
-                  child: Transform.scale(
-                    scale: 4,
-                    child: Image.asset(iconAssetPath, fit: BoxFit.contain),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
