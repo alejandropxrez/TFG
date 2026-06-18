@@ -48,14 +48,14 @@ class ChallengeQuestionCard extends StatelessWidget {
                     title: title,
                     iconAssetPath: leadingIconAssetPath,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
                   Text(
                     instruction,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Color(0xFF101235),
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight(600),
                       height: 1.25,
                     ),

@@ -240,13 +240,6 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
             ),
           ),
           Positioned(top: 0, child: _MascotImage(type: widget.type)),
-          Positioned(
-            top: 62,
-            right: 16,
-            child: _CloseButton(
-              onPressed: widget.onClose ?? () => Navigator.of(context).pop(),
-            ),
-          ),
         ],
       ),
     );
@@ -274,29 +267,6 @@ class _MascotImage extends StatelessWidget {
             fit: BoxFit.contain,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CloseButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _CloseButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 34,
-      height: 34,
-      child: FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFF9AA0B4),
-          padding: EdgeInsets.zero,
-          shape: const CircleBorder(),
-        ),
-        child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
       ),
     );
   }
