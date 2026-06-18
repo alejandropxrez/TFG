@@ -1,7 +1,6 @@
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
-import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/presentation/application_state/level_state_provider.dart';
@@ -12,7 +11,7 @@ import 'package:algoquest/presentation/widgets/challenge/components/interactive_
 import 'package:algoquest/presentation/widgets/challenge/identify_target_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/structure_flame_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/unsupported_challenge_body.dart';
-import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
+import 'package:algoquest/presentation/widgets/challenge/quiz_challenge_view.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/linked_list_slots_challenge_body.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +32,7 @@ abstract final class ChallengeBodyFactory {
           selectedOptionIds: selectedOptionIds,
           onSelectOption: (optionId) {
             notifier.submitQuizAnswer(
-              _nextQuizSelection(
+              nextQuizSelection(
                 optionId: optionId,
                 selectedOptionIds: selectedOptionIds,
                 allowMultiple: quizSpec.allowMultiple,
@@ -108,26 +107,6 @@ abstract final class ChallengeBodyFactory {
 
       _ => const UnsupportedChallengeBody(),
     };
-  }
-
-  static Set<String> _nextQuizSelection({
-    required String optionId,
-    required Set<String> selectedOptionIds,
-    required bool allowMultiple,
-  }) {
-    if (!allowMultiple) {
-      return {optionId};
-    }
-
-    final nextSelection = {...selectedOptionIds};
-
-    if (nextSelection.contains(optionId)) {
-      nextSelection.remove(optionId);
-    } else {
-      nextSelection.add(optionId);
-    }
-
-    return nextSelection;
   }
 
   static Widget _buildIdentifyTargetBody({
@@ -213,4 +192,24 @@ abstract final class ChallengeBodyFactory {
           },
     );
   }
+}
+
+Set<String> nextQuizSelection({
+  required String optionId,
+  required Set<String> selectedOptionIds,
+  required bool allowMultiple,
+}) {
+  if (!allowMultiple) {
+    return {optionId};
+  }
+
+  final nextSelection = {...selectedOptionIds};
+
+  if (nextSelection.contains(optionId)) {
+    nextSelection.remove(optionId);
+  } else {
+    nextSelection.add(optionId);
+  }
+
+  return nextSelection;
 }
