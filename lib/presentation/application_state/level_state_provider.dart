@@ -1,9 +1,7 @@
 import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/data/core/composition/use_cases.dart';
-import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/identify_target_action.dart';
 import 'package:algoquest/domain/entities/quiz_action.dart';
-import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -212,30 +210,10 @@ class LevelStateNotifier extends Notifier<LevelState> {
 
     if (nextManager.isLevelCompleted) {
       try {
-        final currentProgress = await _useCases.loadUserProgress(userId);
-
-        final baseProgress =
-            currentProgress ??
-            UserProgress(
-              userId: userId,
-              level: 1,
-              experiencePoints: 0,
-              livesRemaining: 5,
-              unlockedLevels: {syllabus.id},
-              currentLevelId: syllabus.id,
-            );
-
-        final nextLevelId = await _useCases.getNextLevelId(syllabus.id);
-
-        final updatedProgress = _useCases.manageProgress.completeLevel(
-          current: baseProgress,
-          completedLevelId: syllabus.id,
-          xpReward: syllabus.rewards.xp,
-          nextLevelId: nextLevelId,
-          livesGained: syllabus.rewards.lives,
+        await _useCases.completeLevelProgress(
+          userId: userId,
+          syllabus: syllabus,
         );
-
-        await _useCases.saveProgress(updatedProgress);
 
         state = state.copyWith(
           sessionManager: nextManager,

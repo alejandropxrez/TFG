@@ -1,5 +1,6 @@
 import 'package:algoquest/domain/use_cases/check_challenge_use_case.dart';
 import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
+import 'package:algoquest/domain/use_cases/complete_level_use_case.dart';
 import 'package:algoquest/domain/use_cases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
@@ -38,6 +39,7 @@ class UseCases {
   final GetNextLevelIdUseCase getNextLevelId;
   final RevealChallengeAnswerUseCase revealChallengeAnswer;
   final RestartChallengeSessionUseCase restartChallengeSession;
+  final CompleteLevelProgressUseCase completeLevelProgress;
 
   const UseCases({
     required this.getLevelSyllabus,
@@ -58,5 +60,6 @@ class UseCases {
     required this.getNextLevelId,
     required this.revealChallengeAnswer,
     required this.restartChallengeSession,
+    required this.completeLevelProgress,
   });
 }

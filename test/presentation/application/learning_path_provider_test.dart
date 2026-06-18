@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/use_cases/complete_level_use_case.dart';
 import 'package:algoquest/domain/use_cases/restart_challenge_session_use_case.dart';
 import 'package:algoquest/domain/use_cases/reveal_challenge_answer_use_case.dart';
 import 'package:algoquest/presentation/application_state/app_providers.dart';
@@ -126,15 +127,20 @@ void main() {
     contentRepository = FakeContentRepository();
     userRepository = FakeUserRepository();
 
+    final loadUserProgress = LoadUserProgressUseCase(userRepository);
+    final saveProgress = SaveProgressUseCase(userRepository);
+    final getNextLevelId = GetNextLevelIdUseCase(contentRepository);
+    final manageProgress = const ManageProgressUseCase();
+
     useCases = UseCases(
       getLevelSyllabus: GetLevelSyllabusUseCase(contentRepository),
       loadChallengeSpec: LoadChallengeSpecUseCase(contentRepository),
       startChallengeSession: StartChallengeSessionUseCase(contentRepository),
       executeMove: const ExecuteMoveUseCase(),
       checkSolution: const CheckSolutionUseCase(),
-      saveProgress: SaveProgressUseCase(userRepository),
-      manageProgress: const ManageProgressUseCase(),
-      loadUserProgress: LoadUserProgressUseCase(userRepository),
+      saveProgress: saveProgress,
+      manageProgress: manageProgress,
+      loadUserProgress: loadUserProgress,
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
       consumeAttempt: const ConsumeAttemptUseCase(),
@@ -142,9 +148,15 @@ void main() {
       submitQuizAnswer: const SubmitQuizAnswerUseCase(),
       submitIdentifyTarget: const SubmitIdentifyTargetUseCase(),
       submitCategorization: const SubmitCategorizationUseCase(),
-      getNextLevelId: GetNextLevelIdUseCase(contentRepository),
+      getNextLevelId: getNextLevelId,
       revealChallengeAnswer: RevealChallengeAnswerUseCase(),
       restartChallengeSession: RestartChallengeSessionUseCase(),
+      completeLevelProgress: CompleteLevelProgressUseCase(
+        loadUserProgress: loadUserProgress.call,
+        saveProgress: saveProgress.call,
+        getNextLevelId: getNextLevelId.call,
+        manageProgress: manageProgress,
+      ),
     );
 
     container = ProviderContainer(

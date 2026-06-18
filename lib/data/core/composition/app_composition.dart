@@ -10,6 +10,7 @@ import 'package:algoquest/domain/repositories/user_repository.dart';
 import 'package:algoquest/domain/use_cases/check_challenge_use_case.dart';
 
 import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
+import 'package:algoquest/domain/use_cases/complete_level_use_case.dart';
 import 'package:algoquest/domain/use_cases/consume_attempt_use_case.dart';
 import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
@@ -71,6 +72,12 @@ class AppComposition {
     final getNextLevelId = GetNextLevelIdUseCase(contentRepository);
     final revealChallengeAnswer = RevealChallengeAnswerUseCase();
     final restartChallengeSession = RestartChallengeSessionUseCase();
+    final completeLevelProgress = CompleteLevelProgressUseCase(
+      loadUserProgress: loadUserProgress.call,
+      saveProgress: saveProgress.call,
+      getNextLevelId: getNextLevelId.call,
+      manageProgress: manageProgress,
+    );
 
     final useCases = UseCases(
       getLevelSyllabus: getLevelSyllabus,
@@ -91,6 +98,7 @@ class AppComposition {
       getNextLevelId: getNextLevelId,
       revealChallengeAnswer: revealChallengeAnswer,
       restartChallengeSession: restartChallengeSession,
+      completeLevelProgress: completeLevelProgress,
     );
 
     return AppComposition._(
