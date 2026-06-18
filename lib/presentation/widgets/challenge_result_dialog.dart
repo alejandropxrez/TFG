@@ -85,7 +85,7 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
     super.initState();
 
     _confettiController = ConfettiController(
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 800),
     );
 
     if (widget.isSuccess) {
@@ -116,15 +116,15 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
         children: [
           if (widget.isSuccess)
             Positioned(
-              top: 48,
+              top: -20,
               child: IgnorePointer(
                 child: ConfettiWidget(
                   confettiController: _confettiController,
                   blastDirectionality: BlastDirectionality.explosive,
                   emissionFrequency: 0.06,
                   numberOfParticles: 24,
-                  maxBlastForce: 22,
-                  minBlastForce: 10,
+                  maxBlastForce: 400,
+                  minBlastForce: 300,
                   gravity: 0.28,
                   shouldLoop: false,
                 ),
