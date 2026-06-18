@@ -1,8 +1,8 @@
 {
 	"kind": "STRUCTURE",
 	"metadata": {
-		"title": "Completa el valor",
-		"instruction": "Arrastra el valor correcto al hueco",
+		"title": "Completa la lista",
+		"instruction": "Arrastra los valores correctos a los huecos",
 		"theoryRef": "fill_missing_value"
 	},
 	"constraints": [
@@ -17,14 +17,25 @@
 		"constraints": []
 	},
 	"initialState": {
-		"nodes": [],
+		"nodes": [
+			{ "id": "n2", "value": 2 },
+			{ "id": "n4", "value": 4 },
+			{ "id": "n6", "value": 6 },
+			{ "id": "n8", "value": 8 }
+		],
 		"edges": [],
-		"slots": [{ "id": "s1", "index": 0 }],
-		"inventory": [2, 4]
+		"slots": [
+			{ "id": "s1", "index": 0 },
+			{ "id": "s2", "index": 1 },
+			{ "id": "s3", "index": 2 }
+		],
+		"inventory": [8, 2, 6, 4]
 	},
 	"solution": {
 		"expectedSlotValues": {
-			"s1": 2
+			"s1": 2,
+			"s2": 4,
+			"s3": 6
 		}
 	}
 }

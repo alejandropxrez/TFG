@@ -1,6 +1,8 @@
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/domain/entities/structure_state.dart';
+import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/widgets/challenge/categorize_challenge_body.dart';
@@ -9,6 +11,7 @@ import 'package:algoquest/presentation/widgets/challenge/identify_target_challen
 import 'package:algoquest/presentation/widgets/challenge/components/structure_flame_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/unsupported_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/linked_list_slots_challenge_body.dart';
 import 'package:flutter/material.dart';
 
 abstract final class ChallengeBodyFactory {
@@ -61,6 +64,20 @@ abstract final class ChallengeBodyFactory {
           content: content,
           runtimeState: runtimeState,
           notifier: notifier,
+        ),
+
+      (
+        final StructureChallengeContent content,
+        final StructureRuntimeState runtimeState,
+      )
+          when content.engineConfig.structureType == StructureType.linkedList =>
+        LinkedListSlotsChallengeBody(
+          structure: runtimeState.structure,
+          onValueDropped: ({required String slotId, required int value}) {
+            notifier.executeAction(
+              SetValueAction(slotId: slotId, value: value),
+            );
+          },
         ),
 
       (StructureChallengeContent(), StructureRuntimeState()) =>
