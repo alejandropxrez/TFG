@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 
 import 'level_state.dart';
-import 'session_manager.dart';
+import '../../domain/entities/session_manager.dart';
 
 final levelStateProvider = NotifierProvider<LevelStateNotifier, LevelState>(
   LevelStateNotifier.new,
