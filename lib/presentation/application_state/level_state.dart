@@ -1,7 +1,7 @@
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
-import 'session_manager.dart';
+import 'package:algoquest/domain/entities/session_manager.dart';
 
 enum LevelFlowStatus {
   idle,
