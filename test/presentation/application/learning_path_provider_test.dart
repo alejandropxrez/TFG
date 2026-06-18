@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/use_cases/reveal_challenge_answer_use_case.dart';
 import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/presentation/application_state/learning_path_provider.dart';
 import 'package:algoquest/presentation/application_state/learning_path_state.dart';
@@ -141,6 +142,7 @@ void main() {
       submitIdentifyTarget: const SubmitIdentifyTargetUseCase(),
       submitCategorization: const SubmitCategorizationUseCase(),
       getNextLevelId: GetNextLevelIdUseCase(contentRepository),
+      revealChallengeAnswer: RevealChallengeAnswerUseCase(),
     );
 
     container = ProviderContainer(

@@ -1,5 +1,6 @@
 import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/data/core/composition/use_cases.dart';
+import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/identify_target_action.dart';
 import 'package:algoquest/domain/entities/quiz_action.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
@@ -316,25 +317,44 @@ class LevelStateNotifier extends Notifier<LevelState> {
     );
   }
 
-  Future<void> restartCurrentChallenge({
-    required String userId,
-    required String sessionId,
-  }) async {
-    final manager = state.sessionManager;
-    final challengeId = manager?.currentChallengeId;
+  void restartCurrentChallenge() {
+    final spec = state.currentChallengeSpec;
+    final session = state.currentSession;
 
-    if (manager == null || challengeId == null) {
-      state = state.copyWith(
-        status: LevelFlowStatus.failed,
-        errorMessage: 'No current challenge available.',
-      );
-      return;
-    }
+    if (spec == null || session == null) return;
+    if (!session.hasAttemptsRemaining) return;
 
-    await _startChallenge(
-      userId: userId,
-      challengeId: challengeId,
-      sessionId: sessionId,
+    final restartedSession = ChallengeSession.start(
+      sessionId: session.sessionId,
+      userId: session.userId,
+      spec: spec,
+    ).copyWith(attemptsRemaining: session.attemptsRemaining);
+
+    state = state.copyWith(
+      currentSession: restartedSession,
+      status: LevelFlowStatus.playing,
+      clearError: true,
+    );
+  }
+
+  void revealCurrentChallengeAnswer() {
+    final spec = state.currentChallengeSpec;
+    final session = state.currentSession;
+
+    if (spec == null || session == null) return;
+    if (!session.hasNoAttemptsRemaining) return;
+
+    final updatedSession = _useCases.revealChallengeAnswer(
+      spec: spec,
+      session: session,
+    );
+
+    if (updatedSession == session) return;
+
+    state = state.copyWith(
+      currentSession: updatedSession,
+      status: LevelFlowStatus.challengeFailed,
+      clearError: true,
     );
   }
 

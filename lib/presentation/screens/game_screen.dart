@@ -118,12 +118,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _goBack(context);
       },
       onReset: session.hasAttemptsRemaining
-          ? () {
-              notifier.restartCurrentChallenge(
-                userId: userId,
-                sessionId: _newSessionId(),
-              );
-            }
+          ? notifier.restartCurrentChallenge
           : null,
       onUndo: session.canUndo ? notifier.undoLastAction : null,
       onRedo: session.canRedo ? notifier.redoLastAction : null,
@@ -283,18 +278,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           },
           onTryAgain: () {
             Navigator.of(context).pop();
-
-            final userId = ref.read(currentUserIdProvider);
-
-            notifier.restartCurrentChallenge(
-              userId: userId,
-              sessionId: _newSessionId(),
-            );
+            notifier.restartCurrentChallenge();
           },
           onShowAnswer: () {
             Navigator.of(context).pop();
-
-            // TODO: show solution when implementing this flow.
+            notifier.revealCurrentChallengeAnswer();
           },
         );
       },

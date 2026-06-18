@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/use_cases/reveal_challenge_answer_use_case.dart';
 import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
 import 'package:algoquest/data/models/level_syllabus_model.dart' as model;
@@ -340,6 +341,7 @@ void main() {
       submitIdentifyTarget: const SubmitIdentifyTargetUseCase(),
       submitCategorization: const SubmitCategorizationUseCase(),
       getNextLevelId: GetNextLevelIdUseCase(contentRepository),
+      revealChallengeAnswer: RevealChallengeAnswerUseCase(),
     );
 
     container = ProviderContainer(
@@ -652,6 +654,46 @@ void main() {
     expect(state.currentSession!.attemptsRemaining, 2);
     expect(state.currentSession!.status, SessionStatus.inProgress);
   });
+
+  test(
+    'restartCurrentChallenge resets runtime without creating a new session',
+    () async {
+      final notifier = container.read(levelStateProvider.notifier);
+
+      contentRepository.syllabuses['level_attempts'] = LevelSyllabus(
+        id: 'level_attempts',
+        title: 'Attempts Level',
+        topic: LevelTopic.heaps,
+        challenges: const ['challenge_attempts'],
+        rewards: const LevelRewards(xp: 100, stars: 3),
+      );
+
+      contentRepository.specs['challenge_attempts'] = buildAttemptsSpec(
+        validationStrategy: AlwaysFalseValidationStrategy(),
+        constraints: const [
+          MaxAttemptsConstraint(3),
+          LivesConsumedOnFailConstraint(1),
+        ],
+      );
+
+      await notifier.loadLevel('level_attempts');
+
+      await notifier.startCurrentChallenge(
+        userId: 'user_1',
+        sessionId: 'session_1',
+      );
+
+      notifier.checkSolution();
+      notifier.restartCurrentChallenge();
+
+      final state = container.read(levelStateProvider);
+
+      expect(state.status, LevelFlowStatus.playing);
+      expect(state.currentSession!.sessionId, 'session_1');
+      expect(state.currentSession!.attemptsRemaining, 2);
+      expect(state.currentSession!.status, SessionStatus.inProgress);
+    },
+  );
 
   test(
     'checkSolution marks challenge as failed when attempts reach zero',
