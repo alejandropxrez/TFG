@@ -6,11 +6,13 @@ class LinkedListSlotsChallengeBody extends StatelessWidget {
   final StructureState structure;
   final void Function({required String slotId, required int value})
   onValueDropped;
+  final void Function(String slotId)? onSlotCleared;
 
   const LinkedListSlotsChallengeBody({
     super.key,
     required this.structure,
     required this.onValueDropped,
+    this.onSlotCleared,
   });
 
   @override
@@ -25,6 +27,7 @@ class LinkedListSlotsChallengeBody extends StatelessWidget {
           slots: slots,
           nodes: structure.nodes,
           onValueDropped: onValueDropped,
+          onSlotCleared: onSlotCleared,
         ),
         const SizedBox(height: 20),
         _InventoryPanel(values: structure.inventory),
@@ -38,11 +41,13 @@ class _LinkedListPanel extends StatelessWidget {
   final Map<String, NodeState> nodes;
   final void Function({required String slotId, required int value})
   onValueDropped;
+  final void Function(String slotId)? onSlotCleared;
 
   const _LinkedListPanel({
     required this.slots,
     required this.nodes,
     required this.onValueDropped,
+    this.onSlotCleared,
   });
 
   @override
@@ -59,6 +64,7 @@ class _LinkedListPanel extends StatelessWidget {
                 slot: slots[index],
                 value: _valueForSlot(slots[index]),
                 onValueDropped: onValueDropped,
+                onSlotCleared: onSlotCleared,
               ),
               if (index != slots.length - 1) const _ArrowConnector(),
             ],
@@ -105,60 +111,80 @@ class _LinkedListSlot extends StatelessWidget {
   final int? value;
   final void Function({required String slotId, required int value})
   onValueDropped;
+  final void Function(String slotId)? onSlotCleared;
 
   const _LinkedListSlot({
     required this.slot,
     required this.value,
     required this.onValueDropped,
+    this.onSlotCleared,
   });
 
   @override
   Widget build(BuildContext context) {
-    return DragTarget<int>(
-      onWillAcceptWithDetails: (_) => value == null,
-      onAcceptWithDetails: (details) {
-        onValueDropped(slotId: slot.id, value: details.data);
-      },
-      builder: (context, candidateData, rejectedData) {
-        final isHovering = candidateData.isNotEmpty;
-        final hasValue = value != null;
+    return GestureDetector(
+      onTap: value == null ? null : () => onSlotCleared?.call(slot.id),
+      child: DragTarget<int>(
+        key: ValueKey('slot_${slot.id}'),
+        onWillAcceptWithDetails: (_) => true,
+        onAcceptWithDetails: (details) {
+          onValueDropped(slotId: slot.id, value: details.data);
+        },
+        builder: (context, candidateData, rejectedData) {
+          final isHovering = candidateData.isNotEmpty;
+          final hasValue = value != null;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: hasValue ? Colors.white : const Color(0xFFF2ECFF),
-            borderRadius: BorderRadius.circular(11),
-            border: Border.all(
-              color: isHovering
-                  ? const Color(0xFF6B3DEB)
-                  : const Color(0xFFB895FF),
-              width: isHovering ? 2 : 1.4,
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: hasValue ? Colors.white : const Color(0xFFF2ECFF),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                color: isHovering
+                    ? const Color(0xFF6B3DEB)
+                    : const Color(0xFFB895FF),
+                width: isHovering ? 2 : 1.4,
+              ),
+              boxShadow: isHovering
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF6B3DEB).withValues(alpha: 0.18),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
             ),
-            boxShadow: isHovering
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFF6B3DEB).withValues(alpha: 0.18),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          alignment: Alignment.center,
-          child: hasValue
-              ? Text(
-                  value.toString(),
-                  style: const TextStyle(
-                    color: Color(0xFF101235),
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                  ),
-                )
-              : const _EmptySlotDot(),
-        );
-      },
+            alignment: Alignment.center,
+            child: hasValue
+                ? Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Center(
+                        child: Text(
+                          value.toString(),
+                          style: const TextStyle(
+                            color: Color(0xFF101235),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: -15,
+                        top: -15,
+                        child: _ClearSlotBadge(
+                          onTap: () => onSlotCleared?.call(slot.id),
+                        ),
+                      ),
+                    ],
+                  )
+                : const _EmptySlotDot(),
+          );
+        },
+      ),
     );
   }
 }
@@ -330,6 +356,40 @@ class _PanelTitle extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ClearSlotBadge extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _ClearSlotBadge({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 34,
+      height: 34,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Center(
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                color: Color(0xFFFF5C5C),
+                shape: BoxShape.circle,
+              ),
+              child: const SizedBox(
+                width: 18,
+                height: 18,
+                child: Icon(Icons.close_rounded, color: Colors.white, size: 13),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

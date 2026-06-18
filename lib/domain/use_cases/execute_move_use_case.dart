@@ -84,6 +84,12 @@ class ExecuteMoveUseCase {
             return false;
           }
         }
+
+        if (action is ClearSlotAction) {
+          if (constraint.nodeIds.contains(action.slotId)) {
+            return false;
+          }
+        }
       }
     }
 
@@ -100,9 +106,9 @@ class ExecuteMoveUseCase {
       case InteractionModeType.swap:
         return action is SwapNodesAction;
       case InteractionModeType.setValue:
-        return action is SetValueAction;
+        return action is SetValueAction || action is ClearSlotAction;
       case InteractionModeType.drag:
-        return action is SetValueAction;
+        return action is SetValueAction || action is ClearSlotAction;
       case InteractionModeType.link:
         return action is LinkAction || action is RemoveLinkAction;
     }

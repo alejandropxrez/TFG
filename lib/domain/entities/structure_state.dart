@@ -87,6 +87,8 @@ class EdgeState {
   const EdgeState({required this.source, required this.target});
 }
 
+const _unset = Object();
+
 class SlotState {
   final String id;
   final int? index;
@@ -94,11 +96,13 @@ class SlotState {
 
   const SlotState({required this.id, this.index, this.filledNodeId});
 
-  SlotState copyWith({String? filledNodeId}) {
+  SlotState copyWith({Object? filledNodeId = _unset}) {
     return SlotState(
       id: id,
       index: index,
-      filledNodeId: filledNodeId ?? this.filledNodeId,
+      filledNodeId: filledNodeId == _unset
+          ? this.filledNodeId
+          : filledNodeId as String?,
     );
   }
 }

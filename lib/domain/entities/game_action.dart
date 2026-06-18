@@ -50,7 +50,6 @@ class SetValueAction extends GameAction {
     final slot = state.slots[slotId];
 
     if (slot == null) return false;
-    if (slot.filledNodeId != null) return false;
     if (!state.inventory.contains(value)) return false;
 
     return _findAvailableNodeForValue(state) != null;
@@ -61,15 +60,24 @@ class SetValueAction extends GameAction {
     if (!isApplicableTo(currentState)) return currentState;
 
     final slot = currentState.slots[slotId]!;
-    final node = _findAvailableNodeForValue(currentState);
+    final nextNode = _findAvailableNodeForValue(currentState);
 
-    if (node == null) return currentState;
+    if (nextNode == null) return currentState;
+
+    final previousFilledNodeId = slot.filledNodeId;
+    final previousValue = previousFilledNodeId == null
+        ? null
+        : currentState.nodes[previousFilledNodeId]?.value;
 
     final updatedSlots = Map<String, SlotState>.from(currentState.slots)
-      ..[slotId] = slot.copyWith(filledNodeId: node.id);
+      ..[slotId] = slot.copyWith(filledNodeId: nextNode.id);
 
     final updatedInventory = List<int>.from(currentState.inventory)
       ..remove(value);
+
+    if (previousValue != null) {
+      updatedInventory.add(previousValue);
+    }
 
     return currentState.copyWith(
       slots: updatedSlots,
@@ -160,6 +168,44 @@ class RemoveLinkAction extends GameAction {
                         edge.target == sourceNodeId)),
           )
           .toList(growable: false),
+    );
+  }
+}
+
+class ClearSlotAction extends GameAction {
+  final String slotId;
+
+  const ClearSlotAction({required this.slotId});
+
+  @override
+  bool isApplicableTo(StructureState state) {
+    final slot = state.slots[slotId];
+
+    if (slot == null) return false;
+    if (slot.filledNodeId == null) return false;
+
+    final filledNode = state.nodes[slot.filledNodeId];
+
+    return filledNode?.value != null;
+  }
+
+  @override
+  StructureState transform(StructureState currentState) {
+    if (!isApplicableTo(currentState)) return currentState;
+
+    final slot = currentState.slots[slotId]!;
+    final filledNodeId = slot.filledNodeId!;
+    final filledNode = currentState.nodes[filledNodeId]!;
+
+    final updatedSlots = Map<String, SlotState>.from(currentState.slots)
+      ..[slotId] = slot.copyWith(filledNodeId: null);
+
+    final updatedInventory = List<int>.from(currentState.inventory)
+      ..add(filledNode.value!);
+
+    return currentState.copyWith(
+      slots: updatedSlots,
+      inventory: updatedInventory,
     );
   }
 }

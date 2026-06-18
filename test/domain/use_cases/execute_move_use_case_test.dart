@@ -376,6 +376,31 @@ void main() {
     expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 10);
   });
 
+  test(
+    'SetValueAction replaces a filled slot and returns previous value to inventory',
+    () {
+      final state = StructureState.fromNodesAndEdges(
+        type: StructureType.linkedList,
+        nodes: const [
+          NodeState(id: 'n2', value: 2),
+          NodeState(id: 'n4', value: 4),
+        ],
+        edges: const [],
+        slots: const [SlotState(id: 's1', index: 0, filledNodeId: 'n2')],
+        inventory: const [4],
+      );
+
+      const action = SetValueAction(slotId: 's1', value: 4);
+
+      expect(action.isApplicableTo(state), isTrue);
+
+      final nextState = action.transform(state);
+
+      expect(nextState.slots['s1']?.filledNodeId, 'n4');
+      expect(nextState.inventory, [2]);
+    },
+  );
+
   test('does not execute SwapNodesAction in setValue interaction mode', () {
     final spec = buildSetValueSpec();
 

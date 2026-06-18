@@ -70,13 +70,20 @@ abstract final class ChallengeBodyFactory {
         final StructureChallengeContent content,
         final StructureRuntimeState runtimeState,
       )
-          when content.engineConfig.structureType == StructureType.linkedList =>
+          when content.engineConfig.structureType == StructureType.linkedList &&
+              content.engineConfig.layoutStrategy ==
+                  LayoutStrategyType.linear &&
+              content.engineConfig.interactionMode ==
+                  InteractionModeType.drag =>
         LinkedListSlotsChallengeBody(
           structure: runtimeState.structure,
           onValueDropped: ({required String slotId, required int value}) {
             notifier.executeAction(
               SetValueAction(slotId: slotId, value: value),
             );
+          },
+          onSlotCleared: (slotId) {
+            notifier.executeAction(ClearSlotAction(slotId: slotId));
           },
         ),
 

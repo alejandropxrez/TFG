@@ -183,6 +183,64 @@ void main() {
         expect(structure.inventory, [4]);
       },
     );
+
+    test('linked-list body clears filled slot through real notifier flow', () {
+      final notifier = container.read(levelStateProvider.notifier);
+      final spec = _linkedListDragSpec();
+
+      final session = ChallengeSession(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: spec,
+        runtimeState: StructureRuntimeState(
+          structure: StructureState.fromNodesAndEdges(
+            type: StructureType.linkedList,
+            nodes: const [
+              NodeState(id: 'n2', value: 2),
+              NodeState(id: 'n4', value: 4),
+            ],
+            edges: const [],
+            slots: const [SlotState(id: 's1', index: 0, filledNodeId: 'n2')],
+            inventory: const [4],
+          ),
+          movesUsed: 0,
+          history: const [],
+          redoStack: const [],
+        ),
+        status: SessionStatus.inProgress,
+        startedAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+        attemptsRemaining: 3,
+      );
+
+      container.read(levelStateProvider.notifier).state = container
+          .read(levelStateProvider)
+          .copyWith(currentChallengeSpec: spec, currentSession: session);
+
+      final body = ChallengeBodyFactory.build(
+        spec: spec,
+        runtimeState: session.runtimeState,
+        game: AlgoQuestGame(),
+        notifier: notifier,
+      );
+
+      expect(body, isA<LinkedListSlotsChallengeBody>());
+
+      final linkedListBody = body as LinkedListSlotsChallengeBody;
+
+      linkedListBody.onSlotCleared?.call('s1');
+
+      final nextSession = container.read(levelStateProvider).currentSession;
+      final runtimeState = nextSession?.runtimeState;
+
+      expect(runtimeState, isA<StructureRuntimeState>());
+
+      final structure = (runtimeState! as StructureRuntimeState).structure;
+
+      expect(structure.slots['s1']?.filledNodeId, isNull);
+      expect(structure.inventory, contains(2));
+      expect(structure.inventory, contains(4));
+    });
   });
 }
 
