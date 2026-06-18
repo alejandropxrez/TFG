@@ -326,20 +326,15 @@ class LevelStateNotifier extends Notifier<LevelState> {
   }
 
   void restartCurrentChallenge() {
-    final spec = state.currentChallengeSpec;
     final session = state.currentSession;
+    if (session == null) return;
 
-    if (spec == null || session == null) return;
-    if (!session.hasAttemptsRemaining) return;
+    final updatedSession = _useCases.restartChallengeSession(session);
 
-    final restartedSession = ChallengeSession.start(
-      sessionId: session.sessionId,
-      userId: session.userId,
-      spec: spec,
-    ).copyWith(attemptsRemaining: session.attemptsRemaining);
+    if (updatedSession == session) return;
 
     state = state.copyWith(
-      currentSession: restartedSession,
+      currentSession: updatedSession,
       status: LevelFlowStatus.playing,
       clearError: true,
     );

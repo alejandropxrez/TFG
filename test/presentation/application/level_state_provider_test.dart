@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/use_cases/restart_challenge_session_use_case.dart';
 import 'package:algoquest/domain/use_cases/reveal_challenge_answer_use_case.dart';
 import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/data/mappers/level_syllabus_mapper.dart';
@@ -342,6 +343,7 @@ void main() {
       submitCategorization: const SubmitCategorizationUseCase(),
       getNextLevelId: GetNextLevelIdUseCase(contentRepository),
       revealChallengeAnswer: RevealChallengeAnswerUseCase(),
+      restartChallengeSession: RestartChallengeSessionUseCase(),
     );
 
     container = ProviderContainer(
