@@ -51,12 +51,6 @@ class _ChallengeSelectBoxState extends State<ChallengeSelectBox> {
   }
 
   @override
-  void dispose() {
-    _removeOverlay();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final selectedOption = _selectedOption;
 
@@ -129,6 +123,8 @@ class _ChallengeSelectBoxState extends State<ChallengeSelectBox> {
   }
 
   void _showOverlay() {
+    if (widget.options.isEmpty || _isOpen) return;
+
     final renderBox = context.findRenderObject() as RenderBox?;
     if (renderBox == null || !renderBox.hasSize) return;
 
@@ -171,11 +167,17 @@ class _ChallengeSelectBoxState extends State<ChallengeSelectBox> {
     setState(() {});
   }
 
-  void _removeOverlay() {
+  @override
+  void dispose() {
+    _removeOverlay(notify: false);
+    super.dispose();
+  }
+
+  void _removeOverlay({bool notify = true}) {
     _overlayEntry?.remove();
     _overlayEntry = null;
 
-    if (mounted) {
+    if (notify && mounted) {
       setState(() {});
     }
   }

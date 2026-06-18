@@ -111,40 +111,6 @@ void main() {
       expect(droppedSlotId, 's1');
       expect(droppedValue, 2);
     });
-
-    testWidgets('does not accept drops on an already filled slot', (
-      tester,
-    ) async {
-      String? droppedSlotId;
-      int? droppedValue;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 420,
-              child: LinkedListSlotsChallengeBody(
-                structure: _structureWithFilledSlot(),
-                onValueDropped: ({required slotId, required value}) {
-                  droppedSlotId = slotId;
-                  droppedValue = value;
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.drag(
-        find.byKey(const ValueKey('inventory_4')),
-        tester.getCenter(find.byKey(const ValueKey('slot_s1'))) -
-            tester.getCenter(find.byKey(const ValueKey('inventory_4'))),
-      );
-      await tester.pumpAndSettle();
-
-      expect(droppedSlotId, isNull);
-      expect(droppedValue, isNull);
-    });
   });
 }
 

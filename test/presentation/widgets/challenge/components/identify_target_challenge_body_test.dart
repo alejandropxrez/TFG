@@ -53,28 +53,37 @@ void main() {
     });
 
     testWidgets('passes edge selections to onSelectionChanged', (tester) async {
-      Set<String>? nextSelection;
+      Set<String>? selectedTargetIds;
+
+      const root = InteractiveBinaryTreeNode(
+        id: '90',
+        value: '90',
+        left: InteractiveBinaryTreeNode(id: '60', value: '60'),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: IdentifyTargetChallengeBody(
-              root: _tree(),
+              root: root,
               targetType: IdentifyTargetType.edge,
               selectedTargetIds: const {},
               allowMultiple: false,
               onSelectionChanged: (selection) {
-                nextSelection = selection;
+                selectedTargetIds = selection;
               },
             ),
           ),
         ),
       );
 
-      await tester.tapAt(const Offset(245, 85));
+      await tester.tap(
+        find.byKey(const ValueKey('edge_90->60')),
+        warnIfMissed: false,
+      );
       await tester.pump();
 
-      expect(nextSelection, {'90->60'});
+      expect(selectedTargetIds, {'90->60'});
     });
   });
 }

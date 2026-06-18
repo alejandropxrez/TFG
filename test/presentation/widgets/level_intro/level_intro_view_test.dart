@@ -106,7 +106,7 @@ void main() {
 
     expect(find.text('¡Tú puedes!'), findsOneWidget);
     expect(
-      find.textContaining('¡Tienes 3 desafios por delante'),
+      '¡Tienes 3 desafíos por delante para mejorar tus habilidades!',
       findsOneWidget,
     );
   });

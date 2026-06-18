@@ -92,7 +92,11 @@ class _BinaryTreeCanvas extends StatelessWidget {
 
         if (_isSelectingEdges)
           for (final edge in positionedEdges)
-            _EdgeHitTarget(edge: edge, onTap: () => _toggleSelection(edge.id)),
+            _EdgeHitTarget(
+              key: ValueKey('edge_${edge.id}'),
+              edge: edge,
+              onTap: () => _toggleSelection(edge.id),
+            ),
 
         for (final positionedNode in positionedNodes)
           Positioned(
@@ -275,19 +279,32 @@ class _EdgeHitTarget extends StatelessWidget {
   final _PositionedTreeEdge edge;
   final VoidCallback onTap;
 
-  const _EdgeHitTarget({required this.edge, required this.onTap});
+  const _EdgeHitTarget({super.key, required this.edge, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final start = edge.start;
+    final end = edge.end;
+
+    final dx = end.dx - start.dx;
+    final dy = end.dy - start.dy;
+    final length = Offset(dx, dy).distance;
+    final angle = Offset(dx, dy).direction;
+
+    final center = Offset((start.dx + end.dx) / 2, (start.dy + end.dy) / 2);
+
     return Positioned(
-      left: edge.bounds.left,
-      top: edge.bounds.top,
-      width: edge.bounds.width,
-      height: edge.bounds.height,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: onTap,
-        child: const SizedBox.expand(),
+      left: center.dx - length / 2,
+      top: center.dy - 18,
+      width: length,
+      height: 36,
+      child: Transform.rotate(
+        angle: angle,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: const SizedBox.expand(),
+        ),
       ),
     );
   }

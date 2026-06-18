@@ -197,6 +197,7 @@ class _InventoryValueChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Draggable<int>(
+      key: ValueKey('inventory_$value'),
       data: value,
       feedback: Material(
         color: Colors.transparent,

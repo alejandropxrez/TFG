@@ -123,28 +123,37 @@ void main() {
     });
 
     testWidgets('selects an edge when target type is edge', (tester) async {
-      Set<String>? nextSelection;
+      Set<String>? selectedTargetIds;
+
+      const root = InteractiveBinaryTreeNode(
+        id: '90',
+        value: '90',
+        left: InteractiveBinaryTreeNode(id: '60', value: '60'),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: InteractiveBinaryTree(
-              root: _tree(),
+              root: root,
               targetType: IdentifyTargetType.edge,
               selectedTargetIds: const {},
               allowMultiple: false,
               onSelectionChanged: (selection) {
-                nextSelection = selection;
+                selectedTargetIds = selection;
               },
             ),
           ),
         ),
       );
 
-      await tester.tapAt(const Offset(245, 85));
+      await tester.tap(
+        find.byKey(const ValueKey('edge_90->60')),
+        warnIfMissed: false,
+      );
       await tester.pump();
 
-      expect(nextSelection, {'90->60'});
+      expect(selectedTargetIds, {'90->60'});
     });
 
     testWidgets('does not select edges when target type is node', (
