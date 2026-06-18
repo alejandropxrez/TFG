@@ -60,6 +60,28 @@ void main() {
     expect(level.title, 'Heaps Intro');
   });
 
+  test('ContentRepositoryImpl maps global syllabus to domain', () async {
+    final ds = FakeContentLocalDataSource(
+      syllabus: _testSyllabus(),
+      levels: const {},
+      challenges: const {},
+    );
+
+    final repo = ContentRepositoryImpl(ds);
+
+    final syllabus = await repo.getSyllabus();
+
+    expect(syllabus.title, 'AlgoQuest');
+    expect(syllabus.phases.length, 2);
+    expect(syllabus.phases[0].id, 'phase_1');
+    expect(syllabus.phases[0].title, 'Phase 1');
+    expect(syllabus.phases[0].levels.map((level) => level.id), [
+      'level_1',
+      'level_2',
+    ]);
+    expect(syllabus.phases[1].levels.single.id, 'level_3');
+  });
+
   test(
     'ContentRepositoryImpl returns next level id from syllabus order',
     () async {

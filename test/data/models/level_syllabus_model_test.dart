@@ -11,6 +11,7 @@ void main() {
       {
         "id": "level_bst_insertion",
         "title": "Inserción en BST",
+        "subtitle": "Aprende a insertar nodos en un BST",
         "topic": "BST",
         "challenges": ["bst_ins_tuto", "bst_ins_easy", "bst_ins_hard"],
         "rewards": { "xp": 100, "stars": 3 }
@@ -23,6 +24,7 @@ void main() {
 
       expect(level.id, 'level_bst_insertion');
       expect(level.title, 'Inserción en BST');
+      expect(level.subtitle, 'Aprende a insertar nodos en un BST');
       expect(level.topic, LevelTopic.bst);
       expect(level.challenges, [
         'bst_ins_tuto',
@@ -68,6 +70,18 @@ void main() {
       final rewards = jsonMap['rewards'] as RewardsModel;
       expect(rewards.xp, 50);
       expect(rewards.stars, 2);
+    });
+
+    test('defaults subtitle to empty string when omitted', () {
+      final level = LevelSyllabusModel.fromJson({
+        'id': 'level_heaps_1',
+        'title': 'Heaps 1',
+        'topic': 'HEAPS',
+        'challenges': ['heap_1'],
+        'rewards': {'xp': 50, 'stars': 2},
+      });
+
+      expect(level.subtitle, '');
     });
   });
 
@@ -115,5 +129,20 @@ void main() {
     expect(domain.theory, isNotNull);
     expect(domain.theory!.title, '¿Qué es un Max-Heap?');
     expect(domain.theory!.keyPoints, ['La raíz contiene el valor máximo.']);
+  });
+
+  test('maps subtitle to domain', () {
+    final model = LevelSyllabusModel.fromJson({
+      'id': 'level_heap_intro',
+      'title': 'Introducción a Heaps',
+      'subtitle': 'Repara heaps usando intercambios',
+      'topic': 'HEAPS',
+      'challenges': ['quiz_heap_property'],
+      'rewards': {'xp': 100, 'stars': 3},
+    });
+
+    final domain = LevelSyllabusMapper.toDomain(model);
+
+    expect(domain.subtitle, 'Repara heaps usando intercambios');
   });
 }
