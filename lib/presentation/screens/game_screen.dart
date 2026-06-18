@@ -9,8 +9,8 @@ import 'package:algoquest/presentation/game/strategies/interaction/identify_inte
 import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:algoquest/presentation/theme/app_assets.dart';
 import 'package:algoquest/presentation/widgets/challenge/categorize_challenge_body.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_result_dialog.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_screen_layout.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_result_dialog.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_screen_layout.dart';
 import 'package:algoquest/presentation/widgets/level_intro/level_intro_view.dart';
 import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
 import 'package:flame/game.dart';

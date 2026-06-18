@@ -37,4 +37,5 @@ class AppAssets {
   static const String lightBulb = 'assets/images/light_bulb.png';
   static const String graduationCap = 'assets/images/graduation_cap.png';
   static const String binaryTree = 'assets/images/binary_tree.png';
+  static const String binaryTreeNode = 'assets/images/binary_tree_node.png';
 }

@@ -1,5 +1,5 @@
 import 'package:algoquest/domain/entities/categorize_spec.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_select_box.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_select_box.dart';
 import 'package:flutter/material.dart';
 
 class CategorizeChallengeBody extends StatelessWidget {
