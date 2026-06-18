@@ -1,5 +1,4 @@
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
-import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
 import 'package:algoquest/domain/entities/structure_state.dart';
@@ -9,13 +8,10 @@ import 'package:algoquest/presentation/application_state/level_state_provider.da
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:algoquest/presentation/theme/app_assets.dart';
-import 'package:algoquest/presentation/widgets/challenge/categorize_challenge_body.dart';
+import 'package:algoquest/presentation/widgets/challenge/challenge_body_factory.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/challenge_result_dialog.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/challenge_screen_layout.dart';
-import 'package:algoquest/presentation/widgets/challenge/components/interactive_binary_tree.dart';
-import 'package:algoquest/presentation/widgets/challenge/identify_target_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/level_intro/level_intro_view.dart';
-import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -125,11 +121,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       onCheckAnswer: () {
         _showFeedbackDialog(context: context, notifier: notifier, state: state);
       },
-      challengeBody: _buildChallengeBody(
+      challengeBody: ChallengeBodyFactory.build(
         spec: spec,
-        session: session,
-        notifier: notifier,
+        runtimeState: session.runtimeState,
         game: game,
+        notifier: notifier,
       ),
     );
   }
@@ -231,143 +227,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         .startCurrentChallenge(userId: userId, sessionId: _newSessionId());
   }
 
-  Widget _buildChallengeBody({
-    required ChallengeSpec spec,
-    required ChallengeSession session,
-    required LevelStateNotifier notifier,
-    required AlgoQuestGame game,
-  }) {
-    return switch ((spec.content, session.runtimeState)) {
-      (
-        QuizChallengeContent(:final quizSpec),
-        QuizRuntimeState(:final selectedOptionIds),
-      ) =>
-        QuizChallengeView(
-          quizSpec: quizSpec,
-          selectedOptionIds: selectedOptionIds,
-          onSelectOption: (optionId) {
-            notifier.submitQuizAnswer(
-              _nextQuizSelection(
-                optionId: optionId,
-                selectedOptionIds: selectedOptionIds,
-                allowMultiple: quizSpec.allowMultiple,
-              ),
-            );
-          },
-        ),
-
-      (
-        CategorizeChallengeContent(:final categorizeSpec),
-        CategorizeRuntimeState(:final selectedCategoryByItemId),
-      ) =>
-        CategorizeChallengeBody(
-          categorizeSpec: categorizeSpec,
-          selectedCategoryByItemId: selectedCategoryByItemId,
-          onCategorySelected:
-              ({required String itemId, required String categoryId}) {
-                notifier.submitCategorization(
-                  itemId: itemId,
-                  categoryId: categoryId,
-                );
-              },
-        ),
-
-      (
-        final IdentifyTargetChallengeContent content,
-        final IdentifyTargetRuntimeState runtimeState,
-      ) =>
-        _buildIdentifyTargetBody(
-          content: content,
-          runtimeState: runtimeState,
-          notifier: notifier,
-          fallbackGame: game,
-        ),
-
-      _ => _GameChallengeBox(game: game),
-    };
-  }
-
-  Set<String> _nextQuizSelection({
-    required String optionId,
-    required Set<String> selectedOptionIds,
-    required bool allowMultiple,
-  }) {
-    if (!allowMultiple) {
-      return {optionId};
-    }
-
-    final nextSelection = {...selectedOptionIds};
-
-    if (nextSelection.contains(optionId)) {
-      nextSelection.remove(optionId);
-    } else {
-      nextSelection.add(optionId);
-    }
-
-    return nextSelection;
-  }
-
-  Widget _buildIdentifyTargetBody({
-    required IdentifyTargetChallengeContent content,
-    required IdentifyTargetRuntimeState runtimeState,
-    required LevelStateNotifier notifier,
-    required AlgoQuestGame fallbackGame,
-  }) {
-    final root = _interactiveTreeFromStructure(runtimeState.visualState);
-
-    if (root == null) {
-      return _GameChallengeBox(game: fallbackGame);
-    }
-
-    return IdentifyTargetChallengeBody(
-      root: root,
-      targetType: content.identifySpec.targetType,
-      selectedTargetIds: runtimeState.selectedTargetIds,
-      allowMultiple: content.identifySpec.allowMultiple,
-      onSelectionChanged: notifier.submitIdentifyTarget,
-    );
-  }
-
-  InteractiveBinaryTreeNode? _interactiveTreeFromStructure(
-    StructureState structure,
-  ) {
-    if (structure.nodes.isEmpty) {
-      return null;
-    }
-
-    final childrenByParentId = <String, List<String>>{};
-
-    for (final edge in structure.edges) {
-      childrenByParentId.putIfAbsent(edge.source, () => []).add(edge.target);
-    }
-
-    final childIds = {for (final edge in structure.edges) edge.target};
-
-    final rootState = structure.nodes.values.firstWhere(
-      (node) => !childIds.contains(node.id),
-      orElse: () => structure.nodes.values.first,
-    );
-
-    InteractiveBinaryTreeNode buildNode(String nodeId) {
-      final node = structure.nodes[nodeId];
-
-      if (node == null) {
-        return InteractiveBinaryTreeNode(id: nodeId, value: '?');
-      }
-
-      final children = childrenByParentId[nodeId] ?? const <String>[];
-
-      return InteractiveBinaryTreeNode(
-        id: node.id,
-        value: node.value?.toString() ?? '',
-        left: children.isNotEmpty ? buildNode(children[0]) : null,
-        right: children.length > 1 ? buildNode(children[1]) : null,
-      );
-    }
-
-    return buildNode(rootState.id);
-  }
-
   void _showFeedbackDialog({
     required BuildContext context,
     required LevelStateNotifier notifier,
@@ -454,23 +313,5 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   String _newSessionId() {
     return 'session_${DateTime.now().millisecondsSinceEpoch}';
-  }
-}
-
-class _GameChallengeBox extends StatelessWidget {
-  final AlgoQuestGame game;
-
-  const _GameChallengeBox({required this.game});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 360,
-      width: double.infinity,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: GameWidget(game: game),
-      ),
-    );
   }
 }
