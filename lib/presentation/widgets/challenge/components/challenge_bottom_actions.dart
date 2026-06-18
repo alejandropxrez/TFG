@@ -4,9 +4,9 @@ import 'package:algoquest/presentation/widgets/challenge/components/challenge_se
 import 'package:flutter/material.dart';
 
 class ChallengeBottomActions extends StatelessWidget {
-  static const _resetColor = Color(0xFFE11D48); // Rose
-  static const _undoColor = Color(0xFF6366F1); // Indigo
-  static const _redoColor = Color(0xFF14B8A6); // Teal
+  static const _resetColor = Color(0xFFE11D48);
+  static const _undoColor = Color(0xFF6366F1);
+  static const _redoColor = Color(0xFF14B8A6);
 
   final VoidCallback? onReset;
   final VoidCallback? onUndo;
