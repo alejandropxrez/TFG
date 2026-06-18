@@ -1,5 +1,5 @@
 import 'package:algoquest/presentation/theme/app_assets.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_hearts_indicator.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_hearts_indicator.dart';
 import 'package:algoquest/presentation/widgets/shared/app_back_button.dart';
 import 'package:flutter/material.dart';
 

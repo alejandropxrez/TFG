@@ -1,8 +1,8 @@
 import 'package:algoquest/presentation/theme/app_assets.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_bottom_actions.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_progress_bar.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_question_card.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_top_header.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_bottom_actions.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_progress_bar.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_question_card.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_top_header.dart';
 import 'package:algoquest/presentation/widgets/shared/mascot_message_card.dart';
 import 'package:flutter/material.dart';
 

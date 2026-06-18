@@ -1,5 +1,5 @@
 import 'package:algoquest/presentation/theme/app_assets.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_action_button.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_action_button.dart';
 import 'package:flutter/material.dart';
 
 class ChallengeBottomActions extends StatelessWidget {

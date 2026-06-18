@@ -1,8 +1,8 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/presentation/copy/challenge_result_copy.dart';
 import 'package:algoquest/presentation/theme/app_assets.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_action_button.dart';
-import 'package:algoquest/presentation/widgets/challenge/challenge_hearts_indicator.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_action_button.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_hearts_indicator.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 

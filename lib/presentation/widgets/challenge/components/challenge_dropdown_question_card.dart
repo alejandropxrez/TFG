@@ -1,4 +1,4 @@
-import 'package:algoquest/presentation/widgets/challenge/challenge_select_box.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/challenge_select_box.dart';
 import 'package:flutter/material.dart';
 
 class ChallengeDropdownOption {
