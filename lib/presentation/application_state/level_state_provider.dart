@@ -171,7 +171,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
     return false;
   }
 
-  Future<void> completeCurrentChallenge({
+  Future<bool> completeCurrentChallenge({
     required String userId,
     required String nextSessionId,
   }) async {
@@ -179,7 +179,9 @@ class LevelStateNotifier extends Notifier<LevelState> {
     final session = state.currentSession;
     final syllabus = state.syllabus;
 
-    if (manager == null || session == null || syllabus == null) return;
+    if (manager == null || session == null || syllabus == null) {
+      return false;
+    }
 
     final alreadySolved =
         session.status == SessionStatus.completed ||
@@ -195,7 +197,8 @@ class LevelStateNotifier extends Notifier<LevelState> {
           status: LevelFlowStatus.playing,
           clearError: true,
         );
-        return;
+
+        return false;
       }
 
       state = state.copyWith(
@@ -237,17 +240,18 @@ class LevelStateNotifier extends Notifier<LevelState> {
         state = state.copyWith(
           sessionManager: nextManager,
           status: LevelFlowStatus.completed,
-          clearChallenge: true,
           clearError: true,
         );
+
+        return true;
       } catch (error) {
         state = state.copyWith(
           status: LevelFlowStatus.failed,
           errorMessage: error.toString(),
         );
-      }
 
-      return;
+        return false;
+      }
     }
 
     state = state.copyWith(
@@ -260,10 +264,12 @@ class LevelStateNotifier extends Notifier<LevelState> {
 
     if (nextChallengeId == null) {
       state = state.copyWith(
+        sessionManager: nextManager,
         status: LevelFlowStatus.completed,
-        clearChallenge: true,
+        clearError: true,
       );
-      return;
+
+      return true;
     }
 
     await _startChallenge(
@@ -271,6 +277,8 @@ class LevelStateNotifier extends Notifier<LevelState> {
       challengeId: nextChallengeId,
       sessionId: nextSessionId,
     );
+
+    return false;
   }
 
   void resetLevelFlow() {

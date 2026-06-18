@@ -266,15 +266,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           attemptsRemaining: attemptsRemaining,
           canTryAgain: nextSession.canTryAgain,
           canRevealAnswer: nextSession.canRevealAnswer,
-          onContinue: () {
+          onContinue: () async {
             Navigator.of(context).pop();
 
             final userId = ref.read(currentUserIdProvider);
 
-            notifier.completeCurrentChallenge(
+            final levelCompleted = await notifier.completeCurrentChallenge(
               userId: userId,
               nextSessionId: _newSessionId(),
             );
+
+            if (!context.mounted) return;
+
+            if (levelCompleted) {
+              context.goNamed(AppRouter.learningPathName);
+            }
           },
           onTryAgain: () {
             Navigator.of(context).pop();
