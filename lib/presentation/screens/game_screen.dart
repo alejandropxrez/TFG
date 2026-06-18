@@ -1,16 +1,19 @@
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
+import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
+import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/presentation/application_state/level_state.dart';
 import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
-import 'package:algoquest/presentation/game/strategies/interaction/identify_interaction_strategy.dart';
 import 'package:algoquest/presentation/router/app_router.dart';
 import 'package:algoquest/presentation/theme/app_assets.dart';
 import 'package:algoquest/presentation/widgets/challenge/categorize_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/challenge_result_dialog.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/challenge_screen_layout.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/interactive_binary_tree.dart';
+import 'package:algoquest/presentation/widgets/challenge/identify_target_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/level_intro/level_intro_view.dart';
 import 'package:algoquest/presentation/widgets/quiz_challenge_view.dart';
 import 'package:flame/game.dart';
@@ -123,7 +126,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _showFeedbackDialog(context: context, notifier: notifier, state: state);
       },
       challengeBody: _buildChallengeBody(
-        state: state,
+        spec: spec,
+        session: session,
         notifier: notifier,
         game: game,
       ),
@@ -169,79 +173,42 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       return;
     }
 
-    final content = spec.content;
-    final runtimeState = session.runtimeState;
-
-    final previousSpecId = previous?.currentChallengeSpec?.id;
-    final nextSpecId = spec.id;
-    final previousRuntimeState = previous?.currentSession?.runtimeState;
-
-    switch ((content, runtimeState)) {
+    switch ((spec.content, session.runtimeState)) {
       case (
         final StructureChallengeContent structureContent,
         StructureRuntimeState(:final structure),
       ):
-        final previousStructure = previousRuntimeState is StructureRuntimeState
-            ? previousRuntimeState.structure
-            : null;
-
-        final shouldUpdateScene =
-            previousSpecId != nextSpecId || previousStructure != structure;
-
-        if (!shouldUpdateScene) return;
-
-        game.updateScene(structureContent: structureContent, state: structure);
-
-      case (
-        IdentifyTargetChallengeContent(
-          :final identifySpec,
-          :final visualStructure,
-        ),
-        IdentifyTargetRuntimeState(
-          :final visualState,
-          :final selectedTargetIds,
-        ),
-      ):
-        final previousVisualState =
-            previousRuntimeState is IdentifyTargetRuntimeState
-            ? previousRuntimeState.visualState
-            : null;
-
-        final previousSelectedTargetIds =
-            previousRuntimeState is IdentifyTargetRuntimeState
-            ? previousRuntimeState.selectedTargetIds
-            : const <String>{};
-
-        final shouldUpdateScene =
-            previousSpecId != nextSpecId ||
-            previousVisualState != visualState ||
-            previousSelectedTargetIds != selectedTargetIds;
-
-        if (!shouldUpdateScene) return;
-
-        game.updateScene(
-          structureContent: visualStructure,
-          state: visualState,
-          interactionStrategy: IdentifyInteractionStrategy(
-            selectedTargetIds: selectedTargetIds,
-            allowMultiple: identifySpec.allowMultiple,
-            onSelectionChanged: (nextSelection) {
-              ref
-                  .read(levelStateProvider.notifier)
-                  .submitIdentifyTarget(nextSelection);
-            },
-          ),
+        _syncStructureScene(
+          previous: previous,
+          spec: spec,
+          structureContent: structureContent,
+          structure: structure,
         );
-
-      case (QuizChallengeContent(), QuizRuntimeState()):
-        game.clearScene();
-
-      case (CategorizeChallengeContent(), CategorizeRuntimeState()):
-        game.clearScene();
 
       default:
         game.clearScene();
     }
+  }
+
+  void _syncStructureScene({
+    required LevelState? previous,
+    required ChallengeSpec spec,
+    required StructureChallengeContent structureContent,
+    required StructureState structure,
+  }) {
+    final previousSpecId = previous?.currentChallengeSpec?.id;
+    final previousRuntimeState = previous?.currentSession?.runtimeState;
+
+    final previousStructure = previousRuntimeState is StructureRuntimeState
+        ? previousRuntimeState.structure
+        : null;
+
+    final shouldUpdateScene =
+        previousSpecId != spec.id || previousStructure != structure;
+
+    if (!shouldUpdateScene) return;
+
+    game.updateScene(structureContent: structureContent, state: structure);
   }
 
   void _startChallengeAutomaticallyIfNeeded(LevelState state) {
@@ -265,54 +232,140 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildChallengeBody({
-    required LevelState state,
+    required ChallengeSpec spec,
+    required ChallengeSession session,
     required LevelStateNotifier notifier,
     required AlgoQuestGame game,
   }) {
-    final spec = state.currentChallengeSpec;
-    final session = state.currentSession;
+    return switch ((spec.content, session.runtimeState)) {
+      (
+        QuizChallengeContent(:final quizSpec),
+        QuizRuntimeState(:final selectedOptionIds),
+      ) =>
+        QuizChallengeView(
+          quizSpec: quizSpec,
+          selectedOptionIds: selectedOptionIds,
+          onSelectOption: (optionId) {
+            notifier.submitQuizAnswer(
+              _nextQuizSelection(
+                optionId: optionId,
+                selectedOptionIds: selectedOptionIds,
+                allowMultiple: quizSpec.allowMultiple,
+              ),
+            );
+          },
+        ),
 
-    if (spec == null || session == null) {
-      return _GameChallengeBox(game: game);
+      (
+        CategorizeChallengeContent(:final categorizeSpec),
+        CategorizeRuntimeState(:final selectedCategoryByItemId),
+      ) =>
+        CategorizeChallengeBody(
+          categorizeSpec: categorizeSpec,
+          selectedCategoryByItemId: selectedCategoryByItemId,
+          onCategorySelected:
+              ({required String itemId, required String categoryId}) {
+                notifier.submitCategorization(
+                  itemId: itemId,
+                  categoryId: categoryId,
+                );
+              },
+        ),
+
+      (
+        final IdentifyTargetChallengeContent content,
+        final IdentifyTargetRuntimeState runtimeState,
+      ) =>
+        _buildIdentifyTargetBody(
+          content: content,
+          runtimeState: runtimeState,
+          notifier: notifier,
+          fallbackGame: game,
+        ),
+
+      _ => _GameChallengeBox(game: game),
+    };
+  }
+
+  Set<String> _nextQuizSelection({
+    required String optionId,
+    required Set<String> selectedOptionIds,
+    required bool allowMultiple,
+  }) {
+    if (!allowMultiple) {
+      return {optionId};
     }
 
-    final content = spec.content;
-    final runtimeState = session.runtimeState;
+    final nextSelection = {...selectedOptionIds};
 
-    if (content is QuizChallengeContent && runtimeState is QuizRuntimeState) {
-      return QuizChallengeView(
-        quizSpec: content.quizSpec,
-        selectedOptionIds: runtimeState.selectedOptionIds,
-        onSelectOption: (optionId) {
-          final currentSelected = runtimeState.selectedOptionIds;
+    if (nextSelection.contains(optionId)) {
+      nextSelection.remove(optionId);
+    } else {
+      nextSelection.add(optionId);
+    }
 
-          final nextSelected = content.quizSpec.allowMultiple
-              ? currentSelected.contains(optionId)
-                    ? ({...currentSelected}..remove(optionId))
-                    : {...currentSelected, optionId}
-              : {optionId};
+    return nextSelection;
+  }
 
-          notifier.submitQuizAnswer(nextSelected);
-        },
+  Widget _buildIdentifyTargetBody({
+    required IdentifyTargetChallengeContent content,
+    required IdentifyTargetRuntimeState runtimeState,
+    required LevelStateNotifier notifier,
+    required AlgoQuestGame fallbackGame,
+  }) {
+    final root = _interactiveTreeFromStructure(runtimeState.visualState);
+
+    if (root == null) {
+      return _GameChallengeBox(game: fallbackGame);
+    }
+
+    return IdentifyTargetChallengeBody(
+      root: root,
+      targetType: content.identifySpec.targetType,
+      selectedTargetIds: runtimeState.selectedTargetIds,
+      allowMultiple: content.identifySpec.allowMultiple,
+      onSelectionChanged: notifier.submitIdentifyTarget,
+    );
+  }
+
+  InteractiveBinaryTreeNode? _interactiveTreeFromStructure(
+    StructureState structure,
+  ) {
+    if (structure.nodes.isEmpty) {
+      return null;
+    }
+
+    final childrenByParentId = <String, List<String>>{};
+
+    for (final edge in structure.edges) {
+      childrenByParentId.putIfAbsent(edge.source, () => []).add(edge.target);
+    }
+
+    final childIds = {for (final edge in structure.edges) edge.target};
+
+    final rootState = structure.nodes.values.firstWhere(
+      (node) => !childIds.contains(node.id),
+      orElse: () => structure.nodes.values.first,
+    );
+
+    InteractiveBinaryTreeNode buildNode(String nodeId) {
+      final node = structure.nodes[nodeId];
+
+      if (node == null) {
+        return InteractiveBinaryTreeNode(id: nodeId, value: '?');
+      }
+
+      final children = childrenByParentId[nodeId] ?? const <String>[];
+
+      return InteractiveBinaryTreeNode(
+        id: node.id,
+        value: node.value?.toString() ?? '',
+        left: children.isNotEmpty ? buildNode(children[0]) : null,
+        right: children.length > 1 ? buildNode(children[1]) : null,
       );
     }
 
-    if (content is CategorizeChallengeContent &&
-        runtimeState is CategorizeRuntimeState) {
-      return CategorizeChallengeBody(
-        categorizeSpec: content.categorizeSpec,
-        selectedCategoryByItemId: runtimeState.selectedCategoryByItemId,
-        onCategorySelected:
-            ({required String itemId, required String categoryId}) {
-              notifier.submitCategorization(
-                itemId: itemId,
-                categoryId: categoryId,
-              );
-            },
-      );
-    }
-
-    return _GameChallengeBox(game: game);
+    return buildNode(rootState.id);
   }
 
   void _showFeedbackDialog({
@@ -325,7 +378,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (spec == null) return;
 
     final solved = notifier.checkSolution();
-
     final nextState = ref.read(levelStateProvider);
 
     final attemptsRemaining =
