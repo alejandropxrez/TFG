@@ -31,6 +31,7 @@ import 'package:algoquest/presentation/application_state/app_providers.dart';
 import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/widgets/challenge/challenge_body_factory.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/binary_tree_swap_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/linked_list_slots_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/structure_flame_challenge_body.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -241,6 +242,22 @@ void main() {
       expect(structure.inventory, contains(2));
       expect(structure.inventory, contains(4));
     });
+
+    test(
+      'builds BinaryTreeSwapChallengeBody for heap pyramid swap challenges',
+      () {
+        final notifier = container.read(levelStateProvider.notifier);
+
+        final body = ChallengeBodyFactory.build(
+          spec: _heapSwapSpec(),
+          runtimeState: _heapRuntimeState(),
+          game: AlgoQuestGame(),
+          notifier: notifier,
+        );
+
+        expect(body, isA<BinaryTreeSwapChallengeBody>());
+      },
+    );
   });
 }
 

@@ -134,6 +134,33 @@ void main() {
     expect(updated.structureRuntimeState.structure.nodes['n2']!.value, 3);
   });
 
+  test('SwapNodesAction can swap the same nodes back', () {
+    final initialState = StructureState.fromNodesAndEdges(
+      type: StructureType.heap,
+      nodes: const [
+        NodeState(id: 'n1', value: 10),
+        NodeState(id: 'n2', value: 20),
+      ],
+      edges: const [EdgeState(source: 'n1', target: 'n2')],
+    );
+
+    const action = SwapNodesAction(firstNodeId: 'n1', secondNodeId: 'n2');
+
+    expect(action.isApplicableTo(initialState), isTrue);
+
+    final swappedState = action.transform(initialState);
+
+    expect(swappedState.nodes['n1']?.value, 20);
+    expect(swappedState.nodes['n2']?.value, 10);
+
+    expect(action.isApplicableTo(swappedState), isTrue);
+
+    final restoredState = action.transform(swappedState);
+
+    expect(restoredState.nodes['n1']?.value, 10);
+    expect(restoredState.nodes['n2']?.value, 20);
+  });
+
   test('does not change session when action is not applicable', () {
     final spec = buildSwapSpec();
 

@@ -1,11 +1,13 @@
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
+import 'package:algoquest/domain/entities/identify_target_spec.dart';
 import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/presentation/application_state/level_state_provider.dart';
 import 'package:algoquest/presentation/game/algoquest_game.dart';
 import 'package:algoquest/presentation/widgets/challenge/categorize_challenge_body.dart';
+import 'package:algoquest/presentation/widgets/challenge/components/binary_tree_swap_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/interactive_binary_tree.dart';
 import 'package:algoquest/presentation/widgets/challenge/identify_target_challenge_body.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/structure_flame_challenge_body.dart';
@@ -85,6 +87,20 @@ abstract final class ChallengeBodyFactory {
           onSlotCleared: (slotId) {
             notifier.executeAction(ClearSlotAction(slotId: slotId));
           },
+        ),
+
+      (
+        final StructureChallengeContent content,
+        final StructureRuntimeState runtimeState,
+      )
+          when content.engineConfig.structureType == StructureType.heap &&
+              content.engineConfig.layoutStrategy ==
+                  LayoutStrategyType.pyramid &&
+              content.engineConfig.interactionMode ==
+                  InteractionModeType.swap =>
+        _buildSwapBinaryTreeBody(
+          structure: runtimeState.structure,
+          notifier: notifier,
         ),
 
       (StructureChallengeContent(), StructureRuntimeState()) =>
@@ -172,5 +188,29 @@ abstract final class ChallengeBodyFactory {
     }
 
     return buildNode(rootState.id);
+  }
+
+  static Widget _buildSwapBinaryTreeBody({
+    required StructureState structure,
+    required LevelStateNotifier notifier,
+  }) {
+    final root = _interactiveTreeFromStructure(structure);
+
+    if (root == null) {
+      return const UnsupportedChallengeBody();
+    }
+
+    return BinaryTreeSwapChallengeBody(
+      root: root,
+      onSwapNodes:
+          ({required String firstNodeId, required String secondNodeId}) {
+            notifier.executeAction(
+              SwapNodesAction(
+                firstNodeId: firstNodeId,
+                secondNodeId: secondNodeId,
+              ),
+            );
+          },
+    );
   }
 }
