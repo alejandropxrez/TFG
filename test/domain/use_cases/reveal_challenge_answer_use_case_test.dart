@@ -8,7 +8,6 @@ import 'package:algoquest/domain/entities/structure_state.dart';
 import 'package:algoquest/domain/enums/session_status.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/strategies/max_heap_validation_strategy.dart';
-import 'package:algoquest/domain/strategies/validation_strategy.dart';
 import 'package:algoquest/domain/use_cases/reveal_challenge_answer_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 

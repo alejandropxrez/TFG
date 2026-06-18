@@ -7,6 +7,7 @@ class LevelSyllabusMapper {
     return domain.LevelSyllabus(
       id: modelData.id,
       title: modelData.title,
+      subtitle: modelData.subtitle,
       topic: _mapTopic(modelData.topic),
       challenges: modelData.challenges,
       rewards: domain.LevelRewards(

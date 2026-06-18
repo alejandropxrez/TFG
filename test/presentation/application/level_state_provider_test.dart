@@ -28,6 +28,7 @@ import 'package:algoquest/data/core/composition/use_cases.dart';
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/game_action.dart';
+import 'package:algoquest/domain/entities/learning_path_syllabus.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 
@@ -42,6 +43,7 @@ import 'package:algoquest/domain/use_cases/check_solution_use_case.dart';
 import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_learning_path_use_case.dart';
 import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/save_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/start_challenge_session_use_case.dart';
@@ -70,6 +72,11 @@ class FakeContentRepository implements ContentRepository {
     }
 
     return syllabus;
+  }
+
+  @override
+  Future<LearningPathSyllabus> getSyllabus() {
+    throw UnimplementedError();
   }
 
   @override
@@ -112,43 +119,6 @@ void main() {
   late FakeContentRepository contentRepository;
   late FakeUserRepository userRepository;
   late UseCases useCases;
-
-  const testSyllabusJson = '''
-  {
-    "version": "1.0",
-    "title": "AlgoQuest",
-    "phases": [
-      {
-        "id": "phase_test",
-        "title": "Test Phase",
-        "levels": [
-          {
-            "id": "single_challenge_level",
-            "title": "Single Challenge Level",
-            "topic": "HEAPS",
-            "subtitle": "Test level",
-            "challenges": ["challenge_1"],
-            "rewards": {
-              "xp": 100,
-              "stars": 3
-            }
-          },
-          {
-            "id": "next_level",
-            "title": "Next Level",
-            "topic": "HEAPS",
-            "subtitle": "Next test level",
-            "challenges": ["challenge_2"],
-            "rewards": {
-              "xp": 150,
-              "stars": 3
-            }
-          }
-        ]
-      }
-    ]
-  }
-  ''';
 
   LevelSyllabus buildSyllabus({
     String id = 'level_heap_intro',
@@ -340,6 +310,10 @@ void main() {
       saveProgress: saveProgress,
       manageProgress: manageProgress,
       loadUserProgress: loadUserProgress,
+      loadLearningPath: LoadLearningPathUseCase(
+        contentRepository: contentRepository,
+        userRepository: userRepository,
+      ),
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
       consumeAttempt: const ConsumeAttemptUseCase(),
@@ -362,9 +336,6 @@ void main() {
       overrides: [
         useCasesProvider.overrideWithValue(useCases),
         currentUserIdProvider.overrideWithValue('user_1'),
-        syllabusJsonLoaderProvider.overrideWithValue(
-          () async => testSyllabusJson,
-        ),
       ],
     );
   });

@@ -16,6 +16,7 @@ import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_next_level_id_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_learning_path_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/redo_move_use_case.dart';
@@ -60,9 +61,13 @@ class AppComposition {
     final executeMove = const ExecuteMoveUseCase();
 
     final loadUserProgress = LoadUserProgressUseCase(userRepository);
+    final loadLearningPath = LoadLearningPathUseCase(
+      contentRepository: contentRepository,
+      userRepository: userRepository,
+    );
     final saveProgress = SaveProgressUseCase(userRepository);
     final manageProgress = const ManageProgressUseCase();
-    final undomove = const UndoMoveUseCase();
+    final undoMove = const UndoMoveUseCase();
     final redoMove = const RedoMoveUseCase();
     final consumeAttempt = const ConsumeAttemptUseCase();
     final checkChallenge = const CheckChallengeUseCase();
@@ -86,9 +91,10 @@ class AppComposition {
       executeMove: executeMove,
       checkSolution: checkSolution,
       loadUserProgress: loadUserProgress,
+      loadLearningPath: loadLearningPath,
       saveProgress: saveProgress,
       manageProgress: manageProgress,
-      undoMove: undomove,
+      undoMove: undoMove,
       redoMove: redoMove,
       consumeAttempt: consumeAttempt,
       checkChallenge: checkChallenge,

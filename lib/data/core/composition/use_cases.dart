@@ -6,6 +6,7 @@ import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_next_level_id_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_learning_path_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/redo_move_use_case.dart';
@@ -27,6 +28,7 @@ class UseCases {
   final CheckSolutionUseCase checkSolution;
 
   final LoadUserProgressUseCase loadUserProgress;
+  final LoadLearningPathUseCase loadLearningPath;
   final SaveProgressUseCase saveProgress;
   final ManageProgressUseCase manageProgress;
   final UndoMoveUseCase undoMove;
@@ -48,6 +50,7 @@ class UseCases {
     required this.executeMove,
     required this.checkSolution,
     required this.loadUserProgress,
+    required this.loadLearningPath,
     required this.saveProgress,
     required this.manageProgress,
     required this.undoMove,

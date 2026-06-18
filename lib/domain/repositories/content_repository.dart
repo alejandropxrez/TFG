@@ -1,9 +1,13 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
+import 'package:algoquest/domain/entities/learning_path_syllabus.dart';
 
 abstract class ContentRepository {
   /// Fetches the syllabus for a specific level by its ID.
   Future<LevelSyllabus> getLevelSyllabus(String levelId);
+
+  /// Fetches the global learning syllabus.
+  Future<LearningPathSyllabus> getSyllabus();
 
   /// Fetches the definition of a specific challenge by its ID.
   Future<ChallengeSpec> getChallenge(String challengeId);

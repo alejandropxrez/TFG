@@ -11,6 +11,7 @@ class LevelRewards {
 class LevelSyllabus {
   final String id;
   final String title;
+  final String subtitle;
   final LevelTopic topic;
   final List<String> challenges;
   final LevelRewards rewards;
@@ -19,6 +20,7 @@ class LevelSyllabus {
   const LevelSyllabus({
     required this.id,
     required this.title,
+    this.subtitle = '',
     required this.topic,
     required this.challenges,
     required this.rewards,

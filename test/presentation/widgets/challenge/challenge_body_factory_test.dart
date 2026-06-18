@@ -2,6 +2,7 @@ import 'package:algoquest/data/core/composition/use_cases.dart';
 import 'package:algoquest/domain/entities/challenge_runtime_state.dart';
 import 'package:algoquest/domain/entities/challenge_session.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/learning_path_syllabus.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/domain/entities/structure_state.dart';
@@ -20,6 +21,7 @@ import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_next_level_id_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_learning_path_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/redo_move_use_case.dart';
@@ -44,6 +46,11 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeContentRepository implements ContentRepository {
   @override
   Future<LevelSyllabus> getLevelSyllabus(String levelId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<LearningPathSyllabus> getSyllabus() {
     throw UnimplementedError();
   }
 
@@ -94,6 +101,10 @@ void main() {
       saveProgress: saveProgress,
       manageProgress: manageProgress,
       loadUserProgress: loadUserProgress,
+      loadLearningPath: LoadLearningPathUseCase(
+        contentRepository: contentRepository,
+        userRepository: userRepository,
+      ),
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
       consumeAttempt: const ConsumeAttemptUseCase(),

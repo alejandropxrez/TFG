@@ -6,6 +6,7 @@ import 'package:algoquest/presentation/application_state/learning_path_provider.
 import 'package:algoquest/presentation/application_state/learning_path_state.dart';
 import 'package:algoquest/data/core/composition/use_cases.dart';
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/learning_path_syllabus.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/entities/user_progress.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
@@ -17,6 +18,7 @@ import 'package:algoquest/domain/use_cases/execute_move_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_level_syllabus_use_case.dart';
 import 'package:algoquest/domain/use_cases/get_next_level_id_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
+import 'package:algoquest/domain/use_cases/load_learning_path_use_case.dart';
 import 'package:algoquest/domain/use_cases/load_user_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/manage_progress_use_case.dart';
 import 'package:algoquest/domain/use_cases/redo_move_use_case.dart';
@@ -30,9 +32,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeContentRepository implements ContentRepository {
+  LearningPathSyllabus? syllabus;
+  final Map<String, LevelSyllabus> levels = {};
+  Object? syllabusError;
+
   @override
-  Future<LevelSyllabus> getLevelSyllabus(String levelId) {
-    throw UnimplementedError();
+  Future<LevelSyllabus> getLevelSyllabus(String levelId) async {
+    final level = levels[levelId];
+    if (level == null) throw StateError('Missing test level for $levelId');
+    return level;
+  }
+
+  @override
+  Future<LearningPathSyllabus> getSyllabus() async {
+    final error = syllabusError;
+    if (error != null) throw error;
+
+    final value = syllabus;
+    if (value == null) throw StateError('Missing test syllabus');
+    return value;
   }
 
   @override
@@ -66,66 +84,55 @@ void main() {
   late FakeUserRepository userRepository;
   late UseCases useCases;
 
-  const syllabusJson = '''
-{
-  "version": "1.0",
-  "title": "AlgoQuest",
-  "phases": [
-    {
-      "id": "phase_heaps",
-      "title": "Heaps",
-      "levels": [
-        { "id": "level_heap_intro" },
-        { "id": "level_heap_advanced" }
-      ]
-    },
-    {
-      "id": "phase_trees",
-      "title": "Árboles",
-      "levels": [
-        { "id": "level_bst_intro" }
-      ]
-    }
-  ]
-}
-''';
-
-  const levelHeapIntroJson = '''
-{
-  "id": "level_heap_intro",
-  "title": "Introducción a Heaps",
-  "topic": "HEAPS",
-  "subtitle": "Repara heaps usando intercambios",
-  "challenges": ["heap_repair_intro"],
-  "rewards": { "xp": 100, "stars": 3, "lives": 1 }
-}
-''';
-
-  const levelHeapAdvancedJson = '''
-{
-  "id": "level_heap_advanced",
-  "title": "Heaps avanzados",
-  "topic": "HEAPS",
-  "subtitle": "Retos avanzados de heaps",
-  "challenges": ["heap_advanced_1"],
-  "rewards": { "xp": 150, "stars": 3, "lives": 1 }
-}
-''';
-
-  const levelBstIntroJson = '''
-{
-  "id": "level_bst_intro",
-  "title": "BST básico",
-  "topic": "BST",
-  "subtitle": "Valida árboles BST",
-  "challenges": ["bst_intro"],
-  "rewards": { "xp": 120, "stars": 3, "lives": 1 }
-}
-''';
-
   setUp(() {
     contentRepository = FakeContentRepository();
     userRepository = FakeUserRepository();
+
+    contentRepository.syllabus = const LearningPathSyllabus(
+      title: 'AlgoQuest',
+      phases: [
+        LearningPathSyllabusPhase(
+          id: 'phase_heaps',
+          title: 'Heaps',
+          levels: [
+            LearningPathSyllabusLevelRef(id: 'level_heap_intro'),
+            LearningPathSyllabusLevelRef(id: 'level_heap_advanced'),
+          ],
+        ),
+        LearningPathSyllabusPhase(
+          id: 'phase_trees',
+          title: 'Árboles',
+          levels: [LearningPathSyllabusLevelRef(id: 'level_bst_intro')],
+        ),
+      ],
+    );
+
+    contentRepository.levels.addAll({
+      'level_heap_intro': const LevelSyllabus(
+        id: 'level_heap_intro',
+        title: 'Introducción a Heaps',
+        subtitle: 'Repara heaps usando intercambios',
+        topic: LevelTopic.heaps,
+        challenges: ['heap_repair_intro'],
+        rewards: LevelRewards(xp: 100, stars: 3, lives: 1),
+      ),
+      'level_heap_advanced': const LevelSyllabus(
+        id: 'level_heap_advanced',
+        title: 'Heaps avanzados',
+        subtitle: 'Retos avanzados de heaps',
+        topic: LevelTopic.heaps,
+        challenges: ['heap_advanced_1'],
+        rewards: LevelRewards(xp: 150, stars: 3, lives: 1),
+      ),
+      'level_bst_intro': const LevelSyllabus(
+        id: 'level_bst_intro',
+        title: 'BST básico',
+        subtitle: 'Valida árboles BST',
+        topic: LevelTopic.bst,
+        challenges: ['bst_intro'],
+        rewards: LevelRewards(xp: 120, stars: 3, lives: 1),
+      ),
+    });
 
     final loadUserProgress = LoadUserProgressUseCase(userRepository);
     final saveProgress = SaveProgressUseCase(userRepository);
@@ -141,6 +148,10 @@ void main() {
       saveProgress: saveProgress,
       manageProgress: manageProgress,
       loadUserProgress: loadUserProgress,
+      loadLearningPath: LoadLearningPathUseCase(
+        contentRepository: contentRepository,
+        userRepository: userRepository,
+      ),
       undoMove: const UndoMoveUseCase(),
       redoMove: const RedoMoveUseCase(),
       consumeAttempt: const ConsumeAttemptUseCase(),
@@ -163,15 +174,6 @@ void main() {
       overrides: [
         useCasesProvider.overrideWithValue(useCases),
         currentUserIdProvider.overrideWithValue('user_1'),
-        syllabusJsonLoaderProvider.overrideWithValue(() async => syllabusJson),
-        levelJsonLoaderProvider.overrideWithValue((levelId) async {
-          return switch (levelId) {
-            'level_heap_intro' => levelHeapIntroJson,
-            'level_heap_advanced' => levelHeapAdvancedJson,
-            'level_bst_intro' => levelBstIntroJson,
-            _ => throw StateError('Missing test level JSON for $levelId'),
-          };
-        }),
       ],
     );
   });
@@ -244,12 +246,13 @@ void main() {
     expect(levels[2].locked, isTrue);
   });
 
-  test('sets failed status when syllabus JSON is invalid', () async {
+  test('sets failed status when learning path cannot be loaded', () async {
+    contentRepository.syllabusError = const FormatException('invalid syllabus');
+
     final failingContainer = ProviderContainer(
       overrides: [
         useCasesProvider.overrideWithValue(useCases),
         currentUserIdProvider.overrideWithValue('user_1'),
-        syllabusJsonLoaderProvider.overrideWithValue(() async => '{ invalid'),
       ],
     );
 

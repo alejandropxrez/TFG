@@ -1,4 +1,5 @@
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/learning_path_syllabus.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/level_syllabus.dart';
@@ -12,6 +13,11 @@ class FakeContentRepository implements ContentRepository {
   Future<LevelSyllabus> getLevelSyllabus(String levelId) async {
     if (level == null) throw Exception('missing level');
     return level!;
+  }
+
+  @override
+  Future<LearningPathSyllabus> getSyllabus() {
+    throw UnimplementedError();
   }
 
   @override

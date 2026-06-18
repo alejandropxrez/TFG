@@ -3,6 +3,7 @@ import 'package:algoquest/domain/use_cases/load_challenge_spec_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:algoquest/domain/entities/challenge_spec.dart';
+import 'package:algoquest/domain/entities/learning_path_syllabus.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 import 'package:algoquest/domain/enums/structure_type.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
@@ -18,6 +19,11 @@ class FakeContentRepository implements ContentRepository {
 
   @override
   Future<LevelSyllabus> getLevelSyllabus(String levelId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<LearningPathSyllabus> getSyllabus() {
     throw UnimplementedError();
   }
 

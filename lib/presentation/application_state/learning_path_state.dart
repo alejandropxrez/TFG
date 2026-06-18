@@ -1,3 +1,4 @@
+import 'package:algoquest/domain/entities/learning_path.dart';
 import 'package:algoquest/domain/entities/level_syllabus.dart';
 
 class LearningPathPhaseItem {
@@ -10,6 +11,14 @@ class LearningPathPhaseItem {
     required this.title,
     required this.levels,
   });
+
+  factory LearningPathPhaseItem.fromDomain(LearningPathPhase phase) {
+    return LearningPathPhaseItem(
+      id: phase.id,
+      title: phase.title,
+      levels: phase.levels.map(LearningPathLevelItem.fromDomain).toList(),
+    );
+  }
 }
 
 class LearningPathLevelItem {
@@ -27,32 +36,14 @@ class LearningPathLevelItem {
     required this.locked,
   });
 
-  factory LearningPathLevelItem.fromJson(
-    Map<String, dynamic> json, {
-    required bool locked,
-  }) {
+  factory LearningPathLevelItem.fromDomain(LearningPathLevel level) {
     return LearningPathLevelItem(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      subtitle: json['subtitle'] as String? ?? '',
-      topic: _topicFromJson(json['topic'] as String),
-      locked: locked,
+      id: level.id,
+      title: level.title,
+      subtitle: level.subtitle,
+      topic: level.topic,
+      locked: level.locked,
     );
-  }
-
-  static LevelTopic _topicFromJson(String value) {
-    switch (value.toUpperCase()) {
-      case 'HEAPS':
-        return LevelTopic.heaps;
-      case 'LISTS':
-        return LevelTopic.lists;
-      case 'BST':
-        return LevelTopic.bst;
-      case 'MIXED':
-        return LevelTopic.mixed;
-      default:
-        throw FormatException('Unknown level topic: $value');
-    }
   }
 }
 
@@ -76,6 +67,17 @@ class LearningPathState {
       title = null,
       phases = const [],
       errorMessage = null;
+
+  factory LearningPathState.loaded(LearningPath learningPath) {
+    return LearningPathState(
+      status: LearningPathStatus.loaded,
+      title: learningPath.title,
+      phases: learningPath.phases
+          .map(LearningPathPhaseItem.fromDomain)
+          .toList(),
+      errorMessage: null,
+    );
+  }
 
   LearningPathState copyWith({
     LearningPathStatus? status,

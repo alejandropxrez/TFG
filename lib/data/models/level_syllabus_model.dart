@@ -15,6 +15,9 @@ abstract class LevelSyllabusModel with _$LevelSyllabusModel {
     /// User-facing title (e.g., "Inserción en BST").
     required String title,
 
+    /// Short supporting text used in the learning path.
+    @Default('') String subtitle,
+
     /// Topic used by the UI (HEAPS | LISTS | BST | MIXED).
     @JsonKey(fromJson: _topicFromJson, toJson: _topicToJson)
     required LevelTopic topic,
