@@ -117,10 +117,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       onBack: () {
         _goBack(context);
       },
-      onReset: null,
-      onCheckAnswer: () {
-        _showFeedbackDialog(context: context, notifier: notifier, state: state);
-      },
+      onReset: session.hasAttemptsRemaining
+          ? () {
+              notifier.restartCurrentChallenge(
+                userId: userId,
+                sessionId: _newSessionId(),
+              );
+            }
+          : null,
+      onUndo: session.canUndo ? notifier.undoLastAction : null,
+      onRedo: session.canRedo ? notifier.redoLastAction : null,
+      onCheckAnswer: session.hasAttemptsRemaining
+          ? () {
+              _showFeedbackDialog(
+                context: context,
+                notifier: notifier,
+                state: state,
+              );
+            }
+          : null,
       challengeBody: ChallengeBodyFactory.build(
         spec: spec,
         runtimeState: session.runtimeState,
@@ -233,16 +248,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     required LevelState state,
   }) {
     final spec = state.currentChallengeSpec;
+    final session = state.currentSession;
 
-    if (spec == null) return;
+    if (spec == null || session == null) return;
+    if (!session.hasAttemptsRemaining) return;
 
     final solved = notifier.checkSolution();
     final nextState = ref.read(levelStateProvider);
+    final nextSession = nextState.currentSession ?? session;
 
-    final attemptsRemaining =
-        nextState.currentSession?.attemptsRemaining ??
-        state.currentSession?.attemptsRemaining;
-
+    final attemptsRemaining = nextSession.attemptsRemaining;
     final theoryMessage = _resolveTheoryMessage(state: nextState, spec: spec);
 
     showDialog<void>(
@@ -254,6 +269,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           solved: solved,
           theoryMessage: theoryMessage,
           attemptsRemaining: attemptsRemaining,
+          canTryAgain: nextSession.canTryAgain,
+          canRevealAnswer: nextSession.canRevealAnswer,
           onContinue: () {
             Navigator.of(context).pop();
 
@@ -266,6 +283,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           },
           onTryAgain: () {
             Navigator.of(context).pop();
+
+            final userId = ref.read(currentUserIdProvider);
+
+            notifier.restartCurrentChallenge(
+              userId: userId,
+              sessionId: _newSessionId(),
+            );
           },
           onShowAnswer: () {
             Navigator.of(context).pop();

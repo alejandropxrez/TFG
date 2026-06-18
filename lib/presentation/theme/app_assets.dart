@@ -39,4 +39,5 @@ class AppAssets {
   static const String binaryTree = 'assets/images/binary_tree.png';
   static const String backpack = 'assets/images/backpack.png';
   static const String chain = 'assets/images/chain.png';
+  static const String directionArrow = 'assets/images/direction_arrow.png';
 }

@@ -33,6 +33,8 @@ void main() {
 
   Widget buildSubject({
     required bool solved,
+    bool canTryAgain = false,
+    bool canRevealAnswer = false,
     int? attemptsRemaining,
     String? theoryMessage =
         'O(1) representa tiempo constante y O(n) representa tiempo lineal.',
@@ -48,6 +50,8 @@ void main() {
             solved: solved,
             theoryMessage: theoryMessage,
             attemptsRemaining: attemptsRemaining,
+            canTryAgain: canTryAgain,
+            canRevealAnswer: canRevealAnswer,
             onContinue: onContinue ?? () {},
             onTryAgain: onTryAgain ?? () {},
             onShowAnswer: onShowAnswer,
@@ -85,7 +89,7 @@ void main() {
       expect(find.text(ChallengeResultCopy.heartsLeftLabel), findsNothing);
     });
 
-    testWidgets('shows failure state with retry, answer and hearts', (
+    testWidgets('shows failure state with retry and hearts when attempts remain', (
       tester,
     ) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
@@ -97,6 +101,8 @@ void main() {
         buildSubject(
           solved: false,
           attemptsRemaining: 2,
+          canTryAgain: true,
+          canRevealAnswer: false,
           theoryMessage:
               'Revisa qué operaciones recorren la colección y cuáles acceden directamente.',
           onShowAnswer: () {},
@@ -118,9 +124,37 @@ void main() {
       );
       expect(find.text(ChallengeResultCopy.heartsLeftLabel), findsOneWidget);
       expect(find.text(ChallengeResultCopy.tryAgainLabel), findsOneWidget);
-      expect(find.text(ChallengeResultCopy.showAnswerLabel), findsOneWidget);
+      expect(find.text(ChallengeResultCopy.showAnswerLabel), findsNothing);
       expect(find.text(ChallengeResultCopy.continueLabel), findsNothing);
     });
+
+    testWidgets(
+      'shows failure state with answer and hearts when no attempts remain',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(430, 932));
+        addTearDown(() async {
+          await tester.binding.setSurfaceSize(null);
+        });
+
+        await tester.pumpWidget(
+          buildSubject(
+            solved: false,
+            attemptsRemaining: 0,
+            canTryAgain: false,
+            canRevealAnswer: true,
+            theoryMessage:
+                'Revisa qué operaciones recorren la colección y cuáles acceden directamente.',
+            onShowAnswer: () {},
+          ),
+        );
+
+        expect(find.text(ChallengeResultCopy.failureTitle), findsOneWidget);
+        expect(find.text(ChallengeResultCopy.heartsLeftLabel), findsOneWidget);
+        expect(find.text(ChallengeResultCopy.tryAgainLabel), findsNothing);
+        expect(find.text(ChallengeResultCopy.showAnswerLabel), findsOneWidget);
+        expect(find.text(ChallengeResultCopy.continueLabel), findsNothing);
+      },
+    );
 
     testWidgets('calls onContinue in success state', (tester) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
@@ -145,7 +179,9 @@ void main() {
       expect(called, isTrue);
     });
 
-    testWidgets('calls onTryAgain in failure state', (tester) async {
+    testWidgets('calls onTryAgain in failure state when attempts remain', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
       addTearDown(() async {
         await tester.binding.setSurfaceSize(null);
@@ -157,6 +193,8 @@ void main() {
         buildSubject(
           solved: false,
           attemptsRemaining: 2,
+          canTryAgain: true,
+          canRevealAnswer: false,
           onTryAgain: () {
             called = true;
           },
@@ -170,7 +208,9 @@ void main() {
       expect(called, isTrue);
     });
 
-    testWidgets('calls onShowAnswer in failure state', (tester) async {
+    testWidgets('calls onShowAnswer in failure state when no attempts remain', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
       addTearDown(() async {
         await tester.binding.setSurfaceSize(null);
@@ -181,7 +221,9 @@ void main() {
       await tester.pumpWidget(
         buildSubject(
           solved: false,
-          attemptsRemaining: 2,
+          attemptsRemaining: 0,
+          canTryAgain: false,
+          canRevealAnswer: true,
           onShowAnswer: () {
             called = true;
           },
@@ -206,6 +248,8 @@ void main() {
         buildSubject(
           solved: false,
           attemptsRemaining: 2,
+          canTryAgain: true,
+          canRevealAnswer: false,
           theoryMessage: null,
           onShowAnswer: () {},
         ),

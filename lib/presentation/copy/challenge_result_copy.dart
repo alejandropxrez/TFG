@@ -41,6 +41,8 @@ class ChallengeResultDialogCopy {
     required ChallengeSpec spec,
     required bool solved,
     required String? theoryMessage,
+    required bool canTryAgain,
+    required bool canRevealAnswer,
   }) {
     return ChallengeResultDialogCopy(
       title: solved
@@ -52,10 +54,15 @@ class ChallengeResultDialogCopy {
           ? ChallengeResultCopy.theoryTipTitle
           : ChallengeResultCopy.hintTitle,
       helperMessage: theoryMessage ?? ChallengeResultCopy.fallbackTheoryMessage,
+
       primaryActionLabel: solved
           ? ChallengeResultCopy.continueLabel
           : ChallengeResultCopy.tryAgainLabel,
-      secondaryActionLabel: solved ? null : ChallengeResultCopy.showAnswerLabel,
+
+      secondaryActionLabel: !solved && canRevealAnswer
+          ? ChallengeResultCopy.showAnswerLabel
+          : null,
+
       heartsLabel: ChallengeResultCopy.heartsLeftLabel,
     );
   }

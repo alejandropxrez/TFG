@@ -20,6 +20,8 @@ class ChallengeResultDialog extends StatefulWidget {
   final String heartsLabel;
   final int? heartsLeft;
   final int? maxHearts;
+  final bool canUsePrimaryAction;
+  final bool canUseSecondaryAction;
   final VoidCallback onPrimaryAction;
   final VoidCallback? onSecondaryAction;
   final VoidCallback? onClose;
@@ -37,6 +39,8 @@ class ChallengeResultDialog extends StatefulWidget {
     this.heartsLabel = ChallengeResultCopy.heartsLeftLabel,
     this.heartsLeft,
     this.maxHearts,
+    this.canUsePrimaryAction = true,
+    this.canUseSecondaryAction = false,
     required this.onPrimaryAction,
     this.onSecondaryAction,
     this.onClose,
@@ -48,6 +52,8 @@ class ChallengeResultDialog extends StatefulWidget {
     required VoidCallback onContinue,
     required VoidCallback onTryAgain,
     required String? theoryMessage,
+    required bool canTryAgain,
+    required bool canRevealAnswer,
     VoidCallback? onShowAnswer,
     int? attemptsRemaining,
   }) {
@@ -55,6 +61,8 @@ class ChallengeResultDialog extends StatefulWidget {
       spec: spec,
       solved: solved,
       theoryMessage: theoryMessage,
+      canTryAgain: canTryAgain,
+      canRevealAnswer: canRevealAnswer,
     );
 
     return ChallengeResultDialog(
@@ -71,12 +79,24 @@ class ChallengeResultDialog extends StatefulWidget {
       heartsLabel: copy.heartsLabel,
       heartsLeft: solved ? null : attemptsRemaining,
       maxHearts: solved ? null : spec.maxAttempts,
+      canUsePrimaryAction: solved || canTryAgain,
+      canUseSecondaryAction: !solved && canRevealAnswer,
       onPrimaryAction: solved ? onContinue : onTryAgain,
-      onSecondaryAction: solved ? null : onShowAnswer,
+      onSecondaryAction: !solved && canRevealAnswer ? onShowAnswer : null,
     );
   }
 
   bool get isSuccess => type == ChallengeResultDialogType.success;
+
+  bool get shouldShowHearts {
+    return !isSuccess && heartsLeft != null && maxHearts != null;
+  }
+
+  bool get shouldShowSecondaryAction {
+    return canUseSecondaryAction &&
+        secondaryActionLabel != null &&
+        onSecondaryAction != null;
+  }
 
   @override
   State<ChallengeResultDialog> createState() => _ChallengeResultDialogState();
@@ -186,19 +206,19 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
                 ),
                 const SizedBox(height: 16),
                 _HelperBox(
-                  iconAssetPath: AppAssets.lightBulb,
+                  iconAssetPath: theme.helperIconAsset,
                   title: widget.helperTitle,
                   message: widget.helperMessage,
                   backgroundColor: theme.helperBackgroundColor,
                   borderColor: theme.helperBorderColor,
                   titleColor: theme.helperTitleColor,
                 ),
-                if (!widget.isSuccess && widget.heartsLeft != null) ...[
+                if (widget.shouldShowHearts) ...[
                   const SizedBox(height: 14),
                   ChallengeHeartsIndicator(
                     label: widget.heartsLabel,
                     heartsLeft: widget.heartsLeft!,
-                    maxHearts: 3,
+                    maxHearts: widget.maxHearts!,
                     heartSize: 22,
                     heartScale: 3,
                     spacing: 8,
@@ -207,35 +227,16 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
                   ),
                 ],
                 const SizedBox(height: 18),
-                if (widget.isSuccess)
-                  ChallengePrimaryActionButton(
-                    label: widget.primaryActionLabel,
-                    icon: Icons.arrow_forward_rounded,
-                    backgroundColor: theme.primaryColor,
-                    onPressed: widget.onPrimaryAction,
-                  )
-                else
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ChallengeOutlinedActionButton(
-                          label: widget.primaryActionLabel,
-                          iconAssetPath: AppAssets.retry,
-                          color: theme.primaryColor,
-                          onPressed: widget.onPrimaryAction,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ChallengeOutlinedActionButton(
-                          label: widget.secondaryActionLabel ?? '',
-                          iconAssetPath: AppAssets.eyes,
-                          color: const Color(0xFF6B3DEB),
-                          onPressed: widget.onSecondaryAction,
-                        ),
-                      ),
-                    ],
-                  ),
+                _DialogActions(
+                  isSuccess: widget.isSuccess,
+                  primaryActionLabel: widget.primaryActionLabel,
+                  secondaryActionLabel: widget.secondaryActionLabel,
+                  canUsePrimaryAction: widget.canUsePrimaryAction,
+                  canUseSecondaryAction: widget.shouldShowSecondaryAction,
+                  primaryColor: theme.primaryColor,
+                  onPrimaryAction: widget.onPrimaryAction,
+                  onSecondaryAction: widget.onSecondaryAction,
+                ),
               ],
             ),
           ),
@@ -243,6 +244,71 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
         ],
       ),
     );
+  }
+}
+
+class _DialogActions extends StatelessWidget {
+  final bool isSuccess;
+  final String primaryActionLabel;
+  final String? secondaryActionLabel;
+  final bool canUsePrimaryAction;
+  final bool canUseSecondaryAction;
+  final Color primaryColor;
+  final VoidCallback onPrimaryAction;
+  final VoidCallback? onSecondaryAction;
+
+  const _DialogActions({
+    required this.isSuccess,
+    required this.primaryActionLabel,
+    required this.secondaryActionLabel,
+    required this.canUsePrimaryAction,
+    required this.canUseSecondaryAction,
+    required this.primaryColor,
+    required this.onPrimaryAction,
+    required this.onSecondaryAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isSuccess) {
+      return ChallengePrimaryActionButton(
+        label: primaryActionLabel,
+        icon: Icons.arrow_forward_rounded,
+        backgroundColor: primaryColor,
+        onPressed: onPrimaryAction,
+      );
+    }
+
+    final actions = <Widget>[
+      if (canUsePrimaryAction)
+        Expanded(
+          child: ChallengeOutlinedActionButton(
+            label: primaryActionLabel,
+            iconAssetPath: AppAssets.retry,
+            color: primaryColor,
+            onPressed: onPrimaryAction,
+          ),
+        ),
+      if (canUseSecondaryAction && secondaryActionLabel != null)
+        Expanded(
+          child: ChallengeOutlinedActionButton(
+            label: secondaryActionLabel!,
+            iconAssetPath: AppAssets.eyes,
+            color: const Color(0xFF6B3DEB),
+            onPressed: onSecondaryAction,
+          ),
+        ),
+    ];
+
+    if (actions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    if (actions.length == 1) {
+      return SizedBox(width: double.infinity, child: actions.first);
+    }
+
+    return Row(children: [actions[0], const SizedBox(width: 10), actions[1]]);
   }
 }
 

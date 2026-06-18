@@ -44,10 +44,48 @@ class ChallengeSession {
     );
   }
 
+  bool get hasAttemptLimit => attemptsRemaining != null;
+
+  bool get hasAttemptsRemaining {
+    final remaining = attemptsRemaining;
+    return remaining == null || remaining > 0;
+  }
+
+  bool get hasNoAttemptsRemaining {
+    final remaining = attemptsRemaining;
+    return remaining != null && remaining <= 0;
+  }
+
+  bool get canInteract {
+    return status == SessionStatus.inProgress && hasAttemptsRemaining;
+  }
+
+  bool get canTryAgain {
+    return hasAttemptsRemaining;
+  }
+
+  bool get canRevealAnswer {
+    return status == SessionStatus.failed && hasNoAttemptsRemaining;
+  }
+
+  bool get canUndo {
+    final runtime = runtimeState;
+    return canInteract &&
+        runtime is StructureRuntimeState &&
+        runtime.history.isNotEmpty;
+  }
+
+  bool get canRedo {
+    final runtime = runtimeState;
+    return canInteract &&
+        runtime is StructureRuntimeState &&
+        runtime.redoStack.isNotEmpty;
+  }
+
   static ChallengeRuntimeState _initialRuntimeStateFromSpec(
     ChallengeSpec spec,
   ) {
-    StructureState _structureStateFromContent(
+    StructureState structureStateFromContent(
       StructureChallengeContent content,
     ) {
       final engineConfig = content.engineConfig;
@@ -70,14 +108,14 @@ class ChallengeSession {
 
     return switch (spec.content) {
       StructureChallengeContent() => StructureRuntimeState(
-        structure: _structureStateFromContent(spec.structureContent),
+        structure: structureStateFromContent(spec.structureContent),
       ),
 
       QuizChallengeContent() => const QuizRuntimeState(),
 
       IdentifyTargetChallengeContent(:final visualStructure) =>
         IdentifyTargetRuntimeState(
-          visualState: _structureStateFromContent(visualStructure),
+          visualState: structureStateFromContent(visualStructure),
         ),
 
       CategorizeChallengeContent() => const CategorizeRuntimeState(),

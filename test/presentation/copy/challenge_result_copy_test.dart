@@ -38,6 +38,8 @@ void main() {
         solved: true,
         theoryMessage:
             'O(1) representa tiempo constante y O(n) representa tiempo lineal.',
+        canTryAgain: false,
+        canRevealAnswer: false,
       );
 
       expect(copy.title, ChallengeResultCopy.successTitle);
@@ -53,7 +55,7 @@ void main() {
       expect(copy.heartsLabel, ChallengeResultCopy.heartsLeftLabel);
     });
 
-    test('builds failure copy from challenge spec and theory message', () {
+    test('builds failure copy with try again when attempts remain', () {
       final spec = buildSpec();
 
       final copy = ChallengeResultDialogCopy.fromChallengeSpec(
@@ -61,6 +63,33 @@ void main() {
         solved: false,
         theoryMessage:
             'Revisa qué operaciones recorren la colección y cuáles acceden directamente.',
+        canTryAgain: true,
+        canRevealAnswer: false,
+      );
+
+      expect(copy.title, ChallengeResultCopy.failureTitle);
+      expect(copy.subtitle, 'Clasifica la complejidad');
+      expect(copy.message, 'Asigna cada operación a su complejidad temporal');
+      expect(copy.helperTitle, ChallengeResultCopy.hintTitle);
+      expect(
+        copy.helperMessage,
+        'Revisa qué operaciones recorren la colección y cuáles acceden directamente.',
+      );
+      expect(copy.primaryActionLabel, ChallengeResultCopy.tryAgainLabel);
+      expect(copy.secondaryActionLabel, isNull);
+      expect(copy.heartsLabel, ChallengeResultCopy.heartsLeftLabel);
+    });
+
+    test('builds failure copy with show answer when no attempts remain', () {
+      final spec = buildSpec();
+
+      final copy = ChallengeResultDialogCopy.fromChallengeSpec(
+        spec: spec,
+        solved: false,
+        theoryMessage:
+            'Revisa qué operaciones recorren la colección y cuáles acceden directamente.',
+        canTryAgain: false,
+        canRevealAnswer: true,
       );
 
       expect(copy.title, ChallengeResultCopy.failureTitle);
@@ -83,6 +112,8 @@ void main() {
         spec: spec,
         solved: false,
         theoryMessage: null,
+        canTryAgain: true,
+        canRevealAnswer: false,
       );
 
       expect(copy.helperMessage, ChallengeResultCopy.fallbackTheoryMessage);

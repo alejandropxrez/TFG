@@ -123,6 +123,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
   void executeAction(GameAction action) {
     final session = state.currentSession;
     if (session == null) return;
+    if (!session.canInteract) return;
 
     final updatedSession = _useCases.executeMove(
       session: session,
@@ -139,6 +140,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
   bool checkSolution() {
     final session = state.currentSession;
     if (session == null) return false;
+    if (!session.hasAttemptsRemaining) return false;
 
     final checkedSession = _useCases.checkChallenge(session);
     final solved = checkedSession.status == SessionStatus.completed;
@@ -289,6 +291,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
   void undoLastAction() {
     final session = state.currentSession;
     if (session == null) return;
+    if (!session.canUndo) return;
 
     final updatedSession = _useCases.undoMove(session);
 
@@ -302,6 +305,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
   void redoLastAction() {
     final session = state.currentSession;
     if (session == null) return;
+    if (!session.canRedo) return;
 
     final updatedSession = _useCases.redoMove(session);
 
@@ -312,9 +316,32 @@ class LevelStateNotifier extends Notifier<LevelState> {
     );
   }
 
+  Future<void> restartCurrentChallenge({
+    required String userId,
+    required String sessionId,
+  }) async {
+    final manager = state.sessionManager;
+    final challengeId = manager?.currentChallengeId;
+
+    if (manager == null || challengeId == null) {
+      state = state.copyWith(
+        status: LevelFlowStatus.failed,
+        errorMessage: 'No current challenge available.',
+      );
+      return;
+    }
+
+    await _startChallenge(
+      userId: userId,
+      challengeId: challengeId,
+      sessionId: sessionId,
+    );
+  }
+
   void submitQuizAnswer(Set<String> selectedOptionIds) {
     final session = state.currentSession;
     if (session == null) return;
+    if (!session.canInteract) return;
 
     final updatedSession = _useCases.submitQuizAnswer(
       session: session,
@@ -331,6 +358,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
   void submitIdentifyTarget(Set<String> selectedTargetIds) {
     final session = state.currentSession;
     if (session == null) return;
+    if (!session.canInteract) return;
 
     final updatedSession = _useCases.submitIdentifyTarget(
       session: session,
@@ -350,6 +378,7 @@ class LevelStateNotifier extends Notifier<LevelState> {
   }) {
     final session = state.currentSession;
     if (session == null) return;
+    if (!session.canInteract) return;
 
     final updatedSession = _useCases.submitCategorization(
       session: session,

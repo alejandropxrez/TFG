@@ -17,75 +17,71 @@ class CategorizeChallengeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        for (final item in categorizeSpec.items) ...[
-          _CategorizeItemCard(
-            text: item.text,
-            selectedCategoryId: selectedCategoryByItemId[item.id],
-            categories: categorizeSpec.categories
-                .map(
-                  (category) => ChallengeSelectOption(
-                    id: category.id,
-                    label: category.label,
-                  ),
-                )
-                .toList(growable: false),
-            onChanged: (categoryId) {
-              onCategorySelected(itemId: item.id, categoryId: categoryId);
-            },
-          ),
-          if (item != categorizeSpec.items.last) const SizedBox(height: 14),
-        ],
-      ],
+    return ListView.separated(
+      padding: const EdgeInsets.only(bottom: 12),
+      itemCount: categorizeSpec.items.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 14),
+      itemBuilder: (context, index) {
+        final item = categorizeSpec.items[index];
+
+        return _CategorizeItemCard(
+          itemText: item.text,
+          selectedCategoryId: selectedCategoryByItemId[item.id],
+          categoryOptions: [
+            for (final category in categorizeSpec.categories)
+              ChallengeSelectOption(id: category.id, label: category.label),
+          ],
+          onCategorySelected: (categoryId) {
+            onCategorySelected(itemId: item.id, categoryId: categoryId);
+          },
+        );
+      },
     );
   }
 }
 
 class _CategorizeItemCard extends StatelessWidget {
-  final String text;
+  final String itemText;
   final String? selectedCategoryId;
-  final List<ChallengeSelectOption> categories;
-  final ValueChanged<String> onChanged;
+  final List<ChallengeSelectOption> categoryOptions;
+  final ValueChanged<String> onCategorySelected;
 
   const _CategorizeItemCard({
-    required this.text,
+    required this.itemText,
     required this.selectedCategoryId,
-    required this.categories,
-    required this.onChanged,
+    required this.categoryOptions,
+    required this.onCategorySelected,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F4FF),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE8DFFF), width: 1),
+        color: const Color(0xFFFBF8FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8D8FF), width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            text,
+            itemText,
             style: const TextStyle(
               color: Color(0xFF101235),
-              fontSize: 14.5,
-              fontWeight: FontWeight.w700,
-              height: 1.25,
+              fontSize: 14,
+              height: 1.2,
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 10),
           ChallengeSelectBox(
             selectedOptionId: selectedCategoryId,
-            options: categories,
-            placeholder: 'Categoría',
-            width: double.infinity,
+            options: categoryOptions,
+            onChanged: onCategorySelected,
+            placeholder: 'Selecciona una categoría',
             height: 44,
-            onChanged: onChanged,
           ),
         ],
       ),

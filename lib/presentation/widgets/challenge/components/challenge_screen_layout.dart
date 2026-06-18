@@ -25,6 +25,8 @@ class ChallengeScreenLayout extends StatelessWidget {
 
   final VoidCallback onBack;
   final VoidCallback? onReset;
+  final VoidCallback? onUndo;
+  final VoidCallback? onRedo;
   final VoidCallback? onCheckAnswer;
 
   const ChallengeScreenLayout({
@@ -36,6 +38,8 @@ class ChallengeScreenLayout extends StatelessWidget {
     required this.challengeBody,
     required this.onBack,
     required this.onReset,
+    required this.onUndo,
+    required this.onRedo,
     required this.onCheckAnswer,
     this.heartsRemaining,
     this.maxHearts,
@@ -121,6 +125,8 @@ class ChallengeScreenLayout extends StatelessWidget {
                             tipTitle: tipTitle,
                             tipMessage: tipMessage,
                             onReset: onReset,
+                            onUndo: onUndo,
+                            onRedo: onRedo,
                             onCheckAnswer: onCheckAnswer,
                           ),
                         ],
@@ -143,6 +149,8 @@ class _FinalActionsSection extends StatelessWidget {
   final String? tipTitle;
   final String? tipMessage;
   final VoidCallback? onReset;
+  final VoidCallback? onUndo;
+  final VoidCallback? onRedo;
   final VoidCallback? onCheckAnswer;
 
   const _FinalActionsSection({
@@ -151,6 +159,8 @@ class _FinalActionsSection extends StatelessWidget {
     required this.tipTitle,
     required this.tipMessage,
     required this.onReset,
+    required this.onUndo,
+    required this.onRedo,
     required this.onCheckAnswer,
   });
 
@@ -175,7 +185,12 @@ class _FinalActionsSection extends StatelessWidget {
           ),
           const SizedBox(height: 20),
         ],
-        ChallengeBottomActions(onReset: onReset, onCheck: onCheckAnswer),
+        ChallengeBottomActions(
+          onReset: onReset,
+          onUndo: onUndo,
+          onRedo: onRedo,
+          onCheck: onCheckAnswer,
+        ),
       ],
     );
   }
