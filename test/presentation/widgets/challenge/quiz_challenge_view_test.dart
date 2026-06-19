@@ -201,6 +201,45 @@ void main() {
       expect(semantics.hint, 'Toca para desmarcar');
     });
   });
+
+  testWidgets('uses numeric labels after the twenty-sixth option', (
+    tester,
+  ) async {
+    final options = List.generate(
+      27,
+      (index) => QuizOption(id: 'option_$index', text: 'Option ${index + 1}'),
+    );
+
+    final quiz = QuizSpec(
+      question: 'Choose an option.',
+      options: options,
+      correctOptionIds: const {'option_26'},
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            height: 500,
+            child: QuizChallengeView(
+              quizSpec: quiz,
+              selectedOptionIds: const {},
+              onSelectOption: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.scrollUntilVisible(
+      find.text('Option 27'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+
+    expect(find.text('27'), findsOneWidget);
+    expect(find.text('Option 27'), findsOneWidget);
+  });
 }
 
 QuizSpec _singleChoiceQuiz() {
