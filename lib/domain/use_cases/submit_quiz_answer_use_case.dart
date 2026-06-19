@@ -20,10 +20,6 @@ class SubmitQuizAnswerUseCase {
 
     final selected = action.selectedOptionIds;
 
-    if (selected.isEmpty) {
-      return session;
-    }
-
     if (content.quizSpec.isSingleChoice && selected.length != 1) {
       return session;
     }
@@ -39,7 +35,7 @@ class SubmitQuizAnswerUseCase {
     return session.copyWith(
       runtimeState: runtimeState.copyWith(
         selectedOptionIds: selected,
-        submitted: true,
+        submitted: selected.isNotEmpty,
       ),
       status: SessionStatus.inProgress,
       updatedAt: DateTime.now(),

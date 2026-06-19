@@ -272,4 +272,31 @@ void main() {
       expect(checked.status, SessionStatus.inProgress);
     },
   );
+
+  test(
+    'SubmitQuizAnswerUseCase clears the last selection in multiple choice quiz',
+    () {
+      final session = ChallengeSession.start(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: buildMultipleChoiceSpec(),
+      );
+
+      final selectedSession = const SubmitQuizAnswerUseCase()(
+        session: session,
+        action: const SubmitQuizAnswerAction(selectedOptionIds: {'a'}),
+      );
+
+      final clearedSession = const SubmitQuizAnswerUseCase()(
+        session: selectedSession,
+        action: const SubmitQuizAnswerAction(selectedOptionIds: {}),
+      );
+
+      final quizState = clearedSession.runtimeState as QuizRuntimeState;
+
+      expect(quizState.selectedOptionIds, isEmpty);
+      expect(quizState.submitted, isFalse);
+      expect(clearedSession.status, SessionStatus.inProgress);
+    },
+  );
 }

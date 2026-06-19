@@ -378,6 +378,47 @@ void main() {
         'max_heap',
       });
     });
+
+    test('quiz multiple selection can clear the last selected option', () {
+      final notifier = container.read(levelStateProvider.notifier);
+      final spec = _multipleChoiceQuizSpec();
+
+      final session = ChallengeSession(
+        sessionId: 'session_1',
+        userId: 'user_1',
+        spec: spec,
+        runtimeState: const QuizRuntimeState(
+          selectedOptionIds: {'binary_search_tree'},
+          submitted: true,
+        ),
+        status: SessionStatus.inProgress,
+        startedAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+        attemptsRemaining: 3,
+      );
+
+      notifier.state = container
+          .read(levelStateProvider)
+          .copyWith(currentChallengeSpec: spec, currentSession: session);
+
+      final body =
+          ChallengeBodyFactory.build(
+                spec: spec,
+                runtimeState: session.runtimeState,
+                game: AlgoQuestGame(),
+                notifier: notifier,
+              )
+              as QuizChallengeView;
+
+      body.onSelectOption('binary_search_tree');
+
+      final nextSession = container.read(levelStateProvider).currentSession;
+
+      final runtimeState = nextSession!.runtimeState as QuizRuntimeState;
+
+      expect(runtimeState.selectedOptionIds, isEmpty);
+      expect(runtimeState.submitted, isFalse);
+    });
   });
 }
 
