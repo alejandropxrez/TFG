@@ -85,55 +85,73 @@ class _QuizOptionCard extends StatelessWidget {
 
     final backgroundColor = selected ? const Color(0xFFF5EFFF) : Colors.white;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
-          curve: Curves.easeOut,
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 58),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor, width: selected ? 1.8 : 1.1),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.035),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: '$label. $text',
+      hint: allowMultiple
+          ? selected
+                ? 'Toca para desmarcar'
+                : 'Toca para marcar'
+          : 'Toca para seleccionar',
+      button: true,
+      selected: selected,
+      inMutuallyExclusiveGroup: !allowMultiple,
+      onTap: onTap,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          excludeFromSemantics: true,
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOut,
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 58),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: borderColor,
+                width: selected ? 1.8 : 1.1,
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              _OptionBadge(
-                label: label,
-                selected: selected,
-                allowMultiple: allowMultiple,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    color: selected
-                        ? const Color(0xFF6B3DEB)
-                        : const Color(0xFF101235),
-                    fontSize: 13,
-                    height: 1.25,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.035),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                _OptionBadge(
+                  label: label,
+                  selected: selected,
+                  allowMultiple: allowMultiple,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      color: selected
+                          ? const Color(0xFF6B3DEB)
+                          : const Color(0xFF101235),
+                      fontSize: 13,
+                      height: 1.25,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              if (selected) ...[
-                const SizedBox(width: 10),
-                const _SelectedCheck(),
+                if (selected) ...[
+                  const SizedBox(width: 10),
+                  const _SelectedCheck(),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

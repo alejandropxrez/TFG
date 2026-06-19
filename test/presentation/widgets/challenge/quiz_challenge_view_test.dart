@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:algoquest/domain/entities/quiz_spec.dart';
 import 'package:algoquest/presentation/widgets/challenge/quiz_challenge_view.dart';
 import 'package:flutter/material.dart';
@@ -149,6 +151,54 @@ void main() {
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('exposes selected single-choice option semantics', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: QuizChallengeView(
+              quizSpec: _singleChoiceQuiz(),
+              selectedOptionIds: const {'max_heap'},
+              onSelectOption: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      final semantics = tester.getSemantics(
+        find.bySemanticsLabel('C. Max Heap'),
+      );
+
+      expect(semantics.flagsCollection.isButton, isTrue);
+      expect(semantics.flagsCollection.isSelected, Tristate.isTrue);
+      expect(semantics.flagsCollection.isInMutuallyExclusiveGroup, isTrue);
+      expect(semantics.hint, 'Toca para seleccionar');
+    });
+
+    testWidgets('exposes multiple-choice option semantics', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: QuizChallengeView(
+              quizSpec: _multipleChoiceQuiz(),
+              selectedOptionIds: const {'max_heap'},
+              onSelectOption: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      final semantics = tester.getSemantics(
+        find.bySemanticsLabel('C. Max Heap'),
+      );
+
+      expect(semantics.flagsCollection.isButton, isTrue);
+      expect(semantics.flagsCollection.isSelected, Tristate.isTrue);
+      expect(semantics.flagsCollection.isInMutuallyExclusiveGroup, isFalse);
+      expect(semantics.hint, 'Toca para desmarcar');
     });
   });
 }
