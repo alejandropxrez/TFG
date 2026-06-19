@@ -86,6 +86,70 @@ void main() {
       expect(find.text('Max Heap'), findsOneWidget);
       expect(find.text('Binary Search Tree'), findsOneWidget);
     });
+
+    testWidgets('shows quiz question', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              height: 400,
+              child: QuizChallengeView(
+                quizSpec: _singleChoiceQuiz(),
+                selectedOptionIds: const {},
+                onSelectOption: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.text(
+          'Which data structure always keeps the largest element at the root?',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('renders long option text without overflow', (tester) async {
+      final quiz = QuizSpec(
+        question: 'Choose the correct statement.',
+        options: [
+          QuizOption(
+            id: 'long',
+            text:
+                'This is a very long option that should wrap onto multiple lines without overflowing the card.',
+          ),
+          QuizOption(id: 'short', text: 'Short option'),
+        ],
+        correctOptionIds: {'long'},
+        allowMultiple: false,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 280,
+              height: 300,
+              child: QuizChallengeView(
+                quizSpec: quiz,
+                selectedOptionIds: const {},
+                onSelectOption: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.text(
+          'This is a very long option that should wrap onto multiple lines without overflowing the card.',
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
   });
 }
 
