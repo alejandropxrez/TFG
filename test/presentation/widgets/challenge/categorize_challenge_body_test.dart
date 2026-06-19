@@ -53,10 +53,20 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Categoría').first);
+      final firstSelectPlaceholder = find
+          .text('Selecciona una categoría')
+          .first;
+
+      expect(firstSelectPlaceholder, findsOneWidget);
+
+      await tester.tap(firstSelectPlaceholder);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('O(1)').last);
+      final option = find.text('O(1)').last;
+
+      expect(option, findsOneWidget);
+
+      await tester.tap(option);
       await tester.pumpAndSettle();
 
       expect(selectedItemId, 'array_access');

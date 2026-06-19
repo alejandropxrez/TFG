@@ -16,7 +16,7 @@ void main() {
       title: title,
       instruction: instruction,
       theoryRef: theoryRef,
-      constraints: const [],
+      constraints: const [MaxAttemptsConstraint(3)],
       content: QuizChallengeContent(
         quizSpec: QuizSpec(
           question: 'Pregunta de prueba',

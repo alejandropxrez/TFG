@@ -29,17 +29,19 @@ class KeyConceptCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: iconColor, size: 42),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF101235),
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              height: 1.12,
+          const SizedBox(height: 8),
+          Flexible(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF101235),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                height: 1.12,
+              ),
             ),
           ),
         ],

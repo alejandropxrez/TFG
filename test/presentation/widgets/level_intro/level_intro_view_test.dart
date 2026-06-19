@@ -4,10 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  setUp(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
-
   Widget buildSubject({
     required LevelSyllabus syllabus,
     VoidCallback? onBack,
@@ -52,9 +48,16 @@ void main() {
     ],
   );
 
-  testWidgets('shows theory content from syllabus', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
+  Future<void> setTestSurfaceSize(
+    WidgetTester tester, {
+    Size size = const Size(390, 844),
+  }) async {
+    await tester.binding.setSurfaceSize(size);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+  }
 
+  testWidgets('shows theory content from syllabus', (tester) async {
+    await setTestSurfaceSize(tester);
     await tester.pumpWidget(
       buildSubject(syllabus: buildSyllabus(theory: theory)),
     );
@@ -70,8 +73,7 @@ void main() {
   });
 
   testWidgets('shows all theory key points', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-
+    await setTestSurfaceSize(tester);
     await tester.pumpWidget(
       buildSubject(syllabus: buildSyllabus(theory: theory)),
     );
@@ -93,8 +95,7 @@ void main() {
   });
 
   testWidgets('shows number of challenges in motivation card', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-
+    await setTestSurfaceSize(tester);
     await tester.pumpWidget(
       buildSubject(
         syllabus: buildSyllabus(
@@ -106,14 +107,13 @@ void main() {
 
     expect(find.text('¡Tú puedes!'), findsOneWidget);
     expect(
-      '¡Tienes 3 desafíos por delante para mejorar tus habilidades!',
+      find.text('¡Tienes 3 desafíos por delante para mejorar tus habilidades!'),
       findsOneWidget,
     );
   });
 
   testWidgets('calls onBack when back button is tapped', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-
+    await setTestSurfaceSize(tester);
     var called = false;
 
     await tester.pumpWidget(
@@ -134,8 +134,7 @@ void main() {
   testWidgets('calls onStartPractice when start button is tapped', (
     tester,
   ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-
+    await setTestSurfaceSize(tester);
     var called = false;
 
     await tester.pumpWidget(
@@ -155,8 +154,7 @@ void main() {
   });
 
   testWidgets('shows fallback content when theory is missing', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-
+    await setTestSurfaceSize(tester);
     await tester.pumpWidget(
       buildSubject(syllabus: buildSyllabus(theory: null)),
     );
@@ -167,9 +165,5 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Ideas clave'), findsNothing);
-  });
-
-  tearDown(() async {
-    await TestWidgetsFlutterBinding.instance.setSurfaceSize(null);
   });
 }

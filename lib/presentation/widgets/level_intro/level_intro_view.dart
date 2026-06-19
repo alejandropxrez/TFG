@@ -368,16 +368,19 @@ class _StartButton extends StatelessWidget {
           elevation: 8,
           shadowColor: const Color(0xFF6B3DEB).withValues(alpha: 0.35),
         ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '¡Vamos allá!',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
-            ),
-            SizedBox(width: 12),
-            Icon(Icons.arrow_forward_rounded, size: 26),
-          ],
+        child: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '¡Vamos allá!',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+              ),
+              SizedBox(width: 12),
+              Icon(Icons.arrow_forward_rounded, size: 26),
+            ],
+          ),
         ),
       ),
     );

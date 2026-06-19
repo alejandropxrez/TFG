@@ -271,44 +271,55 @@ class _DialogActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isSuccess) {
-      return ChallengePrimaryActionButton(
-        label: primaryActionLabel,
-        icon: Icons.arrow_forward_rounded,
-        backgroundColor: primaryColor,
-        onPressed: onPrimaryAction,
+      return SizedBox(
+        width: double.infinity,
+        child: ChallengePrimaryActionButton(
+          label: primaryActionLabel,
+          icon: Icons.arrow_forward_rounded,
+          backgroundColor: primaryColor,
+          onPressed: onPrimaryAction,
+        ),
       );
     }
 
-    final actions = <Widget>[
-      if (canUsePrimaryAction)
-        Expanded(
-          child: ChallengeOutlinedActionButton(
+    final primaryButton = canUsePrimaryAction
+        ? ChallengeOutlinedActionButton(
             label: primaryActionLabel,
             iconAssetPath: AppAssets.retry,
             color: primaryColor,
             onPressed: onPrimaryAction,
-          ),
-        ),
-      if (canUseSecondaryAction && secondaryActionLabel != null)
-        Expanded(
-          child: ChallengeOutlinedActionButton(
+          )
+        : null;
+
+    final secondaryButton =
+        canUseSecondaryAction && secondaryActionLabel != null
+        ? ChallengeOutlinedActionButton(
             label: secondaryActionLabel!,
             iconAssetPath: AppAssets.eyes,
             color: const Color(0xFF6B3DEB),
             onPressed: onSecondaryAction,
-          ),
-        ),
-    ];
+          )
+        : null;
 
-    if (actions.isEmpty) {
+    if (primaryButton == null && secondaryButton == null) {
       return const SizedBox.shrink();
     }
 
-    if (actions.length == 1) {
-      return SizedBox(width: double.infinity, child: actions.first);
+    if (primaryButton != null && secondaryButton == null) {
+      return SizedBox(width: double.infinity, child: primaryButton);
     }
 
-    return Row(children: [actions[0], const SizedBox(width: 10), actions[1]]);
+    if (primaryButton == null && secondaryButton != null) {
+      return SizedBox(width: double.infinity, child: secondaryButton);
+    }
+
+    return Row(
+      children: [
+        Expanded(child: primaryButton!),
+        const SizedBox(width: 10),
+        Expanded(child: secondaryButton!),
+      ],
+    );
   }
 }
 
