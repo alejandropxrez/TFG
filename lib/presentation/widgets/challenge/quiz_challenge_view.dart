@@ -141,12 +141,12 @@ class _OptionBadge extends StatelessWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 140),
+      curve: Curves.easeOut,
       width: 34,
       height: 34,
       decoration: BoxDecoration(
         color: color,
-        shape: allowMultiple ? BoxShape.rectangle : BoxShape.circle,
-        borderRadius: allowMultiple ? BorderRadius.circular(10) : null,
+        borderRadius: BorderRadius.circular(allowMultiple ? 10 : 17),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: selected ? 0.24 : 0.14),
@@ -157,7 +157,7 @@ class _OptionBadge extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Transform.translate(
-        offset: Offset(0, -2),
+        offset: const Offset(0, -2),
         child: Text(
           label,
           style: const TextStyle(
