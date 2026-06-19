@@ -93,7 +93,7 @@ class _BinaryTreeCanvas extends StatelessWidget {
         if (_isSelectingEdges)
           for (final edge in positionedEdges)
             _EdgeHitTarget(
-              key: ValueKey('edge_${edge.id}'),
+              hitTargetKey: ValueKey('edge_${edge.id}'),
               edge: edge,
               onTap: () => _toggleSelection(edge.id),
             ),
@@ -105,6 +105,7 @@ class _BinaryTreeCanvas extends StatelessWidget {
             width: _nodeSize,
             height: _nodeSize,
             child: _BinaryTreeNodeButton(
+              hitTargetKey: ValueKey('node_${positionedNode.node.id}'),
               value: positionedNode.node.value,
               selected:
                   _isSelectingNodes &&
@@ -200,12 +201,14 @@ class _BinaryTreeCanvas extends StatelessWidget {
 }
 
 class _BinaryTreeNodeButton extends StatelessWidget {
+  final Key hitTargetKey;
   final String value;
   final bool selected;
   final bool enabled;
   final VoidCallback onTap;
 
   const _BinaryTreeNodeButton({
+    required this.hitTargetKey,
     required this.value,
     required this.selected,
     required this.enabled,
@@ -227,6 +230,7 @@ class _BinaryTreeNodeButton extends StatelessWidget {
         : const Color(0xFF101235);
 
     return GestureDetector(
+      key: hitTargetKey,
       onTap: enabled ? onTap : null,
       child: SizedBox(
         width: 96,
@@ -276,10 +280,15 @@ class _BinaryTreeNodeButton extends StatelessWidget {
 }
 
 class _EdgeHitTarget extends StatelessWidget {
+  final Key hitTargetKey;
   final _PositionedTreeEdge edge;
   final VoidCallback onTap;
 
-  const _EdgeHitTarget({super.key, required this.edge, required this.onTap});
+  const _EdgeHitTarget({
+    required this.hitTargetKey,
+    required this.edge,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -301,6 +310,7 @@ class _EdgeHitTarget extends StatelessWidget {
       child: Transform.rotate(
         angle: angle,
         child: GestureDetector(
+          key: hitTargetKey,
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: const SizedBox.expand(),

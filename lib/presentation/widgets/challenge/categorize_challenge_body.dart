@@ -25,6 +25,7 @@ class CategorizeChallengeBody extends StatelessWidget {
         final item = categorizeSpec.items[index];
 
         return _CategorizeItemCard(
+          key: ValueKey('categorize_item_${item.id}'),
           itemText: item.text,
           selectedCategoryId: selectedCategoryByItemId[item.id],
           categoryOptions: [
@@ -47,6 +48,7 @@ class _CategorizeItemCard extends StatelessWidget {
   final ValueChanged<String> onCategorySelected;
 
   const _CategorizeItemCard({
+    required super.key,
     required this.itemText,
     required this.selectedCategoryId,
     required this.categoryOptions,
