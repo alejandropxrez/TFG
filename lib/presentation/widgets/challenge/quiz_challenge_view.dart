@@ -15,39 +15,37 @@ class QuizChallengeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          quizSpec.question,
-          style: const TextStyle(
-            color: Color(0xFF101235),
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            height: 1.3,
-          ),
-        ),
-        const SizedBox(height: 14),
-        Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.only(bottom: 12),
-            itemCount: quizSpec.options.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final option = quizSpec.options[index];
-              final selected = selectedOptionIds.contains(option.id);
+    return ListView.separated(
+      padding: const EdgeInsets.only(bottom: 12),
+      itemCount: quizSpec.options.length + 1,
+      separatorBuilder: (_, index) {
+        return SizedBox(height: index == 0 ? 14 : 12);
+      },
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Text(
+            quizSpec.question,
+            style: const TextStyle(
+              color: Color(0xFF101235),
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              height: 1.3,
+            ),
+          );
+        }
 
-              return _QuizOptionCard(
-                label: _labelForIndex(index),
-                text: option.text,
-                selected: selected,
-                allowMultiple: quizSpec.allowMultiple,
-                onTap: () => onSelectOption(option.id),
-              );
-            },
-          ),
-        ),
-      ],
+        final optionIndex = index - 1;
+        final option = quizSpec.options[optionIndex];
+        final selected = selectedOptionIds.contains(option.id);
+
+        return _QuizOptionCard(
+          label: _labelForIndex(optionIndex),
+          text: option.text,
+          selected: selected,
+          allowMultiple: quizSpec.allowMultiple,
+          onTap: () => onSelectOption(option.id),
+        );
+      },
     );
   }
 

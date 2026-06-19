@@ -240,6 +240,57 @@ void main() {
     expect(find.text('27'), findsOneWidget);
     expect(find.text('Option 27'), findsOneWidget);
   });
+
+  testWidgets('scrolls long question and options with large text scale', (
+    tester,
+  ) async {
+    final quiz = QuizSpec(
+      question:
+          'This is a very long quiz question that should remain accessible '
+          'and scroll together with all answer options when the user enables '
+          'a large accessibility text scale.',
+      options: const [
+        QuizOption(id: 'a', text: 'First option'),
+        QuizOption(id: 'b', text: 'Second option'),
+      ],
+      correctOptionIds: const {'a'},
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          );
+        },
+        home: Scaffold(
+          body: SizedBox(
+            width: 280,
+            height: 220,
+            child: QuizChallengeView(
+              quizSpec: quiz,
+              selectedOptionIds: const {},
+              onSelectOption: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+
+    await tester.scrollUntilVisible(
+      find.text('Second option'),
+      200,
+      scrollable: find.byType(Scrollable),
+    );
+
+    expect(find.text('Second option'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 QuizSpec _singleChoiceQuiz() {
