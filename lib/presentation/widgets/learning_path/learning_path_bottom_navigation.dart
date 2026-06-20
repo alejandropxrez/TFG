@@ -31,42 +31,49 @@ class LearningPathBottomNav extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _BottomNavButton(
-            item: LearningPathBottomNavItem.map,
-            selectedItem: selectedItem,
-            iconAssetPath: AppAssets.map,
-            label: 'Mapa',
-            iconScale: 2.55,
-            onPressed: onItemSelected,
+          Expanded(
+            child: _BottomNavButton(
+              item: LearningPathBottomNavItem.map,
+              selectedItem: selectedItem,
+              iconAssetPath: AppAssets.map,
+              label: 'Mapa',
+              iconScale: 2.55,
+              onPressed: onItemSelected,
+            ),
           ),
-          const SizedBox(width: 6),
-          _BottomNavButton(
-            item: LearningPathBottomNavItem.progress,
-            selectedItem: selectedItem,
-            iconAssetPath: AppAssets.statistics,
-            label: 'Progreso',
-            iconScale: 2.45,
-            onPressed: onItemSelected,
+          const SizedBox(width: 4),
+          Expanded(
+            child: _BottomNavButton(
+              item: LearningPathBottomNavItem.progress,
+              selectedItem: selectedItem,
+              iconAssetPath: AppAssets.statistics,
+              label: 'Progreso',
+              iconScale: 2.45,
+              onPressed: onItemSelected,
+            ),
           ),
-          const SizedBox(width: 6),
-          _BottomNavButton(
-            item: LearningPathBottomNavItem.leaderboard,
-            selectedItem: selectedItem,
-            iconAssetPath: AppAssets.cup,
-            label: 'Clasificatoria',
-            iconScale: 2.45,
-            onPressed: onItemSelected,
+          const SizedBox(width: 4),
+          Expanded(
+            child: _BottomNavButton(
+              item: LearningPathBottomNavItem.leaderboard,
+              selectedItem: selectedItem,
+              iconAssetPath: AppAssets.cup,
+              label: 'Clasificatoria',
+              iconScale: 2.45,
+              onPressed: onItemSelected,
+            ),
           ),
-          const SizedBox(width: 6),
-          _BottomNavButton(
-            item: LearningPathBottomNavItem.profile,
-            selectedItem: selectedItem,
-            iconAssetPath: AppAssets.profile,
-            label: 'Perfil',
-            iconScale: 2.45,
-            onPressed: onItemSelected,
+          const SizedBox(width: 4),
+          Expanded(
+            child: _BottomNavButton(
+              item: LearningPathBottomNavItem.profile,
+              selectedItem: selectedItem,
+              iconAssetPath: AppAssets.profile,
+              label: 'Perfil',
+              iconScale: 2.45,
+              onPressed: onItemSelected,
+            ),
           ),
         ],
       ),
@@ -99,51 +106,55 @@ class _BottomNavButton extends StatelessWidget {
         ? const Color(0xFF6B3DEB)
         : const Color(0xFF8D91A3);
 
-    return SizedBox(
-      width: 120,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed == null ? null : () => onPressed!(item),
-          borderRadius: BorderRadius.circular(18),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 34,
-                  height: 34,
-                  child: Transform.scale(
-                    scale: iconScale,
-                    child: _isSelected
-                        ? Image.asset(iconAssetPath, fit: BoxFit.contain)
-                        : ColorFiltered(
-                            colorFilter: const ColorFilter.mode(
-                              Color(0xFF8D91A3),
-                              BlendMode.srcIn,
-                            ),
-                            child: Image.asset(
-                              iconAssetPath,
-                              fit: BoxFit.contain,
-                            ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed == null ? null : () => onPressed!(item),
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 34,
+                height: 34,
+                child: Transform.scale(
+                  scale: iconScale,
+                  child: _isSelected
+                      ? Image.asset(iconAssetPath, fit: BoxFit.contain)
+                      : ColorFiltered(
+                          colorFilter: const ColorFilter.mode(
+                            Color(0xFF8D91A3),
+                            BlendMode.srcIn,
                           ),
+                          child: Image.asset(
+                            iconAssetPath,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 5),
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 12,
+                      fontWeight: _isSelected
+                          ? FontWeight.w900
+                          : FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 12,
-                    fontWeight: _isSelected ? FontWeight.w900 : FontWeight.w700,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
