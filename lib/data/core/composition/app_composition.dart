@@ -32,11 +32,13 @@ import 'package:algoquest/domain/use_cases/undo_move_use_case.dart';
 import 'use_cases.dart';
 
 class AppComposition {
+  final AppDatabase database;
   final UserRepository userRepository;
   final ContentRepository contentRepository;
   final UseCases useCases;
 
   AppComposition._({
+    required this.database,
     required this.userRepository,
     required this.contentRepository,
     required this.useCases,
@@ -108,9 +110,12 @@ class AppComposition {
     );
 
     return AppComposition._(
+      database: database,
       userRepository: userRepository,
       contentRepository: contentRepository,
       useCases: useCases,
     );
   }
+
+  Future<void> dispose() => database.close();
 }

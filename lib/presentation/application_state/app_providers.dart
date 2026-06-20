@@ -11,3 +11,11 @@ final currentUserIdProvider = Provider<String>((ref) {
   // Temporary until authentication/profile selection exists.
   return 'local_user';
 });
+
+final learningPathDependenciesProvider = Provider<LearningPathDependencies>(
+  (ref) => LearningPathDependencies.fromUseCases(ref.watch(useCasesProvider)),
+);
+
+final levelDependenciesProvider = Provider<LevelDependencies>(
+  (ref) => LevelDependencies.fromUseCases(ref.watch(useCasesProvider)),
+);

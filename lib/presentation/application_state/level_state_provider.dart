@@ -10,20 +10,31 @@ import 'package:algoquest/domain/entities/game_action.dart';
 import 'level_state.dart';
 import '../../domain/entities/session_manager.dart';
 
-final levelStateProvider = NotifierProvider<LevelStateNotifier, LevelState>(
-  LevelStateNotifier.new,
-);
+final levelStateProviderFor = NotifierProvider.autoDispose
+    .family<LevelStateNotifier, LevelState, String>(
+      LevelStateNotifier.new,
+    );
+
+/// Compatibility instance for tests and callers that supply the level to
+/// [LevelStateNotifier.loadLevel]. New UI code should use
+/// [levelStateProviderFor] so state is isolated per level.
+final levelStateProvider = levelStateProviderFor('__unscoped__');
 
 class LevelStateNotifier extends Notifier<LevelState> {
-  late final UseCases _useCases;
+  final String levelId;
+
+  LevelStateNotifier(this.levelId);
+
+  LevelDependencies get _useCases => ref.read(levelDependenciesProvider);
 
   @override
   LevelState build() {
-    _useCases = ref.watch(useCasesProvider);
+    ref.watch(levelDependenciesProvider);
     return const LevelState.initial();
   }
 
-  Future<void> loadLevel(String levelId) async {
+  Future<void> loadLevel([String? requestedLevelId]) async {
+    final levelId = requestedLevelId ?? this.levelId;
     state = state.copyWith(
       status: LevelFlowStatus.loading,
       clearError: true,

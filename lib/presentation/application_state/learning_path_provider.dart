@@ -3,34 +3,17 @@ import 'package:algoquest/presentation/application_state/learning_path_state.dar
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final learningPathProvider =
-    NotifierProvider<LearningPathNotifier, LearningPathState>(
+    AsyncNotifierProvider<LearningPathNotifier, LearningPathState>(
       LearningPathNotifier.new,
+      retry: (_, _) => null,
     );
 
-class LearningPathNotifier extends Notifier<LearningPathState> {
+class LearningPathNotifier extends AsyncNotifier<LearningPathState> {
   @override
-  LearningPathState build() {
-    return const LearningPathState.initial();
-  }
-
-  Future<void> load() async {
-    state = state.copyWith(
-      status: LearningPathStatus.loading,
-      clearError: true,
-    );
-
-    try {
-      final useCases = ref.read(useCasesProvider);
-      final userId = ref.read(currentUserIdProvider);
-
-      final learningPath = await useCases.loadLearningPath(userId);
-
-      state = LearningPathState.loaded(learningPath);
-    } catch (error) {
-      state = state.copyWith(
-        status: LearningPathStatus.failed,
-        errorMessage: error.toString(),
-      );
-    }
+  Future<LearningPathState> build() async {
+    final dependencies = ref.watch(learningPathDependenciesProvider);
+    final userId = ref.watch(currentUserIdProvider);
+    final learningPath = await dependencies.loadLearningPath(userId);
+    return LearningPathState.loaded(learningPath);
   }
 }

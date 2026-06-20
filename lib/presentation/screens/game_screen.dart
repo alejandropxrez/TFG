@@ -35,11 +35,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     game = AlgoQuestGame()
       ..onActionRequested = (GameAction action) {
-        ref.read(levelStateProvider.notifier).executeAction(action);
+        ref
+            .read(levelStateProviderFor(widget.levelId).notifier)
+            .executeAction(action);
       };
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(levelStateProvider.notifier).loadLevel(widget.levelId);
+      ref.read(levelStateProviderFor(widget.levelId).notifier).loadLevel();
     });
   }
 
@@ -49,20 +51,22 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     if (oldWidget.levelId != widget.levelId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(levelStateProvider.notifier).loadLevel(widget.levelId);
+        ref.read(levelStateProviderFor(widget.levelId).notifier).loadLevel();
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<LevelState>(levelStateProvider, (previous, next) {
+    final provider = levelStateProviderFor(widget.levelId);
+
+    ref.listen<LevelState>(provider, (previous, next) {
       _syncGameScene(previous: previous, next: next);
       _startChallengeAutomaticallyIfNeeded(next);
     });
 
-    final state = ref.watch(levelStateProvider);
-    final notifier = ref.read(levelStateProvider.notifier);
+    final state = ref.watch(provider);
+    final notifier = ref.read(provider.notifier);
     final userId = ref.watch(currentUserIdProvider);
 
     final syllabus = state.syllabus;
@@ -233,7 +237,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final userId = ref.read(currentUserIdProvider);
 
     ref
-        .read(levelStateProvider.notifier)
+        .read(levelStateProviderFor(widget.levelId).notifier)
         .startCurrentChallenge(userId: userId, sessionId: _newSessionId());
   }
 
@@ -249,7 +253,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (!session.hasAttemptsRemaining) return;
 
     final solved = notifier.checkSolution();
-    final nextState = ref.read(levelStateProvider);
+    final nextState = ref.read(levelStateProviderFor(widget.levelId));
     final nextSession = nextState.currentSession ?? session;
 
     final attemptsRemaining = nextSession.attemptsRemaining;

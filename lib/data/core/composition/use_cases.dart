@@ -66,3 +66,76 @@ class UseCases {
     required this.completeLevelProgress,
   });
 }
+
+/// Dependencies used by the learning-path feature.
+///
+/// Keeping this small makes the feature's real dependency explicit and lets
+/// tests replace it without constructing the complete application graph.
+class LearningPathDependencies {
+  final LoadLearningPathUseCase loadLearningPath;
+
+  const LearningPathDependencies({required this.loadLearningPath});
+
+  factory LearningPathDependencies.fromUseCases(UseCases useCases) {
+    return LearningPathDependencies(
+      loadLearningPath: useCases.loadLearningPath,
+    );
+  }
+}
+
+/// Dependencies used while playing a level.
+class LevelDependencies {
+  final GetLevelSyllabusUseCase getLevelSyllabus;
+  final LoadChallengeSpecUseCase loadChallengeSpec;
+  final StartChallengeSessionUseCase startChallengeSession;
+  final ExecuteMoveUseCase executeMove;
+  final CheckSolutionUseCase checkSolution;
+  final UndoMoveUseCase undoMove;
+  final RedoMoveUseCase redoMove;
+  final ConsumeAttemptUseCase consumeAttempt;
+  final CheckChallengeUseCase checkChallenge;
+  final SubmitQuizAnswerUseCase submitQuizAnswer;
+  final SubmitIdentifyTargetUseCase submitIdentifyTarget;
+  final SubmitCategorizationUseCase submitCategorization;
+  final RevealChallengeAnswerUseCase revealChallengeAnswer;
+  final RestartChallengeSessionUseCase restartChallengeSession;
+  final CompleteLevelProgressUseCase completeLevelProgress;
+
+  const LevelDependencies({
+    required this.getLevelSyllabus,
+    required this.loadChallengeSpec,
+    required this.startChallengeSession,
+    required this.executeMove,
+    required this.checkSolution,
+    required this.undoMove,
+    required this.redoMove,
+    required this.consumeAttempt,
+    required this.checkChallenge,
+    required this.submitQuizAnswer,
+    required this.submitIdentifyTarget,
+    required this.submitCategorization,
+    required this.revealChallengeAnswer,
+    required this.restartChallengeSession,
+    required this.completeLevelProgress,
+  });
+
+  factory LevelDependencies.fromUseCases(UseCases useCases) {
+    return LevelDependencies(
+      getLevelSyllabus: useCases.getLevelSyllabus,
+      loadChallengeSpec: useCases.loadChallengeSpec,
+      startChallengeSession: useCases.startChallengeSession,
+      executeMove: useCases.executeMove,
+      checkSolution: useCases.checkSolution,
+      undoMove: useCases.undoMove,
+      redoMove: useCases.redoMove,
+      consumeAttempt: useCases.consumeAttempt,
+      checkChallenge: useCases.checkChallenge,
+      submitQuizAnswer: useCases.submitQuizAnswer,
+      submitIdentifyTarget: useCases.submitIdentifyTarget,
+      submitCategorization: useCases.submitCategorization,
+      revealChallengeAnswer: useCases.revealChallengeAnswer,
+      restartChallengeSession: useCases.restartChallengeSession,
+      completeLevelProgress: useCases.completeLevelProgress,
+    );
+  }
+}
