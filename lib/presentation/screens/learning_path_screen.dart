@@ -12,42 +12,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class LearningPathScreen extends ConsumerStatefulWidget {
+class LearningPathScreen extends ConsumerWidget {
   const LearningPathScreen({super.key});
 
   @override
-  ConsumerState<LearningPathScreen> createState() => _LearningPathScreenState();
-}
-
-class _LearningPathScreenState extends ConsumerState<LearningPathScreen> {
-  @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() {
-      ref.read(learningPathProvider.notifier).load();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final state = ref.watch(learningPathProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final learningPath = ref.watch(learningPathProvider);
 
     return Scaffold(
       body: Stack(
         children: [
           const Positioned.fill(child: _LearningMapBackground()),
           SafeArea(
-            child: switch (state.status) {
-              LearningPathStatus.idle ||
-              LearningPathStatus.loading => const _LearningPathLoadingView(),
-
-              LearningPathStatus.failed => _LearningPathErrorView(
-                message: state.errorMessage ?? 'Error loading learning path',
-                onRetry: () => ref.read(learningPathProvider.notifier).load(),
+            child: learningPath.when(
+              loading: () => const _LearningPathLoadingView(),
+              error: (error, stackTrace) => _LearningPathErrorView(
+                message: error.toString(),
+                onRetry: () => ref.invalidate(learningPathProvider),
               ),
-
-              LearningPathStatus.loaded => _LearningPathLoadedView(
+              data: (state) => _LearningPathLoadedView(
                 state: state,
                 onLevelPressed: (levelId) {
                   context.pushNamed(
@@ -56,7 +39,7 @@ class _LearningPathScreenState extends ConsumerState<LearningPathScreen> {
                   );
                 },
               ),
-            },
+            ),
           ),
           Positioned(
             left: 0,

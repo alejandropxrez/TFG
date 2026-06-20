@@ -183,11 +183,7 @@ void main() {
   });
 
   test('loads phases and levels from syllabus JSON', () async {
-    final notifier = container.read(learningPathProvider.notifier);
-
-    await notifier.load();
-
-    final state = container.read(learningPathProvider);
+    final state = await container.read(learningPathProvider.future);
 
     expect(state.status, LearningPathStatus.loaded);
     expect(state.title, 'AlgoQuest');
@@ -207,11 +203,7 @@ void main() {
   });
 
   test('unlocks first level when user has no progress', () async {
-    final notifier = container.read(learningPathProvider.notifier);
-
-    await notifier.load();
-
-    final state = container.read(learningPathProvider);
+    final state = await container.read(learningPathProvider.future);
     final levels = [for (final phase in state.phases) ...phase.levels];
 
     expect(levels[0].id, 'level_heap_intro');
@@ -234,11 +226,7 @@ void main() {
       currentLevelId: 'level_heap_advanced',
     );
 
-    final notifier = container.read(learningPathProvider.notifier);
-
-    await notifier.load();
-
-    final state = container.read(learningPathProvider);
+    final state = await container.read(learningPathProvider.future);
     final levels = [for (final phase in state.phases) ...phase.levels];
 
     expect(levels[0].locked, isFalse);
@@ -258,13 +246,11 @@ void main() {
 
     addTearDown(failingContainer.dispose);
 
-    final notifier = failingContainer.read(learningPathProvider.notifier);
+    await expectLater(
+      failingContainer.read(learningPathProvider.future),
+      throwsA(isA<Object>()),
+    );
 
-    await notifier.load();
-
-    final state = failingContainer.read(learningPathProvider);
-
-    expect(state.status, LearningPathStatus.failed);
-    expect(state.errorMessage, isNotNull);
+    expect(failingContainer.read(learningPathProvider).hasError, isTrue);
   });
 }

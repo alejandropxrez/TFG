@@ -23,7 +23,12 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      overrides: [useCasesProvider.overrideWithValue(appComposition.useCases)],
+      overrides: [
+        useCasesProvider.overrideWith((ref) {
+          ref.onDispose(appComposition.dispose);
+          return appComposition.useCases;
+        }),
+      ],
       child: const AlgoQuestApp(),
     ),
   );
