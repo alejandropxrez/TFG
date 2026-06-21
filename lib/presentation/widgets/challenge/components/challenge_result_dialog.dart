@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:algoquest/domain/entities/challenge_spec.dart';
 import 'package:algoquest/presentation/copy/challenge_result_copy.dart';
 import 'package:algoquest/presentation/theme/app_assets.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/challenge_action_button.dart';
 import 'package:algoquest/presentation/widgets/challenge/components/challenge_hearts_indicator.dart';
 import 'package:confetti/confetti.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum ChallengeResultDialogType { success, failure }
@@ -104,26 +107,69 @@ class ChallengeResultDialog extends StatefulWidget {
 
 class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
   late final ConfettiController _confettiController;
+  Animation<double>? _routeAnimation;
+  Timer? _confettiStartTimer;
+  bool _confettiStartRequested = false;
 
   @override
   void initState() {
     super.initState();
 
     _confettiController = ConfettiController(
-      duration: const Duration(milliseconds: 800),
+      duration: defaultTargetPlatform == TargetPlatform.android
+          ? const Duration(milliseconds: 2200)
+          : const Duration(milliseconds: 1600),
     );
+  }
 
-    if (widget.isSuccess) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _confettiController.play();
-        }
-      });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!widget.isSuccess || _confettiStartRequested) return;
+
+    _confettiStartRequested = true;
+    final routeAnimation = ModalRoute.of(context)?.animation;
+
+    if (routeAnimation == null ||
+        routeAnimation.status == AnimationStatus.completed) {
+      _playConfettiAfterFrame();
+      return;
     }
+
+    _routeAnimation = routeAnimation;
+    _routeAnimation!.addStatusListener(_onRouteAnimationStatusChanged);
+  }
+
+  void _onRouteAnimationStatusChanged(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+
+    _routeAnimation?.removeStatusListener(_onRouteAnimationStatusChanged);
+    _routeAnimation = null;
+    _playConfettiAfterFrame();
+  }
+
+  void _playConfettiAfterFrame() {
+    final startDelay = Theme.of(context).platform == TargetPlatform.android
+        ? const Duration(milliseconds: 350)
+        : Duration.zero;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (startDelay > Duration.zero) {
+        _confettiStartTimer = Timer(startDelay, () {
+          if (mounted) _confettiController.play();
+        });
+        return;
+      }
+
+      if (mounted) _confettiController.play();
+    });
   }
 
   @override
   void dispose() {
+    _routeAnimation?.removeStatusListener(_onRouteAnimationStatusChanged);
+    _confettiStartTimer?.cancel();
     _confettiController.dispose();
     super.dispose();
   }
@@ -131,6 +177,7 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = _ChallengeResultDialogTheme.fromType(widget.type);
+    final isAndroid = Theme.of(context).platform == TargetPlatform.android;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -146,11 +193,11 @@ class _ChallengeResultDialogState extends State<ChallengeResultDialog> {
                 child: ConfettiWidget(
                   confettiController: _confettiController,
                   blastDirectionality: BlastDirectionality.explosive,
-                  emissionFrequency: 0.06,
-                  numberOfParticles: 24,
-                  maxBlastForce: 400,
-                  minBlastForce: 300,
-                  gravity: 0.28,
+                  emissionFrequency: isAndroid ? 0.12 : 0.06,
+                  numberOfParticles: isAndroid ? 22 : 24,
+                  maxBlastForce: isAndroid ? 55 : 400,
+                  minBlastForce: isAndroid ? 32 : 300,
+                  gravity: isAndroid ? 0.14 : 0.18,
                   shouldLoop: false,
                 ),
               ),
