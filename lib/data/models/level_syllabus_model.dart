@@ -1,3 +1,6 @@
+// Freezed copies JsonKey annotations from factory parameters to generated fields.
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'level_syllabus_model.freezed.dart';
