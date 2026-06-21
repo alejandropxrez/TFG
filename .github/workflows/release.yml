@@ -48,7 +48,6 @@ jobs:
               with:
                   name: android-release
                   path: AlgoQuest-${{ github.ref_name }}-android.apk
-                  archive: false
 
     build-windows:
         name: Build Windows application
@@ -70,6 +69,12 @@ jobs:
             - name: Generate source files
               run: dart run build_runner build --delete-conflicting-outputs
 
+            - name: Analyze project
+              run: flutter analyze
+
+            - name: Run tests
+              run: flutter test
+
             - name: Build Windows release
               run: flutter build windows --release
 
@@ -85,7 +90,6 @@ jobs:
               with:
                   name: windows-release
                   path: AlgoQuest-${{ github.ref_name }}-windows.zip
-                  archive: false
 
     publish-release:
         name: Publish GitHub release
@@ -117,3 +121,5 @@ jobs:
                   generate_release_notes: true
                   files: |
                       release-files/*
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
