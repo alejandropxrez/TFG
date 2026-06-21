@@ -1,4 +1,3 @@
-
 import 'package:algoquest/domain/entities/learning_path.dart';
 import 'package:algoquest/domain/repositories/content_repository.dart';
 import 'package:algoquest/domain/repositories/user_repository.dart';
@@ -17,6 +16,7 @@ class LoadLearningPathUseCase {
     final syllabus = await _contentRepository.getSyllabus();
     final progress = await _userRepository.fetchUserProgress(userId);
     final unlockedLevels = progress?.unlockedLevels ?? const <String>{};
+    final completedLevels = progress?.completedLevels ?? const <String>{};
 
     var globalLevelIndex = 0;
     final phases = <LearningPathPhase>[];
@@ -36,6 +36,7 @@ class LoadLearningPathUseCase {
             subtitle: level.subtitle,
             topic: level.topic,
             locked: locked,
+            completed: completedLevels.contains(level.id),
           ),
         );
 

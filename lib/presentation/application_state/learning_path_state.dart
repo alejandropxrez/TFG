@@ -27,6 +27,7 @@ class LearningPathLevelItem {
   final String subtitle;
   final LevelTopic topic;
   final bool locked;
+  final bool completed;
 
   const LearningPathLevelItem({
     required this.id,
@@ -34,6 +35,7 @@ class LearningPathLevelItem {
     required this.subtitle,
     required this.topic,
     required this.locked,
+    required this.completed,
   });
 
   factory LearningPathLevelItem.fromDomain(LearningPathLevel level) {
@@ -43,6 +45,7 @@ class LearningPathLevelItem {
       subtitle: level.subtitle,
       topic: level.topic,
       locked: level.locked,
+      completed: level.completed,
     );
   }
 }

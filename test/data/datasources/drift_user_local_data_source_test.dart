@@ -35,6 +35,7 @@ void main() {
       experiencePoints: 500,
       livesRemaining: 3,
       unlockedLevels: {'level_1', 'level_2'},
+      completedLevels: {'level_1'},
       currentLevelId: 'level_2',
     );
 
@@ -48,6 +49,7 @@ void main() {
     expect(loaded.experiencePoints, 500);
     expect(loaded.livesRemaining, 3);
     expect(loaded.unlockedLevels, containsAll({'level_1', 'level_2'}));
+    expect(loaded.completedLevels, {'level_1'});
     expect(loaded.currentLevelId, 'level_2');
   });
 

@@ -31,6 +31,7 @@ class LearningPathLevel {
   final String subtitle;
   final LevelTopic topic;
   final bool locked;
+  final bool completed;
 
   const LearningPathLevel({
     required this.id,
@@ -38,5 +39,6 @@ class LearningPathLevel {
     required this.subtitle,
     required this.topic,
     required this.locked,
+    required this.completed,
   });
 }

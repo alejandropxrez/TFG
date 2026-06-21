@@ -11,10 +11,7 @@ class FakeContentRepository implements ContentRepository {
   final LearningPathSyllabus syllabus;
   final Map<String, LevelSyllabus> levels;
 
-  const FakeContentRepository({
-    required this.syllabus,
-    required this.levels,
-  });
+  const FakeContentRepository({required this.syllabus, required this.levels});
 
   @override
   Future<LearningPathSyllabus> getSyllabus() async => syllabus;
@@ -96,29 +93,32 @@ void main() {
     ),
   };
 
-  test('loads phases and unlocks only the first level without progress', () async {
-    final useCase = LoadLearningPathUseCase(
-      contentRepository: const FakeContentRepository(
-        syllabus: syllabus,
-        levels: levels,
-      ),
-      userRepository: FakeUserRepository(),
-    );
+  test(
+    'loads phases and unlocks only the first level without progress',
+    () async {
+      final useCase = LoadLearningPathUseCase(
+        contentRepository: const FakeContentRepository(
+          syllabus: syllabus,
+          levels: levels,
+        ),
+        userRepository: FakeUserRepository(),
+      );
 
-    final learningPath = await useCase('user_1');
-    final pathLevels = [
-      for (final phase in learningPath.phases) ...phase.levels,
-    ];
+      final learningPath = await useCase('user_1');
+      final pathLevels = [
+        for (final phase in learningPath.phases) ...phase.levels,
+      ];
 
-    expect(learningPath.title, 'AlgoQuest');
-    expect(learningPath.phases.length, 2);
-    expect(pathLevels.map((level) => level.id), [
-      'level_heap_intro',
-      'level_heap_advanced',
-      'level_bst_intro',
-    ]);
-    expect(pathLevels.map((level) => level.locked), [false, true, true]);
-  });
+      expect(learningPath.title, 'AlgoQuest');
+      expect(learningPath.phases.length, 2);
+      expect(pathLevels.map((level) => level.id), [
+        'level_heap_intro',
+        'level_heap_advanced',
+        'level_bst_intro',
+      ]);
+      expect(pathLevels.map((level) => level.locked), [false, true, true]);
+    },
+  );
 
   test('unlocks levels present in user progress', () async {
     final userRepository = FakeUserRepository()
@@ -128,6 +128,7 @@ void main() {
         experiencePoints: 100,
         livesRemaining: 5,
         unlockedLevels: {'level_heap_intro', 'level_heap_advanced'},
+        completedLevels: {'level_heap_intro'},
         currentLevelId: 'level_heap_advanced',
       );
 
@@ -145,6 +146,7 @@ void main() {
     ];
 
     expect(pathLevels.map((level) => level.locked), [false, false, true]);
+    expect(pathLevels.map((level) => level.completed), [true, false, false]);
     expect(learningPath.progress, userRepository.progress);
   });
 }

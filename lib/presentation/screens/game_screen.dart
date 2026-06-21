@@ -279,7 +279,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             if (!context.mounted) return;
 
             if (levelCompleted) {
-              context.goNamed(AppRouter.learningPathName);
+              _goBack(context);
             }
           },
           onTryAgain: () {

@@ -231,6 +231,7 @@ void main() {
       experiencePoints: 100,
       livesRemaining: 5,
       unlockedLevels: {'level_heap_intro', 'level_heap_advanced'},
+      completedLevels: {'level_heap_intro'},
       currentLevelId: 'level_heap_advanced',
     );
 
@@ -242,7 +243,9 @@ void main() {
     final levels = [for (final phase in state.phases) ...phase.levels];
 
     expect(levels[0].locked, isFalse);
+    expect(levels[0].completed, isTrue);
     expect(levels[1].locked, isFalse);
+    expect(levels[1].completed, isFalse);
     expect(levels[2].locked, isTrue);
   });
 

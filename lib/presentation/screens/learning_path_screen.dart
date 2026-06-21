@@ -49,11 +49,14 @@ class _LearningPathScreenState extends ConsumerState<LearningPathScreen> {
 
               LearningPathStatus.loaded => _LearningPathLoadedView(
                 state: state,
-                onLevelPressed: (levelId) {
-                  context.pushNamed(
+                onLevelPressed: (levelId) async {
+                  await context.pushNamed(
                     AppRouter.levelName,
                     pathParameters: {'levelId': levelId},
                   );
+
+                  if (!mounted) return;
+                  await ref.read(learningPathProvider.notifier).load();
                 },
               ),
             },
@@ -186,7 +189,9 @@ class _LearningPathLoadedViewState extends State<_LearningPathLoadedView> {
                               title: level.title,
                               subtitle: level.subtitle,
                               xp: _levelXp(level),
-                              status: level.locked
+                              status: level.completed
+                                  ? LearningPathLevelCardStatus.completed
+                                  : level.locked
                                   ? LearningPathLevelCardStatus.locked
                                   : LearningPathLevelCardStatus.available,
                               imageAssetPath: _levelImageForTopic(level.topic),
