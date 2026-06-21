@@ -37,6 +37,7 @@ class BstValidationStrategy implements ValidationStrategy {
   ///
   /// Returns:
   /// - true  → if the structure is a valid BST
+  /// An empty structure is considered a valid BST.
   /// - false → if the structure is invalid, cyclic, disconnected,
   ///            or any node violates BST constraints
   @override
@@ -65,7 +66,7 @@ class BstValidationStrategy implements ValidationStrategy {
 
     if (!isValid) return false;
 
-    /// All nodes must belong to the same tree rooted at rootId.
+    // All nodes must belong to the same tree rooted at rootId.
     return visited.length == state.nodes.length;
   }
 
@@ -113,7 +114,7 @@ class BstValidationStrategy implements ValidationStrategy {
     required Set<String> visited,
     required Set<String> recursionStack,
   }) {
-    /// Cycle detected
+    // Cycle detected
     if (recursionStack.contains(nodeId)) {
       return false;
     }
@@ -125,13 +126,13 @@ class BstValidationStrategy implements ValidationStrategy {
 
     final value = node.value!;
 
-    /// Range validation
+    // Range validation
     if (min != null && value <= min) return false;
     if (max != null && value >= max) return false;
 
     final children = childrenMap[nodeId] ?? const [];
 
-    /// A BST node can have at most 2 children.
+    // A BST node can have at most 2 children.
     if (children.length > 2) return false;
 
     recursionStack.add(nodeId);
@@ -140,7 +141,7 @@ class BstValidationStrategy implements ValidationStrategy {
     String? leftChildId;
     String? rightChildId;
 
-    /// Infer left/right child based on value relative to parent.
+    // Infer left/right child based on value relative to parent.
     for (final childId in children) {
       final child = state.nodes[childId];
       if (child == null || child.value == null) {
@@ -161,7 +162,7 @@ class BstValidationStrategy implements ValidationStrategy {
         }
         rightChildId = childId;
       } else {
-        /// Equal values are not allowed in this BST definition.
+        // Equal values are not allowed in this BST definition.
         recursionStack.remove(nodeId);
         return false;
       }

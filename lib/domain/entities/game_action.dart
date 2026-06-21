@@ -1,15 +1,36 @@
 import 'structure_state.dart';
 
+/// Base type for every action that can modify a [StructureState].
+///
+/// Each action follows two steps:
+///
+/// 1. [isApplicableTo] checks whether the action is valid for a given state.
+/// 2. [transform] produces the resulting immutable state.
+///
+/// Implementations must return the original state unchanged when the action is
+/// not applicable.
 sealed class GameAction {
   const GameAction();
 
+  /// Whether this action can be executed on [state].
   bool isApplicableTo(StructureState state);
 
+  /// Applies this action to [currentState].
+  ///
+  /// Returns a new [StructureState] when the action is valid, or the original
+  /// state when it cannot be applied.
   StructureState transform(StructureState currentState);
 }
 
+/// Swaps the values stored by two existing nodes.
+///
+/// The node identifiers and graph topology remain unchanged; only the node
+/// values are exchanged.
 class SwapNodesAction extends GameAction {
+  /// Identifier of the first node involved in the swap.
   final String firstNodeId;
+
+  /// Identifier of the second node involved in the swap.
   final String secondNodeId;
 
   const SwapNodesAction({
@@ -17,6 +38,7 @@ class SwapNodesAction extends GameAction {
     required this.secondNodeId,
   });
 
+  /// The swap is valid only when both nodes exist and are different.
   @override
   bool isApplicableTo(StructureState state) {
     return state.nodes.containsKey(firstNodeId) &&
@@ -39,12 +61,27 @@ class SwapNodesAction extends GameAction {
   }
 }
 
+/// Assigns an inventory value to a structure slot.
+///
+/// The action removes the selected value from the inventory and associates an
+/// available node containing that value with the target slot.
+///
+/// When replacing an existing slot value, the previous value is returned to
+/// the inventory.
 class SetValueAction extends GameAction {
+  /// Identifier of the slot that receives the value.
   final String slotId;
+
+  /// Value selected from the inventory.
   final int value;
 
   const SetValueAction({required this.slotId, required this.value});
 
+  /// The action is valid when:
+  ///
+  /// - the target slot exists;
+  /// - the value exists in the inventory;
+  /// - an unused node containing that value is available.
   @override
   bool isApplicableTo(StructureState state) {
     final slot = state.slots[slotId];
@@ -85,6 +122,9 @@ class SetValueAction extends GameAction {
     );
   }
 
+  /// Finds an unused node whose value matches [value].
+  ///
+  /// Nodes already referenced by another slot are excluded.
   NodeState? _findAvailableNodeForValue(StructureState state) {
     final usedNodeIds = state.slots.values
         .map((slot) => slot.filledNodeId)
@@ -102,12 +142,22 @@ class SetValueAction extends GameAction {
   }
 }
 
+/// Creates an undirected connection between two nodes.
+///
+/// Although an [EdgeState] stores a source and a target, link duplication is
+/// checked in both directions, so `A → B` and `B → A` are treated as the same
+/// connection.
 class LinkAction extends GameAction {
+  /// Identifier of the source node.
   final String sourceNodeId;
+
+  /// Identifier of the target node.
   final String targetNodeId;
 
   const LinkAction({required this.sourceNodeId, required this.targetNodeId});
 
+  /// The link is valid when both nodes exist, are different, and no equivalent
+  /// edge already exists in either direction.
   @override
   bool isApplicableTo(StructureState state) {
     if (!state.nodes.containsKey(sourceNodeId)) return false;
@@ -136,8 +186,15 @@ class LinkAction extends GameAction {
   }
 }
 
+/// Removes the undirected connection between two nodes.
+///
+/// Both possible source-target orientations are considered equivalent and are
+/// removed when present.
 class RemoveLinkAction extends GameAction {
+  /// Identifier of one endpoint of the edge.
   final String sourceNodeId;
+
+  /// Identifier of the other endpoint of the edge.
   final String targetNodeId;
 
   const RemoveLinkAction({
@@ -145,6 +202,7 @@ class RemoveLinkAction extends GameAction {
     required this.targetNodeId,
   });
 
+  /// Whether an equivalent edge exists in either direction.
   @override
   bool isApplicableTo(StructureState state) {
     return state.edges.any(
@@ -172,11 +230,18 @@ class RemoveLinkAction extends GameAction {
   }
 }
 
+/// Removes the value currently assigned to a slot.
+///
+/// The slot becomes empty and its associated node value is returned to the
+/// inventory so that it can be placed again.
 class ClearSlotAction extends GameAction {
+  /// Identifier of the slot to clear.
   final String slotId;
 
   const ClearSlotAction({required this.slotId});
 
+  /// The action is valid when the slot exists, is filled, and references a node
+  /// with a value.
   @override
   bool isApplicableTo(StructureState state) {
     final slot = state.slots[slotId];
